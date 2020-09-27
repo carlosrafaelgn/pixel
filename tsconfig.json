@@ -1,0 +1,43 @@
+{
+	"compilerOptions": {
+		"module": "system",
+		"target": "ES2015",
+		"lib": [ "ES2017", "DOM" ],
+		"sourceMap": false,
+		"outFile": "assets/js/scripts.js",
+		"emitBOM": true,
+		"removeComments": true
+	},
+	"files": [
+		"scripts/lib.ts",
+		"scripts/android.ts",
+		"scripts/ui/strings.ts",
+		"scripts/constants.ts",
+		"scripts/blobDownloader.ts",
+		"scripts/image/point.ts",
+		"scripts/image/polygon.ts",
+		"scripts/image/imageProcessing.ts",
+		"scripts/resource/resource.ts",
+		"scripts/resource/resourceStorage.ts",
+		"scripts/gl/modelCoordinates.ts",
+		"scripts/gl/textureCoordinates.ts",
+		"scripts/gl/texture.ts",
+		"scripts/gl/webGL.ts",
+		"scripts/ui/uiSpriteSheet.ts",
+		"scripts/level/levelObject.ts",
+		"scripts/level/level.ts",
+		"scripts/level/levelCache.ts",
+		"scripts/level/levelSpriteSheet.ts",
+		"scripts/ui/controlMode.ts",
+		"scripts/ui/fullscreen.ts",
+		"scripts/ui/pointerHandler.ts",
+		"scripts/ui/scrollContainer.ts",
+		"scripts/ui/modal.ts",
+		"scripts/view/view.ts",
+		"scripts/view/editorView.ts",
+		"scripts/view/gameView.ts",
+		"scripts/view/selectionView.ts",
+		"scripts/view/titleView.ts",
+		"scripts/main.ts"
+	]
+}

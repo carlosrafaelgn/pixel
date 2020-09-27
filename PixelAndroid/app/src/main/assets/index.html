@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-us">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, minimal-ui, shrink-to-fit=no" />
+
+	<!--<meta property="og:locale" content="en_US" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="https://carlosrafaelgn.github.io/pixel/" />
+	<meta property="og:title" content="Pixel Maze" />
+	<meta property="og:site_name" content="Pixel Maze" />
+	<meta property="og:description" content="Pixel Maze" />
+	<meta property="og:image" content="https://carlosrafaelgn.github.io/pixel/images/screenshot.jpg" />
+	<meta property="og:image:type" content="image/jpeg" />
+	<meta property="og:image:width" content="1280" />
+	<meta property="og:image:height" content="720" />
+	<meta name="author" content="Carlos Rafael Gimenes das Neves" />
+	<meta name="description" content="Pixel Maze" />
+	<meta name="keywords" content="pixel Maze" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<meta name="apple-mobile-web-app-title" content="Pixel Maze" />
+	<link rel="apple-touch-icon" sizes="57x57" href="assets/favicons/apple-icon-57x57.png" />
+	<link rel="apple-touch-icon" sizes="60x60" href="assets/favicons/apple-icon-60x60.png" />
+	<link rel="apple-touch-icon" sizes="72x72" href="assets/favicons/apple-icon-72x72.png" />
+	<link rel="apple-touch-icon" sizes="76x76" href="assets/favicons/apple-icon-76x76.png" />
+	<link rel="apple-touch-icon" sizes="114x114" href="assets/favicons/apple-icon-114x114.png" />
+	<link rel="apple-touch-icon" sizes="120x120" href="assets/favicons/apple-icon-120x120.png" />
+	<link rel="apple-touch-icon" sizes="144x144" href="assets/favicons/apple-icon-144x144.png" />
+	<link rel="apple-touch-icon" sizes="152x152" href="assets/favicons/apple-icon-152x152.png" />
+	<link rel="apple-touch-icon" sizes="180x180" href="assets/favicons/apple-icon-180x180.png" />
+	<link rel="icon" type="image/png" sizes="512x512" href="assets/favicons/favicon-512x512.png" />
+	<link rel="icon" type="image/png" sizes="192x192" href="assets/favicons/favicon-192x192.png" />
+	<link rel="icon" type="image/png" sizes="96x96" href="assets/favicons/favicon-96x96.png" />
+	<link rel="icon" type="image/png" sizes="48x48" href="assets/favicons/favicon-48x48.png" />
+	<link rel="icon" type="image/png" sizes="32x32" href="assets/favicons/favicon-32x32.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="assets/favicons/favicon-16x16.png" />
+	<link rel="Shortcut Icon" href="assets/favicons/favicon.png" />
+	<link rel="manifest" href="assets/favicons/manifest.json" />
+	<meta name="msapplication-config" content="assets/favicons/browserconfig.xml" />-->
+	<meta name="theme-color" content="#9999ff" />
+
+	<title>Pixel Maze</title>
+
+	<style type="text/css">
+		@font-face {
+			font-family: 'Press Start 2P';
+			font-style: normal;
+			font-weight: 400;
+			font-display: swap;
+			src: local('Press Start 2P Regular'),
+				local('PressStart2P-Regular'),
+				url('assets/fonts/PressStart2P-Regular.woff2') format('woff2'),
+				url('assets/fonts/PressStart2P-Regular.ttf') format('truetype');
+		}
+
+		html {
+			height: 100%;
+			min-height: 100%;
+			max-height: 100%;
+			background: #99f; /* Opera for Android in full screen mode?!?! */
+			-webkit-tap-highlight-color: rgba(0,0,0,0);
+		}
+
+		body, button, input, textarea, select, h1, h2, h3, h4, h5, h6 {
+			font-family: 'Press Start 2P', sans-serif;
+			font-style: normal;
+			font-weight: 400;
+			line-height: 1;
+			-webkit-font-smoothing: none;
+			-moz-osx-font-smoothing: auto;
+		}
+
+		body, main, canvas, div, img, span, .base-element, button {
+			image-rendering: pixelated;
+			image-rendering: -moz-crisp-edges;
+			image-rendering: crisp-edges;
+		}
+
+		main, aside, canvas, div, .base-element, button {
+			margin: 0;
+			padding: 0;
+			border: 0;
+		}
+
+		main, canvas, div, .base-element {
+			box-sizing: content-box;
+		}
+
+		body {
+			padding: 0;
+			margin: 0;
+			color: #000;
+			height: 100%;
+			min-height: 100%;
+			max-height: 100%;
+			overflow: hidden;
+			background: #99f;
+		}
+
+		.toolbar {
+			background-color: rgba(253,190,148,0.4);
+		}
+
+		main {
+			position: absolute;
+			z-index: 1;
+			overflow: visible;
+		}
+
+		canvas {
+			width: 100%;
+			cursor: crosshair;
+			touch-action: none;
+		}
+
+		main, aside, .gl {
+			-moz-backface-visibility: hidden;
+			-webkit-backface-visibility: hidden;
+			backface-visibility: hidden;
+		}
+
+		main, button, img, span, .toolbar, .container, .scroll-container, .scroll-thumb, .loading {
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+
+		p {
+			margin: 0;
+			line-height: 1.5;
+		}
+
+		p + p {
+			margin-top: 1em;
+		}
+
+		hr {
+			border-style: solid none none;
+			border-color: white;
+			border-width: 0;
+			margin: 0;
+		}
+
+		.modal-container {
+			z-index: 1000;
+			background: rgba(153,153,255,0.75);
+			overflow: auto;
+		}
+
+		.modal {
+			background: rgba(255,255,255,0.75);
+		}
+
+		.modal-decoration {
+			background: rgba(255,255,255,0.5);
+		}
+
+		.modal-body {
+			text-align: center;
+		}
+
+		button, input, textarea, select {
+			font-size: inherit;
+		}
+
+		button {
+			display: inline-block;
+			cursor: pointer;
+			-ms-touch-action: manipulation;
+			touch-action: manipulation;
+			text-align: center;
+			box-sizing: border-box;
+			vertical-align: top;
+		}
+
+		.modal button {
+			border-style: solid;
+			border-color: #000;
+		}
+
+		button, button:focus, button:hover, button:active {
+			outline: 0 none transparent;
+			background: none;
+		}
+
+		.modal a {
+			color: #04f;
+			text-decoration: none;
+		}
+
+		.modal a, .modal a:focus, .modal a:hover, .modal a:active {
+			outline: 0 none transparent;
+			background: none;
+		}
+
+		.modal a:focus, .modal a:active {
+			color: #008;
+		}
+
+		.modal-decoration button.accept, .modal-decoration button.accept:focus, .modal-decoration button.accept:hover, .modal-decoration button.accept:active {
+			background: rgba(0,136,0,0.2);
+			border-color: #080;
+			color: #080;
+		}
+
+		.modal button.danger, .modal button.danger:focus, .modal button.danger:hover, .modal button.danger:active {
+			background: rgba(255,0,0,0.2);
+			border-color: #f00;
+			color: #f00;
+		}
+
+		img, span {
+			display: inline-block;
+			vertical-align: top;
+			pointer-events: none;
+		}
+
+		.scroll-thumb {
+			pointer-events: auto;
+		}
+
+		label, input {
+			display: block;
+			text-align: left;
+			width: 100%;
+		}
+
+		input {
+			box-sizing: border-box;
+			border-style: solid;
+			border-color: #000;
+			border-radius: 0;
+		}
+
+			input, input:focus, input:hover, input:active {
+				outline: 0 none transparent;
+				background: #fff;
+				box-shadow: none;
+			}
+
+		aside, .gl, .base-element {
+			position: absolute;
+			top: 0;
+			opacity: 0;
+			-webkit-transition: opacity ease-in-out .5s;
+			-o-transition: opacity ease-in-out .5s;
+			transition: opacity ease-in-out .5s;
+		}
+
+		aside {
+			bottom: 0;
+			width: 24px;
+			background-size: 48px 100%;
+			background-repeat: no-repeat;
+			pointer-events: none;
+			background-image: url(assets/images/fade.png);
+		}
+
+		#fadeLeft {
+			left: -24px;
+		}
+
+		#fadeRight {
+			right: -24px;
+			background-position: -24px 0px;
+		}
+
+		.gl {
+			left: 0;
+			/* box-shadow: 0 0 16px rgba(0,0,0,0.5); */
+		}
+
+		.base-element {
+			left: 0;
+			right: 0;
+			bottom: 0;
+		}
+
+		.logo {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			pointer-events: none;
+			background-image: url(assets/images/logo.png);
+		}
+
+		.logo-anim {
+			opacity: 0;
+			transition: opacity linear .3s;
+		}
+
+		.visible {
+			opacity: 1;
+		}
+
+		.loading {
+			position: absolute;
+			z-index: 9999;
+			margin: 0;
+			padding: 0;
+			left: 0;
+			bottom: 0;
+			opacity: 0.75;
+			background: no-repeat center url('assets/images/loading.gif') #fff;
+			pointer-events: none;
+		}
+
+		.hidden-container {
+			z-index: 0;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 0;
+			overflow: hidden;
+		}
+
+		.toolbar {
+			position: absolute;
+			z-index: 2;
+			left: 0;
+			width: 100%;
+		}
+
+		.toolbar-top {
+			top: 0;
+			border-bottom-style: solid;
+			border-bottom-color: #fff;
+			text-align: right;
+		}
+
+		.toolbar-bottom {
+			bottom: 0;
+			border-top-style: solid;
+			border-top-color: #fff;
+		}
+
+		.container {
+			position: absolute;
+			z-index: 1;
+			left: 0;
+			width: 100%;
+			overflow: hidden;
+		}
+
+		/* https://stackoverflow.com/a/49278385/3569421 */
+		.scrollable-container {
+			overflow-y: scroll;
+			scrollbar-width: none; /* Firefox */
+			-ms-overflow-style: none;  /* Internet Explorer 10+ */
+		}
+
+		.scrollable-container::-webkit-scrollbar { /* WebKit */
+			width: 0;
+			height: 0;
+		}
+
+		.scroll-container {
+			position: relative;
+			width: 100%;
+		}
+
+		.scroll-container-editor {
+			background-image: url('assets/images/grid.png');
+			background-repeat: repeat;
+			background-position: 0 0;
+		}
+
+		.scroll-thumb {
+			position: absolute;
+			z-index: 2;
+			right: 0;
+			top: 0;
+			cursor: ns-resize;
+			touch-action: none;
+		}
+
+		.pointer-cursor {
+			position: absolute;
+			z-index: 4;
+			border-radius: 999px;
+			border-style: solid;
+			border-color: #fff;
+			pointer-events: none;
+		}
+
+		.thumbnail {
+			display: inline-block;
+			position: relative;
+			border-style: solid;
+			border-color: #fff;
+			cursor: pointer;
+			text-align: center;
+			vertical-align: top;
+		}
+
+		.thumbnail-text {
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			pointer-events: none;
+		}
+
+		.thumbnail-preview {
+			position: relative;
+		}
+
+		.thumbnail-preview > .menu {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+			border-style: solid none none solid;
+			border-color: #fff;
+			background-color: rgba(255,255,255,0.75);
+		}
+
+		.thumbnail-record {
+			border-top-style: solid;
+			border-top-color: #fff;
+			pointer-events: none;
+		}
+	</style>
+</head>
+<body>
+	<main id="main"><aside id="fadeLeft"></aside><aside id="fadeRight"></aside><canvas id="glCanvas" class="gl"></canvas></main>
+
+	<!--
+		Unfortunately, as of September 2020, emscripten does not automaticaly loads
+		the pure JS version of the compiled code, even when specifying the flag WASM=2
+
+		Tested using the following command line:
+		chrome --disable-features="WebAssembly,AsmJsToWebAssembly,WebAssemblyStreaming" --js-flags="--noexpose-wasm"
+
+		https://github.com/emscripten-core/emscripten/blob/master/src/settings.js
+		https://github.com/emscripten-core/emscripten/pull/10118
+		https://github.com/emscripten-core/emscripten/issues/11357
+	-->
+	<script type="text/javascript">
+		//<![CDATA[
+		"use strict";
+
+		(function () {
+			var script = document.createElement("script"), pixelUsingWebAssembly = ("WebAssembly" in window);
+			script.setAttribute("type", "text/javascript");
+			script.setAttribute("charset", "utf-8");
+			window["pixelUsingWebAssembly"] = pixelUsingWebAssembly;
+			script.setAttribute("src", pixelUsingWebAssembly ? "assets/js/lib.js": "assets/js/lib-nowasm.js");
+			script.onload = function () {
+				var script = document.createElement("script");
+				script.setAttribute("type", "text/javascript");
+				script.setAttribute("charset", "utf-8");
+				// All TS files are being concatenated into a single file according to the
+				// order specified in the files array, inside tsconfig.json
+				script.setAttribute("src", "assets/js/scripts.min.js");
+				document.body.appendChild(script);
+			};
+			document.body.appendChild(script);
+		})();
+
+		//]]>
+	</script>
+</body>
+</html>
