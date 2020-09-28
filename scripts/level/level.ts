@@ -99,8 +99,11 @@ class Level implements LevelFullInfo {
 			if ((typeof level) === "string")
 				level = JSON.parse(level);
 			if (level) {
-				for (let p in newLevel)
+				for (let p in newLevel) {
+					if ((typeof newLevel[p]) === "function")
+						continue;
 					newLevel[p] = level[p];
+				}
 			}
 		}
 		newLevel.levelPtr = 0;

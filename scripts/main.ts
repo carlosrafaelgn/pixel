@@ -114,6 +114,8 @@ function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback:
 function zeroObject(o: any): void {
 	for (let p in o) {
 		switch (typeof o[p]) {
+			case "function":
+				break;
 			case "boolean":
 				o[p] = false;
 				break;
