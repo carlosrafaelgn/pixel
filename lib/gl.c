@@ -48,10 +48,11 @@ typedef struct GLTextureCoordinatesStruct {
 
 // Must be in sync with scripts/level/levelSpriteSheet.ts and scripts/gl/webGL.ts
 typedef struct LevelSpriteSheetStruct {
-	// Total count: 66
+	// Total count: 67
 	const GLModelCoordinates levelModelCoordinates;
 
 	const GLTextureCoordinates fullTextureCoordinates;
+	const GLTextureCoordinates framebufferTextureCoordinates;
 
 	const GLModelCoordinates backgroundModelCoordinates[BackgroundCount];
 	const GLTextureCoordinates backgroundTextureCoordinates[8];

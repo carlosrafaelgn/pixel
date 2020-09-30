@@ -108,39 +108,43 @@ const fullscreenControl = (function (): FullscreenControl {
 	];
 
 	const vendor = (
-		("fullscreenEnabled" in document && Object.keys(key)) ||
-		(webkit[0] in document && webkit) ||
-		(moz[0] in document && moz) ||
-		(ms[0] in document && ms) ||
-		[]
+		(("fullscreenEnabled" in document) && Object.keys(key)) ||
+		((webkit[0] in document) && webkit) ||
+		((moz[0] in document) && moz) ||
+		((ms[0] in document) && ms) ||
+		null
 	);
 
-	const boundExitFullscreen: () => void = document[vendor[key.exitFullscreen]].bind(document);
+	const boundExitFullscreen: () => void = (vendor ? document[vendor[key.exitFullscreen]].bind(document) : null);
 
 	return {
 		requestFullscreen(element?: HTMLElement): void {
-			(element || document.body)[vendor[key.requestFullscreen]]();
+			if (vendor)
+				(element || document.body)[vendor[key.requestFullscreen]]();
 		},
 		exitFullscreen(): void {
-			boundExitFullscreen();
+			if (boundExitFullscreen)
+				boundExitFullscreen();
 		},
 		toggleFullscreen(): void {
 			this.fullscreenMode = !this.fullscreenMode;
 		},
 		get fullscreenPseudoClass(): string {
-			return ":" + vendor[key.fullscreen];
+			return (vendor ? (":" + vendor[key.fullscreen]) : "");
 		},
 		addEventListener(type: string, handler: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void {
-			document.addEventListener(vendor[key[type]], handler, options);
+			if (vendor)
+				document.addEventListener(vendor[key[type]], handler, options);
 		},
 		removeEventListener(type: string, handler: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void {
-			document.removeEventListener(vendor[key[type]], handler, options);
+			if (vendor)
+				document.removeEventListener(vendor[key[type]], handler, options);
 		},
 		get fullscreenEnabled(): boolean {
 			return !!document[vendor[key.fullscreenEnabled]];
 		},
 		get fullscreenMode(): boolean {
-			return !!document[vendor[key.fullscreenElement]];
+			return (!!vendor && !!document[vendor[key.fullscreenElement]]);
 		},
 		set fullscreenMode(fullscreen: boolean) {
 			if (fullscreen)
@@ -149,19 +153,21 @@ const fullscreenControl = (function (): FullscreenControl {
 				this.exitFullscreen();
 		},
 		get fullscreenElement(): HTMLElement {
-			return document[vendor[key.fullscreenElement]] as HTMLElement;
+			return (vendor ? document[vendor[key.fullscreenElement]] as HTMLElement : null);
 		},
 		get onfullscreenchange(): EventListener {
-			return document[`on${vendor[key.fullscreenchange]}`.toLowerCase()] as EventListener;
+			return (vendor ? document[`on${vendor[key.fullscreenchange]}`.toLowerCase()] as EventListener : null);
 		},
 		set onfullscreenchange(handler: EventListener) {
-			document[`on${vendor[key.fullscreenchange]}`.toLowerCase()] = handler;
+			if (vendor)
+				document[`on${vendor[key.fullscreenchange]}`.toLowerCase()] = handler;
 		},
 		get onfullscreenerror(): EventListener {
-			return document[`on${vendor[key.fullscreenerror]}`.toLowerCase()] as EventListener;
+			return (vendor ? document[`on${vendor[key.fullscreenerror]}`.toLowerCase()] as EventListener : null);
 		},
 		set onfullscreenerror(handler: EventListener) {
-			document[`on${vendor[key.fullscreenerror]}`.toLowerCase()] = handler;
+			if (vendor)
+				document[`on${vendor[key.fullscreenerror]}`.toLowerCase()] = handler;
 		}
 	} as FullscreenControl;
 })();

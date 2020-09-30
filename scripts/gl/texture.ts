@@ -29,22 +29,16 @@
 class Texture extends Resource {
 	private gl: WebGL = null;
 
-	private _mirrored: boolean = false;
 	private _width: number = 0;
 	private _height: number = 0;
 	private _image: HTMLImageElement = null;
 	private _texture: WebGLTexture = null;
 
-	public constructor(gl: WebGL, image: HTMLImageElement, mirrored = false, width = 0, height = 0) {
+	public constructor(gl: WebGL, image: HTMLImageElement, width = 0, height = 0) {
 		super();
 
-		this._mirrored = mirrored;
 		this.gl = gl;
 		this.bindImage(image, width, height);
-	}
-
-	public get mirrored(): boolean {
-		return this._mirrored;
 	}
 
 	public get width(): number {
@@ -123,13 +117,12 @@ class Texture extends Resource {
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-		if (this._mirrored) {
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
-		} else {
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-		}
+		// https://www.khronos.org/webgl/wiki/WebGL_and_OpenGL_Differences#Non-Power_of_Two_Texture_Support
+		// Sampling an NPOT texture in a shader will produce the RGBA color (0, 0, 0, 1) if:
+		// The minification filter is set to anything but NEAREST or LINEAR: in other words, if it uses one of the mipmapped filters.
+		// The repeat mode is set to anything but CLAMP_TO_EDGE; repeating NPOT textures are not supported.
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 		this.gl.throwIfError();
 

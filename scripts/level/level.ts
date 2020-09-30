@@ -317,8 +317,6 @@ class Level implements LevelFullInfo {
 		this.levelPtr = levelPtr;
 
 		cLib.stackRestore(lastStack);
-
-		//console.log(`${lastStack} / ${levelPtr} / ${cLib._getFragmentY(levelPtr)}`);
 	}
 
 	public destroyLevelPtr(): void {

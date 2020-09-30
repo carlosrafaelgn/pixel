@@ -59,7 +59,7 @@ abstract class View {
 
 		gl.useFramebuffer(false);
 
-		gl.draw(gl.framebufferTexture, LevelSpriteSheet.FullViewModelCoordinates, 1, LevelSpriteSheet.FullTextureCoordinates, 0, 0);
+		gl.draw(gl.framebufferTexture, LevelSpriteSheet.FullViewModelCoordinates, 1, LevelSpriteSheet.FramebufferTextureCoordinates, 0, 0);
 
 		gl.flush();
 

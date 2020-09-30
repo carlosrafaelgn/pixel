@@ -74,7 +74,8 @@ void main() {
 		mod(aAlphaTextureCoordinates * 0.5, 256.0)
 	)) * 0.0078125;
 }`;
-	private static readonly VertexShaderSource = `precision highp float;
+	private static readonly VertexShaderSource = `#version 100
+precision highp float;
 attribute vec2 aPosition;
 attribute float aAlphaTextureCoordinates;
 varying lowp float vAlpha;
@@ -104,7 +105,8 @@ uniform sampler2D uTexture;
 void main() {
 	color = texture(uTexture, vTextureCoordinates) * vAlpha;
 }`;
-	private static readonly FragmentShaderSource = `precision lowp float;
+	private static readonly FragmentShaderSource = `#version 100
+precision lowp float;
 varying float vAlpha;
 varying vec2 vTextureCoordinates;
 uniform sampler2D uTexture;
@@ -114,6 +116,8 @@ void main() {
 
 	private viewWidth = 0;
 	private viewHeight = 0;
+	private framebufferTextureViewWidth = 0;
+	private framebufferTextureViewHeight = 0;
 
 	private program: WebGLProgram = null;
 	private vertexShader: WebGLShader = null;
@@ -159,7 +163,18 @@ void main() {
 		return (!this.context || this.context.isContextLost() || canvas.width !== this.viewWidth || canvas.height !== this.viewHeight);
 	}
 
-	public recreate(canvas: HTMLCanvasElement, framebufferWidth: number, framebufferHeight: number): void {
+	private static nextPowerOfTwo(x: number): number {
+		if (!(x & (x - 1)))
+			return x;
+		x |= (x >>> 1);
+		x |= (x >>> 2);
+		x |= (x >>> 4);
+		x |= (x >>> 8);
+		x |= (x >>> 16);
+		return (x + 1);
+	}
+
+	public recreate(canvas: HTMLCanvasElement, desiredFramebufferWidth: number, desiredFramebufferHeight: number): void {
 		const width = canvas.width;
 		const height = canvas.height;
 
@@ -257,7 +272,21 @@ void main() {
 
 		this.allocateRectangleBuffers();
 
-		this.framebufferTexture = new Texture(this, null, true, framebufferWidth, framebufferHeight);
+		// A few WebGL 1 devices apparently don't like NPOT framebuffers
+		const powerOfTwoWidth = WebGL.nextPowerOfTwo(desiredFramebufferWidth),
+			powerOfTwoHeight = WebGL.nextPowerOfTwo(desiredFramebufferHeight),
+			// The vertex shaders consider LevelSpriteSheet.TextureWidth and
+			// LevelSpriteSheet.TextureHeight as the maximum values...
+			// Use Math.ceil() to round up forcibly
+			framebufferTextureWidth = Math.ceil((desiredFramebufferWidth * LevelSpriteSheet.TextureWidth) / powerOfTwoWidth),
+			framebufferTextureHeight = Math.ceil((desiredFramebufferHeight * LevelSpriteSheet.TextureHeight) / powerOfTwoHeight);
+
+		// Use | 0 to truncate (round down forcibly)
+		this.framebufferTextureViewWidth = ((framebufferTextureWidth * powerOfTwoWidth) / LevelSpriteSheet.TextureWidth) | 0;
+		this.framebufferTextureViewHeight = ((framebufferTextureHeight * powerOfTwoHeight) / LevelSpriteSheet.TextureHeight) | 0;
+
+		this.framebufferTexture = new Texture(this, null, powerOfTwoWidth, powerOfTwoHeight);
+		LevelSpriteSheet.FramebufferTextureCoordinates.setCoordinates(0, 0, framebufferTextureWidth, framebufferTextureHeight);
 
 		this.throwIfError();
 
@@ -415,9 +444,8 @@ void main() {
 
 		if (use) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-			const framebufferTexture = this.framebufferTexture;
-			width = framebufferTexture.width;
-			height = framebufferTexture.height;
+			width = this.framebufferTextureViewWidth;
+			height = this.framebufferTextureViewHeight;
 		} else {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			width = this.viewWidth;

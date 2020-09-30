@@ -42,6 +42,7 @@ class LevelSpriteSheet {
 	public static readonly BackgroundScaleRightShift = 1;
 	public static LevelModelCoordinates: ModelCoordinates = null;
 	public static FullTextureCoordinates: TextureCoordinates = null;
+	public static FramebufferTextureCoordinates: TextureCoordinates = null;
 	private static readonly BackgroundModelCoordinates: ModelCoordinates[] = new Array(LevelSpriteSheet.BackgroundCount);
 	private static readonly BackgroundTextureCoordinates: TextureCoordinates[] = new Array(8);
 	private static LevelObjectModelCoordinates: ModelCoordinates = null;
@@ -76,6 +77,9 @@ class LevelSpriteSheet {
 		ptr += ptrInc;
 
 		LevelSpriteSheet.FullTextureCoordinates = new TextureCoordinates(ptr);
+		ptr += ptrInc;
+
+		LevelSpriteSheet.FramebufferTextureCoordinates = new TextureCoordinates(ptr);
 		ptr += ptrInc;
 
 		for (let i = 0; i < LevelSpriteSheet.BackgroundModelCoordinates.length; i++) {

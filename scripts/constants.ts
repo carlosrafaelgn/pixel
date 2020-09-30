@@ -26,8 +26,26 @@
 
 "use strict";
 
+function detectIOSOrSafari(): boolean {
+	// https://stackoverflow.com/q/9038625/3569421
+	if ((navigator.userAgent.indexOf("Chrome") <= 0 && navigator.userAgent.indexOf("Safari") >= 0) ||
+		(navigator.userAgent.indexOf("Mac") >= 0 && ("ontouchend" in document)))
+		return true;
+	switch (navigator.platform) {
+		case "iPad Simulator":
+		case "iPhone Simulator":
+		case "iPod Simulator":
+		case "iPad":
+		case "iPhone":
+		case "iPod":
+			return true;
+	}
+	return false;
+}
+
 const language = (androidWrapper ? androidWrapper.getBrowserLanguage() : (navigator["userLanguage"] as string || navigator.language)),
 	isPWA = (window.location.href.indexOf("pwa") >= 0),
+	isIOSOrSafari = detectIOSOrSafari(),
 	main = document.getElementById("main") as HTMLDivElement,
 	// Must be in sync with lib/shared.h
 	baseWidth = 420,

@@ -133,9 +133,29 @@ function zeroObject(o: any): void {
 }
 
 function adjustWindowSize(): void {
-	const widthCss = window.innerWidth,
-		widthPx = widthCss * pixelRatio,
-		heightCss = window.innerHeight,
+	let widthCss = window.innerWidth,
+		heightCss = window.innerHeight;
+
+	if (document.documentElement && ("clientWidth" in document.documentElement)) {
+		widthCss = document.documentElement.clientWidth;
+		heightCss = document.documentElement.clientHeight;
+	}
+
+	if (isIOSOrSafari) {
+		let bodyRect: DOMRect = null;
+
+		if (document.documentElement && ("getBoundingClientRect" in document.documentElement))
+			bodyRect = document.documentElement.getBoundingClientRect();
+		else if (("getBoundingClientRect" in document.body))
+			bodyRect = document.body.getBoundingClientRect();
+
+		if (bodyRect) {
+			widthCss = bodyRect.right - bodyRect.left;
+			heightCss = bodyRect.bottom - bodyRect.top;
+		}
+	}
+
+	const widthPx = widthCss * pixelRatio,
 		heightPx = heightCss * pixelRatio,
 		lastScaleFactor = scaleFactor,
 		lastBaseHeight = baseHeight;

@@ -68,7 +68,7 @@ class PointerHandler {
 			element.onpointerdown = this.pointerDown.bind(this);
 		} else if ("ontouchstart" in element) {
 			this.documentMoveEvent = "touchmove";
-			this.documentUpEvent = "touchup";
+			this.documentUpEvent = "touchend";
 			this.documentCancelEvent = "touchcancel";
 
 			this.boundDocumentUp = this.touchEnd.bind(this);
@@ -170,10 +170,10 @@ class PointerHandler {
 
 		this.captured = true;
 
-		document.addEventListener(this.documentMoveEvent, this.boundDocumentMove, true);
-		document.addEventListener(this.documentUpEvent, this.boundDocumentUp, true);
+		document.body.addEventListener(this.documentMoveEvent, this.boundDocumentMove, true);
+		document.body.addEventListener(this.documentUpEvent, this.boundDocumentUp, true);
 		if (this.documentCancelEvent)
-			document.addEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
+			document.body.addEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
 
 		return cancelEvent(e);
 	}
@@ -192,10 +192,10 @@ class PointerHandler {
 		if (!this.captured)
 			return;
 
-		document.removeEventListener(this.documentUpEvent, this.boundDocumentUp, true);
-		document.removeEventListener(this.documentMoveEvent, this.boundDocumentMove, true);
+		document.body.removeEventListener(this.documentUpEvent, this.boundDocumentUp, true);
+		document.body.removeEventListener(this.documentMoveEvent, this.boundDocumentMove, true);
 		if (this.documentCancelEvent)
-			document.removeEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
+			document.body.removeEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
 
 		this.captured = false;
 

@@ -140,7 +140,7 @@ class Strings {
 			Strings.About2 = " e WebGL2";
 			Strings.About3 = " em prática";
 			Strings.About4 = ", apesar de WebAssembly não ser suportado por seu navegador";
-			Strings.About5 = ", decidi coninuar o jogo que eu criei para ele em 2019! Pepinos devem ser coletados em alguns níveis porque ele adora um certo pepino de um desenho famoso! A propósito, ele criou a Fase 1 sozinho ";
+			Strings.About5 = ", decidi continuar o jogo que eu criei para ele em 2019! Pepinos devem ser coletados em alguns níveis porque ele adora um certo pepino de um desenho famoso! A propósito, ele criou a Fase 1 sozinho ";
 			Strings.About6 = '<p>Você também pode <a href="https://play.google.com/store/apps/details?id=br.com.carlosrafaelgn.pixel" target="_blank">instalar uma versão para Android</a> (apenas para manter a tela ligada mesmo sem que ela seja tocada).</p>';
 			Strings.About7 = '<p>O código-fonte do jogo pode ser encontrado no <a href="https://github.com/carlosrafaelgn/pixel" target="_blank">GitHub</a> e é licenciado sob a <a href="https://github.com/carlosrafaelgn/pixel/blob/master/LICENSE" target="_blank">MIT License</a>. O jogo usa o motor de física <a href="https://github.com/slembcke/Chipmunk2D" target="_blank">Chipmunk2D</a>, licenciado sob a <a href="https://github.com/slembcke/Chipmunk2D/blob/master/LICENSE.txt" target="_blank">MIT License</a>, e também usa a fonte <a href="https://github.com/google/fonts/tree/master/ofl/pressstart2p" target="_blank">Press Start 2P</a>, licenciada sob a <a href="https://github.com/google/fonts/blob/master/ofl/pressstart2p/OFL.txt" target="_blank">SIL Open Font License</a>.</p>';
 			Strings.LevelDeleted = "Fase excluída! ";

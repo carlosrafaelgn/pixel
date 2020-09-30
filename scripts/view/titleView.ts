@@ -38,7 +38,7 @@ class TitleView extends View {
 		super();
 
 		this.baseElement.innerHTML = `
-		<div id="pixel" style="position: absolute;">
+		<div id="pixel" class="logo-container">
 			<div id="pixel0" class="logo"></div>
 			<div id="pixel1" class="logo logo-anim"></div>
 			<div id="pixel2" class="logo logo-anim"></div>
@@ -49,7 +49,7 @@ class TitleView extends View {
 			<div id="pixel7" class="logo logo-anim"></div>
 			<div id="pixel8" class="logo logo-anim"></div>
 		</div>
-		<div id="buttonContainer" style="position: absolute;">
+		<div id="buttonContainer" class="logo-container">
 		`;
 
 		this.pixel = this.baseElement.querySelector("#pixel") as HTMLDivElement;
@@ -68,7 +68,7 @@ class TitleView extends View {
 			logoBackgroundSizeCss = logoWidthCss + " " + css(288);
 
 		this.pixel.style.left = css((baseWidth - 150) >> 1);
-		this.pixel.style.top = buttonLargeMarginCss;
+		this.pixel.style.top = css(buttonLargeMargin << 1);
 		this.pixel.style.width = logoWidthCss;
 		this.pixel.style.height = css(30);
 
