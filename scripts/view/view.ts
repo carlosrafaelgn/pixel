@@ -41,15 +41,14 @@ abstract class View {
 	protected static gl: WebGL = null;
 	protected static sheetTexture: Texture = null;
 	private static backgroundFrameRequest = 0;
+	private static recreateResourcesTimeout = 0;
 
 	protected static drawBackground(time: number, levelPtr: number, animate: boolean): boolean {
 		const gl = View.gl;
 
-		gl.useFramebuffer(true);
-
-		if (!gl.clearAndCheckForLostContext()) {
-			gl.useFramebuffer(false);
-			setTimeout(View.recreateResources, 500);
+		if (!gl.checkForLostContextUseFrameBufferAndClear()) {
+			if (!View.recreateResourcesTimeout)
+				View.recreateResourcesTimeout = setTimeout(View.recreateResourcesFromTimeout, 500);
 			return false;
 		}
 
@@ -66,7 +65,20 @@ abstract class View {
 		return true;
 	}
 
+	private static recreateResourcesFromTimeout(): void {
+		if (!View.recreateResourcesTimeout)
+			return;
+
+		View.recreateResourcesTimeout = 0;
+		View.recreateResources();
+	}
+
 	private static recreateResources(): void {
+		if (View.recreateResourcesTimeout) {
+			clearTimeout(View.recreateResourcesTimeout);
+			View.recreateResourcesTimeout = 0;
+		}
+
 		const currentView = View.currentView,
 			viewUsesGL = (currentView && currentView.usesGL);
 
@@ -75,14 +87,20 @@ abstract class View {
 
 		View.sheetTexture.release();
 
-		View.gl.recreate(View.glCanvas, baseWidth >> LevelSpriteSheet.BackgroundScaleRightShift, baseHeight >> LevelSpriteSheet.BackgroundScaleRightShift);
-		View.gl.clearColor(1, 1, 1, 1);
-
-		View.sheetTexture.load();
-
 		if (View.backgroundFrameRequest) {
 			cancelAnimationFrame(View.backgroundFrameRequest);
 			View.backgroundFrameRequest = 0;
+		}
+
+		try {
+			View.gl.recreate(View.glCanvas, baseWidth >> LevelSpriteSheet.BackgroundScaleRightShift, baseHeight >> LevelSpriteSheet.BackgroundScaleRightShift);
+
+			View.gl.clearColor(1, 1, 1, 1);
+
+			View.sheetTexture.load();
+		} catch (ex) {
+			View.recreateResourcesTimeout = setTimeout(View.recreateResourcesFromTimeout, 500);
+			throw ex;
 		}
 
 		if (viewUsesGL)

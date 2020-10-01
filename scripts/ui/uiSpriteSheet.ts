@@ -68,6 +68,8 @@ class UISpriteSheet {
 	public static readonly Error = 0x06010101;
 	public static readonly Trophy = 0x06020101;
 	public static readonly Clock = 0x06030101;
+	public static readonly DeviceHI = 0x06040101;
+	public static readonly DeviceVI = 0x06050101;
 
 	public static resize(element: HTMLSpanElement): void {
 		const id = parseInt(element.getAttribute(UISpriteSheet.SheetId)),

@@ -180,22 +180,45 @@ void main() {
 
 		this.destroy(true);
 
-		try {
-			this.context = canvas.getContext("webgl2", {
-				alpha: false,
-				depth: false,
-				stencil: false,
-				antialias: false,
-				premultipliedAlpha: true
-			}) as WebGLRenderingContext;
+		// For some reason, canvas.getContext("webgl2") returns null for the
+		// first time we get here in iOS, but from the moment the context is
+		// lost, every time canvas.getContext("webgl2") is called a context is
+		// returned (but the shader compilation fails)! Therefore, we are better
+		// off just bypassing it...
+		if (!isIOSOrSafari && (typeof WebGL2RenderingContext) !== "undefined") {
+			try {
+				this.context = canvas.getContext("webgl2", {
+					alpha: false,
+					depth: false,
+					stencil: false,
+					antialias: false,
+					premultipliedAlpha: true
+				}) as WebGLRenderingContext;
 
-			this.contextVersion = 2;
-		} catch (ex) {
-			// Just ignore...
+				this.contextVersion = 2;
+			} catch (ex) {
+				// Just ignore...
+			}
 		}
 
 		if (!this.context) {
-			this.context = canvas.getContext("webgl", {
+			try {
+				this.context = canvas.getContext("webgl", {
+					alpha: false,
+					depth: false,
+					stencil: false,
+					antialias: false,
+					premultipliedAlpha: true
+				}) as WebGLRenderingContext;
+
+				this.contextVersion = 1;
+			} catch (ex) {
+				// Just ignore...
+			}
+		}
+
+		if (!this.context) {
+			this.context = canvas.getContext("experimental-webgl", {
 				alpha: false,
 				depth: false,
 				stencil: false,
@@ -205,6 +228,9 @@ void main() {
 
 			this.contextVersion = 1;
 		}
+
+		if (!this.context)
+			throw new Error("WebGL apparently not supported");
 
 		const gl = this.context;
 
@@ -311,7 +337,6 @@ void main() {
 
 	public destroy(partial: boolean): void {
 		const gl = this.context,
-			rectangleCount = this.rectangleCount,
 			verticesPtr = this.verticesPtr,
 			vertices = this.vertices;
 
@@ -337,7 +362,6 @@ void main() {
 		zeroObject(this);
 
 		if (partial) {
-			this.rectangleCount = rectangleCount;
 			this.verticesPtr = verticesPtr;
 			this.vertices = vertices;
 		} else if (verticesPtr) {
@@ -369,17 +393,29 @@ void main() {
 		gl.clearColor(red, green, blue, alpha);
 	}
 
-	public clearAndCheckForLostContext(): boolean {
+	public checkForLostContextUseFrameBufferAndClear(): boolean {
 		// https://www.khronos.org/webgl/wiki/HandlingContextLost
 
 		const gl = this.context;
 
-		if (gl.isContextLost())
+		if (!gl)
 			return false;
+
+		if (gl.isContextLost()) {
+			this.destroy(true);
+			return false;
+		}
+
+		this.useFramebuffer(true);
 
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
-		return ((gl.getError() === gl.CONTEXT_LOST_WEBGL) ? false : true);
+		if (gl.getError() === gl.CONTEXT_LOST_WEBGL) {
+			this.destroy(true);
+			return false;
+		}
+
+		return true;
 	}
 
 	public setSumComposition(): void {

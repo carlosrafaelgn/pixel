@@ -32,18 +32,23 @@ class ControlMode {
 	public static readonly ImagesByMode = [
 		UISpriteSheet.Hand,
 		UISpriteSheet.DeviceH,
-		UISpriteSheet.DeviceV
+		UISpriteSheet.DeviceV,
+		UISpriteSheet.DeviceHI,
+		UISpriteSheet.DeviceVI
 	];
 
 	// Must be in sync with lib/shared.h
 	public static readonly Pointer = 0;
 	public static readonly AccelerometerH = 1;
 	public static readonly AccelerometerV = 2;
+	public static readonly AccelerometerHI = 3;
+	public static readonly AccelerometerVI = 4;
 
 	private static _mode = 0;
 	private static _accelerationSupported = false;
 	private static skipAndroid = false;
 	private static invertXY = false;
+	private static invertSign = false;
 	
 	public static accelerationX = 0;
 	public static accelerationY = 0;
@@ -62,7 +67,7 @@ class ControlMode {
 
 	public static toggleMode(): void {
 		let mode = ControlMode._mode + 1;
-		if (mode > ControlMode.AccelerometerV || !ControlMode._accelerationSupported)
+		if (mode > ControlMode.AccelerometerVI || !ControlMode._accelerationSupported)
 			mode = ControlMode.Pointer;
 		ControlMode._mode = mode;
 		localStorage.setItem(ControlMode.ControlModeName, mode.toString());
@@ -75,7 +80,7 @@ class ControlMode {
 			ControlMode._mode = ControlMode.Pointer;
 		} else {
 			const mode = parseInt(localStorage.getItem(ControlMode.ControlModeName));
-			ControlMode._mode = ((isNaN(mode) || mode < ControlMode.Pointer || mode > ControlMode.AccelerometerV) ? ControlMode.Pointer : mode);
+			ControlMode._mode = ((isNaN(mode) || mode < ControlMode.Pointer || mode > ControlMode.AccelerometerVI) ? ControlMode.Pointer : mode);
 		}
 		ControlMode.prepare();
 	}
@@ -89,7 +94,8 @@ class ControlMode {
 		// https://developer.mozilla.org/en-US/docs/Web/API/Window/deviceorientation_event
 
 		window.removeEventListener("devicemotion", ControlMode.deviceMotion);
-		ControlMode.invertXY = (ControlMode._mode === ControlMode.AccelerometerV);
+		ControlMode.invertXY = (ControlMode._mode === ControlMode.AccelerometerV || ControlMode._mode === ControlMode.AccelerometerVI);
+		ControlMode.invertSign = (ControlMode._mode === ControlMode.AccelerometerHI || ControlMode._mode === ControlMode.AccelerometerVI);
 		if (ControlMode._mode !== ControlMode.Pointer)
 			window.addEventListener("devicemotion", ControlMode.deviceMotion);
 	}
@@ -109,6 +115,10 @@ class ControlMode {
 		} else {
 			x = -androidWrapper.getX();
 			y = androidWrapper.getY();
+		}
+		if (ControlMode.invertSign) {
+			x = -x;
+			y = -y;
 		}
 		if (x > -0.3 && x < 0.3)
 			x = 0;
@@ -130,6 +140,10 @@ class ControlMode {
 		} else {
 			x = -acc.x;
 			y = acc.y;
+		}
+		if (ControlMode.invertSign) {
+			x = -x;
+			y = -y;
 		}
 		if (x > -0.3 && x < 0.3)
 			x = 0;

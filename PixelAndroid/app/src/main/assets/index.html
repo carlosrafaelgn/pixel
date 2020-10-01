@@ -419,8 +419,12 @@
 		//<![CDATA[
 		"use strict";
 
+		var errorAlerted = false;
 		window.onerror = function (msg, url, line, col, error) {
-			alert(msg + "\n@ " + line + ":" + col + "\n" + error + "\n" + url);
+			if (errorAlerted)
+				return;
+			errorAlerted = true;
+			alert(msg + " @ " + line + ":" + col + " " + url);
 		};
 
 		(function () {
