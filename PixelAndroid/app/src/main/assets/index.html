@@ -76,6 +76,13 @@
 			overflow: visible;
 		}
 
+		main, .modal-container {
+			opacity: 0;
+			-webkit-transition: opacity ease-in-out .5s;
+			-o-transition: opacity ease-in-out .5s;
+			transition: opacity ease-in-out .5s;
+		}
+
 		canvas {
 			width: 100%;
 			cursor: crosshair;
@@ -215,10 +222,6 @@
 		aside, .gl, .base-element {
 			position: absolute;
 			top: 0;
-			opacity: 0;
-			-webkit-transition: opacity ease-in-out .5s;
-			-o-transition: opacity ease-in-out .5s;
-			transition: opacity ease-in-out .5s;
 		}
 
 		aside {
@@ -250,17 +253,8 @@
 			bottom: 0;
 		}
 
-		.logo-container {
-			position: absolute;
-			overflow: hidden;
-		}
-
 		.logo {
 			position: absolute;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
 			pointer-events: none;
 			background-image: url(assets/images/logo.png);
 		}
@@ -341,7 +335,6 @@
 		}
 
 		.scroll-container-editor {
-			background-image: url('assets/images/grid.png');
 			background-repeat: repeat;
 			background-position: 0 0;
 		}

@@ -158,6 +158,7 @@ class EditorView extends View {
 
 		this.canvas.style.height = maxHeightCss;
 
+		this.scrollContainer.containerElement.style.backgroundImage = `url('assets/images/grid${(scaleFactor <= 5) ? scaleFactor : 1}.png')`;
 		this.scrollContainer.containerElement.style.backgroundSize = canvasBackgroundSize + " " + canvasBackgroundSize;
 		this.scrollContainer.resize(toolbarTotalHeight, baseHeight - (toolbarTotalHeight << 1));
 

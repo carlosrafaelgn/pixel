@@ -359,10 +359,7 @@ abstract class View {
 			else
 				View.backgroundFrameRequest = requestAnimationFrame(View.renderBackground);
 
-			View.fadeLeft.className = "visible";
-			View.fadeRight.className = "visible";
-			View.glCanvas.className = "gl visible";
-			this.baseElement.className = "base-element visible";
+			main.className = "visible";
 
 			setTimeout(() => {
 				View._fading = false;
@@ -413,10 +410,7 @@ abstract class View {
 		}
 
 		return new Promise((resolve, reject) => {
-			View.fadeLeft.className = "";
-			View.fadeRight.className = "";
-			View.glCanvas.className = "gl";
-			this.baseElement.className = "base-element";
+			main.className = "";
 
 			setTimeout(() => {
 				this.destroy(saveViewInStack);
