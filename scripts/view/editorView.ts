@@ -92,6 +92,7 @@ class EditorView extends View {
 		this.toolbarTop = this.baseElement.querySelector("#toolbarTop") as HTMLDivElement;
 		this.toolbarBottom = this.baseElement.querySelector("#toolbarBottom") as HTMLDivElement;
 		this.scrollContainer = new ScrollContainer(null, true, "scroll-container-editor", this.baseElement.querySelector("#container") as HTMLDivElement);
+		this.setGridBackground();
 		this.canvas = document.createElement("canvas") as HTMLCanvasElement;
 		this.canvas.width = baseWidth;
 		this.canvas.height = maxHeight;
@@ -141,6 +142,10 @@ class EditorView extends View {
 		this.selectionView = !!selectionView;
 	}
 
+	private setGridBackground(): void {
+		this.scrollContainer.containerElement.style.backgroundImage = `url('assets/images/grid${(scaleFactor <= 5) ? scaleFactor : 1}.png')`;
+	}
+
 	protected get pausedBackground(): boolean {
 		return true;
 	}
@@ -158,7 +163,7 @@ class EditorView extends View {
 
 		this.canvas.style.height = maxHeightCss;
 
-		this.scrollContainer.containerElement.style.backgroundImage = `url('assets/images/grid${(scaleFactor <= 5) ? scaleFactor : 1}.png')`;
+		this.setGridBackground();
 		this.scrollContainer.containerElement.style.backgroundSize = canvasBackgroundSize + " " + canvasBackgroundSize;
 		this.scrollContainer.resize(toolbarTotalHeight, baseHeight - (toolbarTotalHeight << 1));
 
