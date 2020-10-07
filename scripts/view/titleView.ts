@@ -53,8 +53,10 @@ class TitleView extends View {
 
 		this.createButton(this.buttonContainer, UISpriteSheet.Play, this.play.bind(this));
 		this.buttonsWithLargeMargin.push(this.createButton(this.buttonContainer, UISpriteSheet.Edit, this.edit.bind(this)));
-		this.fullscreenButton = this.createButton(this.baseElement, androidWrapper ? UISpriteSheet.Exit : UISpriteSheet.Fullscreen, (androidWrapper ? this.exit : this.fullscreen).bind(this));
-		this.fullscreenButton.style.position = "absolute";
+		if (!isPWA) {
+			this.fullscreenButton = this.createButton(this.baseElement, androidWrapper ? UISpriteSheet.Exit : UISpriteSheet.Fullscreen, (androidWrapper ? this.exit : this.fullscreen).bind(this));
+			this.fullscreenButton.style.position = "absolute";
+		}
 		this.aboutButton = this.createButton(this.baseElement, UISpriteSheet.Question, this.about.bind(this));
 		this.aboutButton.style.position = "absolute";
 	}
@@ -168,11 +170,11 @@ class TitleView extends View {
 			}
 		];
 
-		if (!androidWrapper && !isPWA && installationPrompt && ("prompt" in installationPrompt))
+		if (!androidWrapper && !isPWA && installationPrompt && installationPrompt["prompt"])
 			buttons.push({
 				iconId: UISpriteSheet.Download,
 				text: Strings.Install,
-				onclick: () => {
+				onclick: (id, button) => {
 					if (installationPrompt) {
 						try {
 							const p = installationPrompt;
@@ -182,13 +184,16 @@ class TitleView extends View {
 							// Just ignore...
 						}
 					}
+
+					// Wait for the blink to finish before removing the button from the screen
+					setTimeout(() => { button.style.display = "none"; }, buttonBlinkTotalDurationMS);
 				}
 			});
 
 		Modal.show({
 			title: Strings.About,
 			large: true,
-			html: Strings.About1 + (View.gl.contextVersion === 2 ? Strings.About2 : "") + Strings.About3 + (window["pixelUsingWebAssembly"] ? "" : Strings.About4) + Strings.About5 + UISpriteSheet.html(UISpriteSheet.Success) + "</p>" + (androidWrapper ? "" : Strings.About6) + Strings.About7,
+			html: Strings.About1 + (View.gl.contextVersion === 2 ? Strings.About2 : "") + Strings.About3 + (window["pixelUsingWebAssembly"] ? "" : Strings.About4) + Strings.About5 + UISpriteSheet.html(UISpriteSheet.Success) + "</p>" + ((androidWrapper || (navigator["wakeLock"] && navigator["wakeLock"].request)) ? "" : Strings.About6) + Strings.About7,
 			buttons: buttons
 		});
 

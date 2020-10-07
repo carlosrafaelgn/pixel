@@ -61,6 +61,9 @@ const language = (androidWrapper ? androidWrapper.getBrowserLanguage() : (naviga
 	buttonMargin = iconSize >> 1,
 	buttonLargeMargin = buttonHeight,
 	buttonPadding = (buttonHeight - iconSize) >> 1,
+	buttonBlinkLastCounter = 7,
+	buttonBlinkSingleDurationMS = 75,
+	buttonBlinkTotalDurationMS = (buttonBlinkLastCounter + 1) * buttonBlinkSingleDurationMS,
 	
 	scrollThumbWidth = 32,
 	scrollThumbHeight = 48,

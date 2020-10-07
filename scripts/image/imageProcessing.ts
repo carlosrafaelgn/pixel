@@ -64,7 +64,7 @@ async function loadImage(src: string, controlLoading = true): Promise<HTMLImageE
 				View.loading = false;
 			resolve(image);
 		};
-		image.onerror = (event: Event | string, source?: string, lineno?: number, colno?: number, error?: Error) => {
+		image.onerror = (event, source, lineno, colno, error) => {
 			if (controlLoading)
 				View.loading = false;
 			reject(error || event);

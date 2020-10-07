@@ -85,8 +85,8 @@ function smoothStep(input: number): number {
 	return (input * input * (3.0 - (2.0 * input)));
 }
 
-function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback: (e: Event) => boolean): void {
-	button.onclick = (e: Event) => {
+function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback: (e: MouseEvent) => boolean): void {
+	button.onclick = (e) => {
 		if (View.loading || View.fading || (!insideModal && Modal.visible) || !callback(e))
 			return;
 		const lastInterval = parseInt(button.getAttribute("data-blink-interval"));
@@ -97,7 +97,7 @@ function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback:
 		button.setAttribute("data-blink-interval", setInterval(() => {
 			const count = parseInt(button.getAttribute("data-blink-count"));
 			const lastInterval = parseInt(button.getAttribute("data-blink-interval"));
-			if (lastInterval && count > 0 && count < 7) {
+			if (lastInterval && count > 0 && count < buttonBlinkLastCounter) {
 				button.style.visibility = ((count & 1) ? "" : "hidden");
 				button.setAttribute("data-blink-count", (count + 1).toString());
 			} else {
@@ -107,7 +107,7 @@ function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback:
 				button.setAttribute("data-blink-count", "");
 				button.setAttribute("data-blink-interval", "");
 			}
-		}, 75).toString())
+		}, buttonBlinkSingleDurationMS).toString())
 	};
 }
 

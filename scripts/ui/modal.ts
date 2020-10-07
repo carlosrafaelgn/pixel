@@ -33,7 +33,7 @@ interface ModalButton {
 	iconId: number;
 	text: string;
 	className?: string;
-	onclick?: () => void;
+	onclick?: (id: string, button: HTMLButtonElement) => void;
 }
 
 interface ModalOptions {
@@ -43,7 +43,7 @@ interface ModalOptions {
 	okcancel?: boolean;
 	okcancelsubmit?: boolean;
 	buttons?: ModalButton[];
-	onbuttonclick?: (id: string) => void;
+	onbuttonclick?: (id: string, button: HTMLButtonElement) => void;
 	onresized?: () => void;
 	onshowing?: () => void;
 	onshown?: () => void;
@@ -164,12 +164,12 @@ class Modal {
 		if (buttons && buttons.length) {
 			for (let i = buttons.length - 1; i >= 0; i--) {
 				const button = buttons[i];
-				prepareButtonBlink(button, true, (e: Event) => {
+				prepareButtonBlink(button, true, () => {
 					if (this.fading)
 						return false;
 
 					if (this.options.onbuttonclick)
-						this.options.onbuttonclick(button.id);
+						this.options.onbuttonclick(button.id, button);
 
 					return true;
 				});
@@ -205,15 +205,15 @@ class Modal {
 			button.setAttribute("type", "button");
 			UISpriteSheet.create(currentButton.iconId, button);
 			button.appendChild(document.createTextNode(currentButton.text));
-			prepareButtonBlink(button, true, (e: Event) => {
+			prepareButtonBlink(button, true, () => {
 				if (this.fading)
 					return false;
 
 				if (currentButton.onclick)
-					currentButton.onclick();
+					currentButton.onclick(currentButton.id, button);
 
 				if (this.options.onbuttonclick)
-					this.options.onbuttonclick(currentButton.id);
+					this.options.onbuttonclick(currentButton.id, button);
 
 				return true;
 			});

@@ -307,7 +307,7 @@ class GameView extends View {
 
 			if (!Modal.show({
 				title: Strings.Pause,
-				html: (androidWrapper ? "" : `<button type="button" id="fullscreen" data-style="margin-bottom: ${buttonMargin}">${Strings.Fullscreen}</button><br/>`) + 
+				html: ((androidWrapper || isPWA) ? "" : `<button type="button" id="fullscreen" data-style="margin-bottom: ${buttonMargin}">${Strings.Fullscreen}</button><br/>`) + 
 					(!controlModeImg ? "" : `<button type="button" id="controlMode" data-style="margin-bottom: ${buttonMargin}">${Strings.ControlMode}</button><br/>`) +
 					`<button type="button" id="restart">${Strings.Restart}</button>`,
 				buttons: [
@@ -343,7 +343,7 @@ class GameView extends View {
 					button = document.getElementById("restart") as HTMLButtonElement;
 					button.insertBefore(UISpriteSheet.create(UISpriteSheet.Restart), button.firstChild);
 				},
-				onbuttonclick: (id: string) => {
+				onbuttonclick: (id) => {
 					switch (id) {
 						case "fullscreen":
 							fullscreenControl.toggleFullscreen();

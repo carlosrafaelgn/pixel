@@ -59,10 +59,8 @@ class SelectionView extends View {
 
 		const open = this.createButton(this.toolbarTop, UISpriteSheet.Open, this.open.bind(this));
 
-		if (!androidWrapper) {
-			this.buttonsWithLargeMargin.push(open);
-			this.createButton(this.toolbarTop, UISpriteSheet.Fullscreen, this.fullscreen.bind(this));
-		}
+		if (!androidWrapper && !isPWA)
+			this.buttonsWithMargin.push(this.createButton(this.toolbarTop, UISpriteSheet.Fullscreen, this.fullscreen.bind(this)));
 
 		this.boundPlay = this.play.bind(this);
 		this.boundShowMenu = this.showMenu.bind(this);
@@ -420,7 +418,7 @@ class SelectionView extends View {
 					button.insertBefore(UISpriteSheet.create(UISpriteSheet.ClearRed), button.firstChild);
 				}
 			},
-			onbuttonclick: (id: string) => {
+			onbuttonclick: (id) => {
 				switch (id) {
 					case "edit":
 						Modal.hide();
