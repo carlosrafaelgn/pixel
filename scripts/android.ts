@@ -31,6 +31,7 @@ interface AndroidWrapper {
 	getBrowserLanguage(): string;
 	getX(): number;
 	getY(): number;
+	setKeepScreenOn(keepScreenOn: boolean): void;
 	downloadLevel(name: string, json: string, imageBase64: string): number;
 	exit(): void;
 }

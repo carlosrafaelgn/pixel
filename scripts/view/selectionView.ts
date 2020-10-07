@@ -221,7 +221,7 @@ class SelectionView extends View {
 		this.scrollContainer.attach();
 	}
 
-	protected detach(): void {
+	protected async detach(): Promise<void> {
 		this.scrollContainer.detach();
 	}
 

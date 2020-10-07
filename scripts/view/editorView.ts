@@ -225,7 +225,7 @@ class EditorView extends View {
 			document.addEventListener("keyup", this.boundDocumentKeyUp, true);
 	}
 
-	protected detach(): void {
+	protected async detach(): Promise<void> {
 		if (this.pointerHandler) {
 			this.pointerHandler.destroy();
 			this.pointerHandler = null;

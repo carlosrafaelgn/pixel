@@ -44,6 +44,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Message;
 import android.text.InputType;
 import android.util.Base64;
@@ -102,7 +103,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 	// https://developer.android.com/guide/webapps/webview
 
-	private final class LibWebViewJavaScriptInterface {
+	private final class LibWebViewJavaScriptInterface implements Runnable {
+		private volatile boolean keepScreenOn;
+
 		final boolean supported;
 		final String browserLanguage;
 
@@ -111,6 +114,14 @@ public class MainActivity extends Activity implements SensorEventListener {
 		LibWebViewJavaScriptInterface(boolean supported, String browserLanguage) {
 			this.supported = supported;
 			this.browserLanguage = browserLanguage;
+		}
+
+		public void run() {
+			try {
+				webView.setKeepScreenOn(keepScreenOn);
+			} catch (Throwable th) {
+				th.printStackTrace();
+			}
 		}
 
 		@JavascriptInterface
@@ -131,6 +142,12 @@ public class MainActivity extends Activity implements SensorEventListener {
 		@JavascriptInterface
 		public float getY() {
 			return y;
+		}
+
+		@JavascriptInterface
+		public void setKeepScreenOn(boolean keepScreenOn) {
+			this.keepScreenOn = keepScreenOn;
+			handler.post(this);
 		}
 
 		@JavascriptInterface
@@ -458,6 +475,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 	private SystemUIObserver systemUIObserver;
 	private ValueCallback<Uri[]> filePathCallback;
 
+	private Handler handler;
 	private WebView webView;
 	private LibWebViewJavaScriptInterface webViewJavaScriptInterface;
 
@@ -497,6 +515,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		handler = new Handler();
+
 		final WindowManager windowManager = (WindowManager)getSystemService(Context.WINDOW_SERVICE);
 		if (windowManager != null) {
 			final Display display = windowManager.getDefaultDisplay();
@@ -513,7 +533,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 		webView.setWebChromeClient(new LibWebChromeClient());
 		webView.addJavascriptInterface(webViewJavaScriptInterface = new LibWebViewJavaScriptInterface(prepareSensor(), getString(R.string.browser_language)), "androidWrapper");
 		webView.setHorizontalScrollBarEnabled(false);
-		webView.setKeepScreenOn(true);
 		final WebSettings settings = webView.getSettings();
 		settings.setAllowContentAccess(true);
 		settings.setAllowFileAccess(true);

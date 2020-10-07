@@ -110,7 +110,7 @@ class TitleView extends View {
 	protected async attach(): Promise<void> {
 	}
 
-	protected detach(): void {
+	protected async detach(): Promise<void> {
 		if (this.fadeInTimeout) {
 			clearTimeout(this.fadeInTimeout);
 			this.fadeInTimeout = 0;

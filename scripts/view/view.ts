@@ -310,19 +310,19 @@ abstract class View {
 
 	protected abstract async attach(): Promise<void>;
 
-	protected abstract detach(): void;
+	protected abstract async detach(): Promise<void>;
 
 	protected abstract destroyInternal(partial: boolean): void;
 
 	// Simulating final...
-	protected readonly destroy = (partial: boolean): void => {
+	protected readonly destroy = async (partial: boolean): Promise<void> => {
 		if (this.baseElement) {
 			if (this.baseElement.parentNode && this.attached)
 				this.baseElement.parentNode.removeChild(this.baseElement);
 
 			if (this.attached) {
 				this.attached = false;
-				this.detach();
+				await this.detach();
 			}
 
 			this.destroyInternal(partial);
@@ -412,8 +412,8 @@ abstract class View {
 		return new Promise((resolve, reject) => {
 			main.className = "";
 
-			setTimeout(() => {
-				this.destroy(saveViewInStack);
+			setTimeout(async () => {
+				await this.destroy(saveViewInStack);
 				if (saveViewInStack)
 					View.viewStack.push(this);
 				View.currentView = null;

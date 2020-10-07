@@ -26,11 +26,23 @@
 
 "use strict";
 
+interface WakeLockSentinel {
+	readonly released: boolean;
+	readonly type: string;
+	release(): Promise<void>;
+}
+
+interface WakeLock {
+	request(type: string): Promise<WakeLockSentinel>;
+}
+
 class GameView extends View {
 	// Must be in sync with lib/shared.h
 	private static readonly FinishedThisFrame = 1;
 	private static readonly FinishedVictory = 2;
 	private static readonly FinishedLoss = 4;
+
+	private static wakeLockSentinel: WakeLockSentinel = null;
 
 	private alive = true;
 	private paused = false;
@@ -166,12 +178,43 @@ class GameView extends View {
 			this.levelTexture = new Texture(View.gl, await loadImage(this.level.processedImage));
 			this.resourceStorage.add("levelTexture", this.levelTexture);
 		}
+
+		if (androidWrapper) {
+			androidWrapper.setKeepScreenOn(true);
+		} else {
+			try {
+				const wakeLock = navigator["wakeLock"] as WakeLock;
+
+				if (wakeLock && wakeLock.request) {
+					// https://w3c.github.io/screen-wake-lock/#extensions-to-the-navigator-interface
+					// https://developer.mozilla.org/en-US/docs/Web/API/WakeLock/request
+					// https://developer.mozilla.org/en-US/docs/Web/API/WakeLockSentinel
+					if (!GameView.wakeLockSentinel)
+						GameView.wakeLockSentinel = await wakeLock.request("screen");
+				}
+			} catch (ex) {
+				// Just ignore...
+			}
+		}
 	}
 
-	protected detach(): void {
+	protected async detach(): Promise<void> {
 		if (this.pointerHandler) {
 			this.pointerHandler.destroy();
 			this.pointerHandler = null;
+		}
+
+		if (androidWrapper) {
+			androidWrapper.setKeepScreenOn(false);
+		} else if (GameView.wakeLockSentinel) {
+			try {
+				if (GameView.wakeLockSentinel.release) {
+					await GameView.wakeLockSentinel.release();
+					GameView.wakeLockSentinel = null;
+				}
+			} catch (ex) {
+				// Just ignore...
+			}
 		}
 	}
 

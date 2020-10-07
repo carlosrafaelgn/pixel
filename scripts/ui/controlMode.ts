@@ -44,12 +44,12 @@ class ControlMode {
 	public static readonly AccelerometerHI = 3;
 	public static readonly AccelerometerVI = 4;
 
-	private static _mode = 0;
+	private static _mode = ControlMode.Pointer;
 	private static _accelerationSupported = false;
 	private static skipAndroid = false;
 	private static invertXY = false;
 	private static invertSign = false;
-	
+
 	public static accelerationX = 0;
 	public static accelerationY = 0;
 
