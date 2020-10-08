@@ -30,22 +30,12 @@ class TitleView extends View {
 	private buttonContainer: HTMLDivElement = null;
 	private fullscreenButton: HTMLButtonElement = null;
 	private aboutButton: HTMLButtonElement = null;
-	private fadeInTimeout = 0;
-	private currentLogo = 1;
 
 	public constructor() {
 		super();
 
 		this.baseElement.innerHTML = `
-		<div id="pixel0" class="logo"></div>
-		<div id="pixel1" class="logo logo-anim"></div>
-		<div id="pixel2" class="logo logo-anim"></div>
-		<div id="pixel3" class="logo logo-anim"></div>
-		<div id="pixel4" class="logo logo-anim"></div>
-		<div id="pixel5" class="logo logo-anim"></div>
-		<div id="pixel6" class="logo logo-anim"></div>
-		<div id="pixel7" class="logo logo-anim"></div>
-		<div id="pixel8" class="logo logo-anim"></div>
+		<div id="logo" class="logo"></div>
 		<div id="buttonContainer" style="position: absolute;"></div>
 		`;
 
@@ -62,23 +52,15 @@ class TitleView extends View {
 	}
 
 	protected resize(): void {
-		const logoLeftCss = css((baseWidth - 150) >> 1),
-			logoTopCss = css(buttonLargeMargin << 1),
-			logoWidthCss = css(150),
-			logoHeightCss = css(30),
-			logoBackgroundSizeCss = logoWidthCss + " " + css(288);
+		const logoWidthCss = css(150),
+			logoHeightCss = css(30);
 
-		for (let i = 0; i <= 8; i++) {
-			const image = document.getElementById("pixel" + i) as HTMLDivElement;
-			if (image) {
-				image.style.left = logoLeftCss;
-				image.style.top = logoTopCss;
-				image.style.width = logoWidthCss;
-				image.style.height = logoHeightCss;
-				image.style.backgroundSize = logoBackgroundSizeCss;
-				image.style.backgroundPosition = "0 " + css(-(i << 5));
-			}
-		}
+		const logo = document.getElementById("logo") as HTMLDivElement;
+		logo.style.left = css((baseWidth - 150) >> 1);
+		logo.style.top = css(buttonLargeMargin << 1);
+		logo.style.width = logoWidthCss;
+		logo.style.height = logoHeightCss;
+		logo.style.backgroundSize = logoWidthCss + " " + logoHeightCss;
 
 		const buttonContainerWidth = (buttonHeight << 1) + buttonLargeMargin;
 		this.buttonContainer.style.bottom = css(buttonLargeMargin);
@@ -95,28 +77,10 @@ class TitleView extends View {
 		super.resize();
 	}
 
-	protected fadeInFinished(): void {
-		this.fadeInTimeout = setTimeout(() => {
-			this.fadeInTimeout = 0;
-			if (this.currentLogo > 1) {
-				this.baseElement.removeChild(document.getElementById("pixel" + (this.currentLogo - 2)));
-				if (this.currentLogo > 8)
-					return;
-			}
-			document.getElementById("pixel" + this.currentLogo).className = "logo logo-anim visible";
-			this.currentLogo++;
-			this.fadeInFinished();
-		}, (this.currentLogo === 1) ? 20 : 320);
-	}
-
 	protected async attach(): Promise<void> {
 	}
 
 	protected async detach(): Promise<void> {
-		if (this.fadeInTimeout) {
-			clearTimeout(this.fadeInTimeout);
-			this.fadeInTimeout = 0;
-		}
 	}
 
 	protected destroyInternal(partial: boolean): void {
@@ -126,7 +90,6 @@ class TitleView extends View {
 		if (Modal.visible)
 			return false;
 
-		this.abortFadeInTimeout();
 		this.fadeTo("SelectionView");
 		return true;
 	}
@@ -135,16 +98,8 @@ class TitleView extends View {
 		if (Modal.visible)
 			return false;
 
-		this.abortFadeInTimeout();
 		this.fadeTo("EditorView");
 		return true;
-	}
-
-	private abortFadeInTimeout(): void {
-		if (this.fadeInTimeout) {
-			clearTimeout(this.fadeInTimeout);
-			this.fadeInTimeout = 0;
-		}
 	}
 
 	private fullscreen(e: Event): boolean {
