@@ -44,6 +44,12 @@
 
 	<title>Pixel Maze</title>
 
+	<!-- 
+		All TS files are being concatenated into a single file according to the
+		order specified in the files array, inside tsconfig.json
+	-->
+	<script async type="text/javascript" charset="utf-8" src="assets/js/scripts.min.js"></script>
+
 	<style type="text/css">
 		@font-face {
 			font-family: 'Press Start 2P';
@@ -447,6 +453,15 @@
 		//<![CDATA[
 		"use strict";
 
+		window["pixelCheckSetup"] = function () {
+			if (window["pixelStepHTML"] && window["pixelStepMAIN"]) {
+				delete window["pixelStepHTML"];
+				delete window["pixelStepMAIN"];
+				delete window["pixelCheckSetup"];
+				setup();
+			}
+		};
+
 		var errorAlerted = false;
 		window.onerror = function (msg, url, line, col, error) {
 			if (errorAlerted)
@@ -456,19 +471,15 @@
 		};
 
 		(function () {
-			var script = document.createElement("script"), pixelUsingWebAssembly = ("WebAssembly" in window);
+			let script = document.createElement("script"), pixelUsingWebAssembly = ("WebAssembly" in window);
+			script.async = true;
 			script.setAttribute("type", "text/javascript");
 			script.setAttribute("charset", "utf-8");
 			window["pixelUsingWebAssembly"] = pixelUsingWebAssembly;
 			script.setAttribute("src", pixelUsingWebAssembly ? "assets/js/lib.js": "assets/js/lib-nowasm.js");
 			script.onload = function () {
-				var script = document.createElement("script");
-				script.setAttribute("type", "text/javascript");
-				script.setAttribute("charset", "utf-8");
-				// All TS files are being concatenated into a single file according to the
-				// order specified in the files array, inside tsconfig.json
-				script.setAttribute("src", "assets/js/scripts.min.js");
-				document.body.appendChild(script);
+				window["pixelStepHTML"] = true;
+				window["pixelCheckSetup"]();
 			};
 			document.body.appendChild(script);
 		})();

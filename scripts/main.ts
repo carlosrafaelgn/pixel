@@ -247,6 +247,11 @@ function fullscreenChanged(e: Event): void {
 async function setup(): Promise<void> {
 	Strings.init();
 
+	const allPromises = Promise.all([
+		LevelSpriteSheet.preload(),
+		window["CLib"]() as Promise<CLib>
+	]);
+
 	View.loading = true;
 
 	if (("serviceWorker" in navigator) && !androidWrapper) {
@@ -258,10 +263,7 @@ async function setup(): Promise<void> {
 	ControlMode.init();
 
 	let n: void;
-	[n, cLib] = await Promise.all([
-		LevelSpriteSheet.preload(),
-		window["CLib"]() as Promise<CLib>
-	]);
+	[n, cLib] = await allPromises;
 
 	View.initGL();
 
@@ -277,6 +279,15 @@ async function setup(): Promise<void> {
 	View.createInitialView();
 
 	View.loading = false;
+
+	const levels = document.createElement("script");
+	levels.async = true;
+	levels.setAttribute("type", "text/javascript");
+	levels.setAttribute("charset", "utf-8");
+	levels.setAttribute("src", "assets/js/levels.js");
+	document.body.appendChild(levels);
 }
 
-setup();
+window["pixelStepMAIN"] = true;
+if (window["pixelCheckSetup"])
+	window["pixelCheckSetup"]();

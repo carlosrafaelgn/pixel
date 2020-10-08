@@ -199,6 +199,9 @@ class SelectionView extends View {
 			this.thumbnailRecords = [];
 			this.anchors = [];
 
+			if (!LevelCache.BuiltInLevelIds)
+				await LevelCache.loadBuiltInLevels();
+
 			const builtInLevelIds = LevelCache.BuiltInLevelIds;
 
 			for (let i = 0; i < builtInLevelIds.length; i++)
