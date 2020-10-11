@@ -33,7 +33,7 @@ const viewClasses = {
 	"TitleView": TitleView
 };
 
-let cLib: CLib = null, scaleFactor = 1, baseHeight = minHeight, baseLeftCss = 0, baseTopCss = 0,
+let cLib: CLib = null, scaleFactor = -1, baseHeight = minHeight, baseLeftCss = 0, baseTopCss = 0,
 	baseWidthCss = baseWidth, baseHeightCss = minHeight, maxHeightCss = minHeight,
 	thumbnailWidthCss = thumbnailWidth + "px", thumbnailHeightCss = thumbnailHeight + "px",
 	buttonHeightCss = buttonHeight + "px", borderWidthCss = borderWidth + "px",
@@ -41,7 +41,8 @@ let cLib: CLib = null, scaleFactor = 1, baseHeight = minHeight, baseLeftCss = 0,
 	toolbarTotalHeightCss = toolbarTotalHeight + "px", iconSizeCss = iconSize + "px",
 	buttonMarginCss = buttonMargin + "px", buttonLargeMarginCss = buttonLargeMargin + "px", buttonPaddingCss = buttonPadding + "px",
 	fontSizeCss = "16px", // Press Start 2P uses multiples of 16
-	installationPrompt: Event = null;
+	installationPrompt: Event = null,
+	landscapeWarning: HTMLDivElement = null;
 
 function cancelEvent(e: Event): boolean {
 	if (e) {
@@ -191,6 +192,24 @@ function adjustWindowSize(): void {
 
 	main.style.left = baseLeftCss + "px";
 	main.style.top = baseTopCss + "px";
+
+	if (heightCss > widthCss || baseTopCss) {
+		if (!landscapeWarning) {
+			landscapeWarning = document.createElement("div");
+			landscapeWarning.style.fontSize = css(16);
+			landscapeWarning.style.textAlign = "center";
+			landscapeWarning.style.position = "absolute";
+			landscapeWarning.style.left = "0";
+			landscapeWarning.style.top = css(8);
+			landscapeWarning.style.width = "100%";
+			landscapeWarning.style.zIndex = "9999";
+			landscapeWarning.textContent = Strings.LandscapeWarning;
+			document.body.appendChild(landscapeWarning);
+		}
+	} else if (landscapeWarning) {
+		document.body.removeChild(landscapeWarning);
+		landscapeWarning = null;
+	}
 
 	if (scaleFactor !== lastScaleFactor || baseHeight !== lastBaseHeight) {
 		main.style.width = baseWidthCss + "px";

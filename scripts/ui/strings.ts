@@ -87,6 +87,7 @@ class Strings {
 	public static NewRecord = "New Record!";
 	public static Time = "Time";
 	public static Name = "Name";
+	public static LandscapeWarning = "The game works better in landscape mode :)";
 
 	public static init(): void {
 		const language = (androidWrapper ? androidWrapper.getBrowserLanguage() : (navigator["userLanguage"] as string || navigator.language));
@@ -153,6 +154,7 @@ class Strings {
 			Strings.NewRecord = "Novo Recorde!";
 			Strings.Time = "Tempo";
 			Strings.Name = "Nome";
+			Strings.LandscapeWarning = "O jogo funciona melhor no modo paisagem :)";
 		}
 	}
 }
