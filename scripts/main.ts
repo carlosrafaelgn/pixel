@@ -247,10 +247,39 @@ function beforeInstallPrompt(e: Event): void {
 function fullscreenChanged(e: Event): void {
 	// https://www.w3.org/TR/screen-orientation/#locking-to-a-specific-orientation-and-unlocking
 	// https://developer.mozilla.org/en-US/docs/Web/API/Screen/orientation
+	// https://developer.mozilla.org/en-US/docs/Web/API/Screen/lockOrientation
+	if (screen["mozLockOrientation"] && screen["mozUnlockOrientation"]) {
+		try {
+			if (fullscreenControl.fullscreenMode) {
+				if (screen["mozLockOrientation"]("landscape-primary"))
+					return;
+			} else {
+				if (screen["mozUnlockOrientation"]())
+					return;
+			}
+		} catch (ex) {
+			// Just ignore...
+		}
+	}
+	if (screen["msLockOrientation"] && screen["msUnlockOrientation"]) {
+		try {
+			if (fullscreenControl.fullscreenMode) {
+				if (screen["msLockOrientation"]("landscape-primary"))
+					return;
+			} else {
+				if (screen["msUnlockOrientation"]())
+					return;
+			}
+		} catch (ex) {
+			// Just ignore...
+		}
+	}
 	if (screen.orientation && screen.orientation.lock && screen.orientation.unlock) {
 		try {
 			if (fullscreenControl.fullscreenMode) {
-				screen.orientation.lock("landscape").catch(() => {
+				screen.orientation.lock("landscape-primary").then(() => {
+					// OK!!!
+				}, () => {
 					// Such is life... :(
 				});
 			} else {
