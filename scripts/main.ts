@@ -44,6 +44,16 @@ let cLib: CLib = null, scaleFactor = -1, baseHeight = minHeight, baseLeftCss = 0
 	installationPrompt: Event = null,
 	landscapeWarning: HTMLDivElement = null;
 
+function ignorePromise(p: any): void {
+	try {
+		const nop = () => {};
+		if (p && p.then)
+			p.then(nop, nop);
+	} catch (ex) {
+		// Just ignore...
+	}
+}
+
 function cancelEvent(e: Event): boolean {
 	if (e) {
 		if ("isCancelled" in e)
@@ -276,15 +286,10 @@ function fullscreenChanged(e: Event): void {
 	}
 	if (screen.orientation && screen.orientation.lock && screen.orientation.unlock) {
 		try {
-			if (fullscreenControl.fullscreenMode) {
-				screen.orientation.lock("landscape-primary").then(() => {
-					// OK!!!
-				}, () => {
-					// Such is life... :(
-				});
-			} else {
-				screen.orientation.unlock();
-			}
+			ignorePromise(fullscreenControl.fullscreenMode ?
+				screen.orientation.lock("landscape-primary") :
+				// Are there browsers out there returning a promise here?!?!
+				screen.orientation.unlock());
 		} catch (ex) {
 			// For those browsers that do not support lock(), but
 			// fail to return a proper Promise...

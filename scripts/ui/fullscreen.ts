@@ -32,18 +32,6 @@ class FullscreenControl {
 	// There is a bunch of weird try/catch's here... I know... I don't care!
 	// It's a jungle out there! Fullscreen is bizarre!
 
-	private static nop(): void {
-	}
-
-	private static ignorePromise(p: PromiseLike<any>): void {
-		try {
-			if (p && p.then)
-				p.then(FullscreenControl.nop, FullscreenControl.nop);
-		} catch (ex) {
-			// Just ignore...
-		}
-	}
-
 	public requestFullscreen(element?: HTMLElement): void {
 		if (!element)
 			element = document.body;
@@ -69,7 +57,7 @@ class FullscreenControl {
 		if (!ok && element !== document.body)
 			this.requestFullscreen(null);
 		else
-			FullscreenControl.ignorePromise(p);
+			ignorePromise(p);
 	}
 
 	public exitFullscreen(): void {
@@ -88,7 +76,7 @@ class FullscreenControl {
 			// Just ignore...
 		}
 
-		FullscreenControl.ignorePromise(p);
+		ignorePromise(p);
 	}
 
 	public get fullscreenElement(): HTMLElement {
