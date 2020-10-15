@@ -410,10 +410,12 @@ void main() {
 
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
-		if (gl.getError() === gl.CONTEXT_LOST_WEBGL) {
-			this.destroy(true);
-			return false;
-		}
+		// This call to gl.getError() was taking ***too*** long to execute!
+		// (Refer to the comments above GameView.render())
+		//if (gl.getError() === gl.CONTEXT_LOST_WEBGL) {
+		//	this.destroy(true);
+		//	return false;
+		//}
 
 		return true;
 	}

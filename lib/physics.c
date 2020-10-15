@@ -352,7 +352,7 @@ void step(Level* level, cpFloat gravityX, cpFloat gravityY, int mode, int paused
 	level->thisFrameAllCucumbersCollected = 0;
 	level->thisFrameDestroyedCount = 0;
 
-	if (!paused) {
+	if (!paused && !level->finished) {
 		if (mode == Pointer) {
 			if (level->pointerCursorAttached) {
 				float dx = level->pointerCursorX - level->pointerCursorCenterX,

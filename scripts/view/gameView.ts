@@ -432,6 +432,78 @@ class GameView extends View {
 		});
 	}
 
+	// Chrome 86.0.4240.75 Win10 64-bit WASM
+	// Calling gl.getError() inside WebGL.checkForLostContextUseFrameBufferAndClear()
+	// pc 600 | bg 1.1398666666642991 | step 0.10165833331787628 | render 0.05755000004076768
+	// pc 600 | bg 2.2841916666948237 | step 0.09073333331646911 | render 0.04539999998996791
+	// pc 600 | bg 2.6027250000056910 | step 0.10687500000116415 | render 0.04770833332564507
+	// Not calling gl.getError() inside WebGL.checkForLostContextUseFrameBufferAndClear()
+	// pc 600 | bg 0.22599166667835865 | step 0.12219166663877938 | render 0.0783666666817832
+	// pc 600 | bg 0.29504166672268184 | step 0.13925833334117974 | render 0.07858333330659661
+	// pc 600 | bg 0.27939166667541330 | step 0.13665833332197508 | render 0.07586666667217894
+	//
+	// Chrome 86.0.4240.75 Win10 64-bit JS
+	// pc 600 | bg 2.1046833333230097 | step 0.12264999998023995 | render 0.04660833335644080
+	// pc 600 | bg 2.3967999999843355 | step 0.12626666665899391 | render 0.04214166669951131
+	// pc 600 | bg 2.2417000000148497 | step 0.10881666667662405 | render 0.03894999998747759
+	//
+	// Chrome 86.0.4240.99 Android 10 64-bit WASM
+	// Calling gl.getError() inside WebGL.checkForLostContextUseFrameBufferAndClear()
+	// pc 600 | bg 6.180499990781148 | step 0.5381666744748751 | render 0.23283332702703774
+	// pc 600 | bg 6.157999999122694 | step 0.5413333345980694 | render 0.21450000000186265
+	// pc 600 | bg 6.243833333719522 | step 0.5301666690502316 | render 0.21749999956227840
+	// Not calling gl.getError() inside WebGL.checkForLostContextUseFrameBufferAndClear()
+	// pc 600 | bg 0.4968333376261095 | step 0.4993333318270743 | render 0.25966667065707344
+	// pc 600 | bg 0.4556666652206331 | step 0.5208333348855376 | render 0.2493333308181415
+	// pc 600 | bg 0.4155000000415991 | step 0.4680000028262536 | render 0.18949999862040082
+	//
+	// Chrome 86.0.4240.99 Android 10 64-bit JS
+	// pc 600 | bg 6.1840000015217810 | step 0.45316666364669800 | render 0.17316666509335240
+	// pc 600 | bg 5.8711666652622325 | step 0.38650000079845387 | render 0.15633333435592553
+	// pc 600 | bg 6.0405000031460080 | step 0.38383333672148484 | render 0.16066666692495346
+	//
+	// In order to enable better timer precision in Firefox, open about:config,
+	// search for reduce and change these settings:
+	// privacy.reduceTimerPrecision: false
+	// privacy.reduceTimerPrecision.unconditional: false
+	// privacy.resistFingerprinting.reduceTimerPrecision.jitter: false
+	// privacy.resistFingerprinting.reduceTimerPrecision.microseconds: 1
+	// services.sync.prefs.sync.privacy.reduceTimerPrecision: false
+	// services.sync.prefs.sync.privacy.resistFingerprinting.reduceTimerPrecision.jitter: false
+	// services.sync.prefs.sync.privacy.resistFingerprinting.reduceTimerPrecision.microseconds: false
+	//
+	// Firefox Developer 82.0b9 (64-bit) Win10 64-bit WASM
+	// pc 600 | bg 0.9787969757616520 | step 2.87808025863399970 | render 0.32952139032858520
+	// pc 600 | bg 0.8764817570686865 | step 2.63103864114506000 | render 0.30205350575566020
+	// pc 600 | bg 0.9719650707309726 | step 2.95773079488872700 | render 0.32408785344019025
+	//
+	// Firefox Developer 82.0b9 (64-bit) Win10 64-bit JS
+	// pc 600 | bg 0.9219864525068745 | step 0.21732009373789576 | render 0.20971074733572700
+	// pc 600 | bg 0.8730256068153055 | step 0.18898154325087185 | render 0.19548502420363850
+	// pc 600 | bg 0.8395451668636088 | step 0.18125416944659567 | render 0.18942029729209026
+	//
+	// Firefox Nightly 83.0a1 Android 10 64-bit WASM
+	// pc 600 | bg 1.4813376783333783 | step 0.42121525333340290 | render 1.3057092249998580
+	// pc 600 | bg 1.4354895816664188 | step 0.43083334500004034 | render 1.2879800200002136
+	// pc 600 | bg 1.5013020666668550 | step 0.46037415833345830 | render 1.1920885466665156
+	//
+	// Firefox Nightly 83.0a1 Android 10 64-bit JS
+	// pc 600 | bg 1.1987360749998153 | step 0.6241441416668082 | render 1.6786111133331845
+	// pc 600 | bg 1.2559982549993340 | step 0.6407430400000885 | render 1.6158915166674706
+	// pc 600 | bg 1.3177690783340708 | step 0.6493098949996056 | render 1.7047066200000458
+	//
+	// Whether gl.getError() is called or not does not appear to affect the timing on Firefox.
+	//
+	// Also, on the browsers tested, changing WebGL version from 2 to 1 does not produce any significant changes in the timing.
+	//
+	// Tested using built-in level with name/id 2, with ControlMode.Pointer, in fullscreen + landscape mode, without touching the screen even once.
+	
+	// Performance profiling (used to produce the results above)
+	//private pc = 0;
+	//private p1 = 0;
+	//private p2 = 0;
+	//private p3 = 0;
+	
 	private render(time: number): void {
 		if (this.alive) {
 			this.frameRequest = requestAnimationFrame(this.boundRender);
@@ -442,6 +514,9 @@ class GameView extends View {
 
 		const level = this.level;
 
+		// Performance profiling
+		//let p1 = performance.now();
+
 		if (!View.drawBackground(time, level.levelPtr, true)) {
 			if (this.frameRequest) {
 				cancelAnimationFrame(this.frameRequest);
@@ -450,10 +525,16 @@ class GameView extends View {
 			return;
 		}
 
+		// Performance profiling
+		//let p2 = performance.now();
+
 		if (ControlMode.mode !== ControlMode.Pointer && androidWrapper)
 			ControlMode.processAndroidAcceleration();
 
 		level.step(this.paused);
+
+		// Performance profiling
+		//let p3 = performance.now();
 
 		const gl = View.gl;
 
@@ -478,5 +559,14 @@ class GameView extends View {
 				this.checkRecord();
 			}
 		}
+
+		// Performance profiling
+		//let p4 = performance.now();
+		//this.pc++;
+		//this.p1 += (p2 - p1);
+		//this.p2 += (p3 - p2);
+		//this.p3 += (p4 - p3);
+		//if (this.pc === 600)
+		//	console.log(`pc ${this.pc} | bg ${this.p1 / this.pc} | step ${this.p2 / this.pc} | render ${this.p3 / this.pc}`);
 	}
 }

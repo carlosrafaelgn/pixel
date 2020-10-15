@@ -48,7 +48,7 @@ abstract class View {
 
 		if (!gl.checkForLostContextUseFrameBufferAndClear()) {
 			if (!View.recreateResourcesTimeout)
-				View.recreateResourcesTimeout = setTimeout(View.recreateResourcesFromTimeout, 500);
+				View.recreateResourcesTimeout = setTimeout(View.recreateResourcesFromTimeout, 1000);
 			return false;
 		}
 
