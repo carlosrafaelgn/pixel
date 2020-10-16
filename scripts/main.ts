@@ -254,7 +254,26 @@ function beforeInstallPrompt(e: Event): void {
 	installationPrompt = e;
 }
 
+let fullscreenChangedTimeout = 0;
+
 function fullscreenChanged(e: Event): void {
+	if (fullscreenChangedTimeout) {
+		clearTimeout(fullscreenChangedTimeout);
+		fullscreenChangedTimeout = 0;
+	}
+
+	try {
+		if (fullscreenControl.fullscreenMode)
+			fullscreenChangedTimeout = setTimeout(fullscreenChangedHandler, 150);
+		else
+			fullscreenChangedHandler();
+	} catch (ex) {
+		// Just ignore...
+	}
+}
+
+function fullscreenChangedHandler(): void {
+	fullscreenChangedTimeout = 0;
 	// https://www.w3.org/TR/screen-orientation/#locking-to-a-specific-orientation-and-unlocking
 	// https://developer.mozilla.org/en-US/docs/Web/API/Screen/orientation
 	// https://developer.mozilla.org/en-US/docs/Web/API/Screen/lockOrientation
