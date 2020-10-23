@@ -348,9 +348,9 @@ async function setup(): Promise<void> {
 	if (!androidWrapper)
 		fullscreenControl.onfullscreenchange = fullscreenChanged;
 
-	View.createInitialView();
-
 	View.loading = false;
+
+	View.createInitialView();
 
 	const levels = document.createElement("script");
 	levels.async = true;

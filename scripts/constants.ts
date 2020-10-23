@@ -43,8 +43,7 @@ function detectIOSOrSafari(): boolean {
 	return false;
 }
 
-const language = (androidWrapper ? androidWrapper.getBrowserLanguage() : (navigator["userLanguage"] as string || navigator.language)),
-	isPWA = (window.location.href.indexOf("pwa") >= 0),
+const isPWA = (window.location.href.indexOf("pwa") >= 0),
 	isIOSOrSafari = detectIOSOrSafari(),
 	main = document.getElementById("main") as HTMLDivElement,
 	// Must be in sync with lib/shared.h

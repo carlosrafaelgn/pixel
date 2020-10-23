@@ -125,7 +125,7 @@ class TitleView extends View {
 			}
 		];
 
-		if (!androidWrapper && !isPWA && installationPrompt && installationPrompt["prompt"])
+		if (!androidWrapper && installationPrompt && installationPrompt["prompt"])
 			buttons.push({
 				iconId: UISpriteSheet.Download,
 				text: Strings.Install,
