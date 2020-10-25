@@ -225,6 +225,9 @@ function adjustWindowSize(): void {
 		main.style.width = baseWidthCss + "px";
 		main.style.height = baseHeightCss + "px";
 
+		if (landscapeWarning)
+			landscapeWarning.style.fontSize = css(16);
+
 		maxHeightCss = cssNumber(maxHeight);
 		thumbnailWidthCss = css(thumbnailWidth);
 		thumbnailHeightCss = css(thumbnailHeight);
