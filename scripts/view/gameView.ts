@@ -409,11 +409,11 @@ class GameView extends View {
 		this.timeDisplayText.nodeValue = LevelCache.formatLevelRecordTime(this.totalElapsedMilliseconds[0]) + " - " + (name || Strings.NoName);
 	}
 
-	private editName(): void {
+	private editName(e: Event): boolean {
 		if (!this.alive || !this.level || !this.totalElapsedMilliseconds || !this.victory || !this.victory[0])
-			return;
+			return false;
 
-		Modal.show({
+		return Modal.show({
 			title: Strings.NewRecord,
 			html: `<label for="name">${Strings.Name}</label><input id="name" spellcheck="false" autocomplete="off" maxlength="8" /><br/><label>${Strings.Time}</label><label>${LevelCache.formatLevelRecordTime(this.totalElapsedMilliseconds[0])}</label>`,
 			okcancel: true,
