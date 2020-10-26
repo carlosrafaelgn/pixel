@@ -451,6 +451,11 @@ class LevelCache {
 		}
 	}
 
+	public static clearLastRecordName(): void {
+		if (LevelCache.LastRecordName)
+			localStorage.setItem(LevelCache.LastRecordNameName, LevelCache.LastRecordName = "");
+	}
+
 	public static formatLevelRecordTime(milliseconds: number): string {
 		if (!milliseconds || milliseconds < 0)
 			return "-";

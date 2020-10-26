@@ -337,7 +337,8 @@ abstract class View {
 			image = UISpriteSheet.create(imageId, button);
 		button.setAttribute("type", "button");
 		prepareButtonBlink(button, false, callback);
-		parent.appendChild(button);
+		if (parent)
+			parent.appendChild(button);
 		this.buttons.push(button);
 		this.buttonImages.push(image);
 		if (attributes) {

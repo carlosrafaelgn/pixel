@@ -206,11 +206,12 @@ function adjustWindowSize(): void {
 	if (heightCss > widthCss || baseTopCss) {
 		if (!landscapeWarning) {
 			landscapeWarning = document.createElement("div");
-			landscapeWarning.style.fontSize = css(16);
+			landscapeWarning.style.pointerEvents = "none";
+			landscapeWarning.style.fontSize = "2em";
 			landscapeWarning.style.textAlign = "center";
 			landscapeWarning.style.position = "absolute";
 			landscapeWarning.style.left = "0";
-			landscapeWarning.style.top = css(8);
+			landscapeWarning.style.top = "0.5em";
 			landscapeWarning.style.width = "100%";
 			landscapeWarning.style.zIndex = "9999";
 			landscapeWarning.textContent = Strings.LandscapeWarning;
@@ -224,9 +225,6 @@ function adjustWindowSize(): void {
 	if (scaleFactor !== lastScaleFactor || baseHeight !== lastBaseHeight) {
 		main.style.width = baseWidthCss + "px";
 		main.style.height = baseHeightCss + "px";
-
-		if (landscapeWarning)
-			landscapeWarning.style.fontSize = css(16);
 
 		maxHeightCss = cssNumber(maxHeight);
 		thumbnailWidthCss = css(thumbnailWidth);

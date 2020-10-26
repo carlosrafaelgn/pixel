@@ -52,10 +52,14 @@ class GameView extends View {
 	private backButton: HTMLButtonElement = null;
 	private restartButton: HTMLButtonElement = null;
 	private timeDisplay: HTMLDivElement = null;
+	private timeDisplayImage: HTMLSpanElement = null;
+	private timeDisplayText: Text = null;
+	private editNameButton: HTMLButtonElement = null;
 	private loadOptions: LevelLoadOptions = null;
 	private level: Level = null;
 	private viewY: Float32Array = null;
 	private frameRequest = 0;
+	private finalUIAttached = false;
 
 	private pointerHandler: PointerHandler = null;
 	private pointerCursorAttached: Int32Array = null;
@@ -77,30 +81,23 @@ class GameView extends View {
 		this.baseElement.style.cursor = "crosshair";
 		this.baseElement.style.touchAction = "none";
 
-		const back = this.createButton(this.baseElement, UISpriteSheet.Back, this.back.bind(this));
+		const back = this.createButton(preview ? this.baseElement : null, UISpriteSheet.Back, this.back.bind(this));
 		back.style.position = "absolute";
 		back.style.left = "0";
 		back.style.top = "0";
-		if (!preview)
-			back.style.display = "none";
 		this.backButton = back;
 
 		if (!this.preview) {
-			const restart = this.createButton(this.baseElement, UISpriteSheet.Restart, this.restart.bind(this));
-			restart.style.position = "absolute";
-			restart.style.left = "0";
-			restart.style.top = "0";
-			restart.style.display = "none";
-			this.restartButton = restart;
+			const restartButton = this.createButton(null, UISpriteSheet.Restart, this.restart.bind(this));
+			restartButton.style.position = "absolute";
+			restartButton.style.top = "0";
+			this.restartButton = restartButton;
 
 			const timeDisplay = document.createElement("div");
 			timeDisplay.style.position = "absolute";
-			timeDisplay.style.left = "0";
-			timeDisplay.style.top = "0";
-			timeDisplay.style.display = "none";
-			UISpriteSheet.create(UISpriteSheet.Clock, timeDisplay);
-			timeDisplay.appendChild(document.createTextNode(Strings.Time));
-			this.baseElement.appendChild(timeDisplay);
+			this.timeDisplayImage = UISpriteSheet.create(UISpriteSheet.Clock, timeDisplay);
+			timeDisplay.appendChild(this.timeDisplayText = document.createTextNode(Strings.Time));
+			this.editNameButton = this.createButton(timeDisplay, UISpriteSheet.Edit, this.editName.bind(this));
 			this.timeDisplay = timeDisplay;
 		}
 
@@ -154,13 +151,13 @@ class GameView extends View {
 			this.restartButton.style.left = css(buttonHeight + buttonMargin);
 
 		if (this.timeDisplay) {
-			this.timeDisplay.style.top = buttonMarginCss;
+			this.timeDisplay.style.marginTop = buttonMarginCss;
 			this.timeDisplay.style.left = css((buttonHeight * 3) + buttonMargin);
 			this.timeDisplay.style.lineHeight = iconSizeCss;
+			this.editNameButton.style.marginTop = "-" + buttonMarginCss;
 
-			const image = this.timeDisplay.childNodes[0] as HTMLSpanElement;
-			UISpriteSheet.resize(image);
-			image.style.marginRight = buttonMarginCss;
+			UISpriteSheet.resize(this.timeDisplayImage);
+			this.timeDisplayImage.style.marginRight = buttonMarginCss;
 		}
 
 		this.level.viewResized();
@@ -242,10 +239,12 @@ class GameView extends View {
 		if (!this.alive)
 			return false;
 
-		if (!this.preview) {
-			this.backButton.style.display = "none";
-			this.restartButton.style.display = "none";
-			this.timeDisplay.style.display = "none";
+		if (this.finalUIAttached) {
+			this.finalUIAttached = false;
+			if (!this.preview)
+				this.baseElement.removeChild(this.backButton);
+			this.baseElement.removeChild(this.restartButton);
+			this.baseElement.removeChild(this.timeDisplay);
 		}
 
 		this.paused = false;
@@ -395,12 +394,23 @@ class GameView extends View {
 		this.pointerCursorAttached[0] = 0;
 	}
 
-	private checkRecord(): void {
+	private checkRecord(): string {
 		if (!this.alive || !this.level || !this.totalElapsedMilliseconds || !this.victory || !this.victory[0])
-			return;
+			return null;
 
 		const record = LevelCache.getLevelRecord(this.level.name);
 		if (record && record.time <= this.totalElapsedMilliseconds[0])
+			return null;
+
+		return LevelCache.LastRecordName || "";
+	}
+
+	private setTimeDisplayTextRecord(name: string): void {
+		this.timeDisplayText.nodeValue = LevelCache.formatLevelRecordTime(this.totalElapsedMilliseconds[0]) + " - " + (name || Strings.NoName);
+	}
+
+	private editName(): void {
+		if (!this.alive || !this.level || !this.totalElapsedMilliseconds || !this.victory || !this.victory[0])
 			return;
 
 		Modal.show({
@@ -421,11 +431,23 @@ class GameView extends View {
 				}
 				(document.getElementById("name") as HTMLInputElement).value = LevelCache.LastRecordName || "";
 			},
+			onshown: () => {
+				(document.getElementById("name") as HTMLInputElement).focus();
+			},
 			onok: async () => {
 				if (!this.alive || !this.level || !this.totalElapsedMilliseconds)
 					return;
 
-				LevelCache.setLevelRecord(this.level.name, this.totalElapsedMilliseconds[0], (document.getElementById("name") as HTMLInputElement).value);
+				const name = (document.getElementById("name") as HTMLInputElement).value.trim();
+
+				if (name) {
+					LevelCache.setLevelRecord(this.level.name, this.totalElapsedMilliseconds[0], name);
+				} else {
+					LevelCache.deleteLevelRecord(this.level.name);
+					LevelCache.clearLastRecordName();
+				}
+
+				this.setTimeDisplayTextRecord(name);
 
 				Modal.hide();
 			}
@@ -550,13 +572,29 @@ class GameView extends View {
 			} else {
 				this.finished = false;
 				this.pointerCursorAttached[0] = 0;
-				this.backButton.style.display = "";
-				this.restartButton.style.display = "";
+
 				if (this.totalElapsedMilliseconds) {
-					(this.timeDisplay.childNodes[1] as Text).nodeValue = LevelCache.formatLevelRecordTime(this.totalElapsedMilliseconds[0]);
-					this.timeDisplay.style.display = "";
+					const name = this.checkRecord();
+					if (name === null) {
+						UISpriteSheet.change(this.timeDisplayImage, UISpriteSheet.Clock);
+						this.timeDisplayText.nodeValue = LevelCache.formatLevelRecordTime(this.totalElapsedMilliseconds[0]);
+						this.editNameButton.style.display = "none";
+					} else {
+						if (name)
+							LevelCache.setLevelRecord(this.level.name, this.totalElapsedMilliseconds[0], name);
+						UISpriteSheet.change(this.timeDisplayImage, UISpriteSheet.Trophy);
+						this.setTimeDisplayTextRecord(name);
+						this.editNameButton.style.display = "";
+					}
 				}
-				this.checkRecord();
+
+				if (!this.finalUIAttached) {
+					this.finalUIAttached = true;
+					if (!this.preview)
+						this.baseElement.appendChild(this.backButton);
+					this.baseElement.appendChild(this.restartButton);
+					this.baseElement.appendChild(this.timeDisplay);
+				}
 			}
 		}
 
