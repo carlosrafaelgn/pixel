@@ -45,10 +45,10 @@ REM
 REM 8388608 bytes (2097152 stack + 6291456 heap) is enough to hold even the largest
 REM structure, ImageInfo, which has a total of 4719244 bytes.
 
-del %OUT_DIR%\lib.js
-del %OUT_DIR%\lib.js.mem
-del %OUT_DIR%\lib.wasm
-del %OUT_DIR%\lib-nowasm.js
+DEL %OUT_DIR%\lib.js
+DEL %OUT_DIR%\lib.js.mem
+DEL %OUT_DIR%\lib.wasm
+DEL %OUT_DIR%\lib-nowasm.js
 
 CALL emcc ^
 	-I%CHIP_INC% ^
@@ -74,7 +74,7 @@ CALL emcc ^
 	-o %OUT_DIR%\lib.js ^
 	%SRCS%
 
-move %OUT_DIR%\lib.js %OUT_DIR%\lib-nowasm.js
+MOVE %OUT_DIR%\lib.js %OUT_DIR%\lib-nowasm.js
 
 CALL emcc ^
 	-I%CHIP_INC% ^

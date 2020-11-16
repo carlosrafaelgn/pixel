@@ -1,5 +1,5 @@
-@echo off
+@ECHO OFF
 
-copy assets\fonts\* PixelAndroid\app\src\main\assets\assets\fonts
-copy assets\images\* PixelAndroid\app\src\main\assets\assets\images
-copy assets\js\* PixelAndroid\app\src\main\assets\assets\js
+COPY assets\fonts\* PixelAndroid\app\src\main\assets\assets\fonts
+COPY assets\images\* PixelAndroid\app\src\main\assets\assets\images
+COPY assets\js\* PixelAndroid\app\src\main\assets\assets\js

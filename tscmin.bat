@@ -1,6 +1,6 @@
 @ECHO OFF
 
-del assets\js\scripts.min.js
+DEL assets\js\scripts.min.js
 
 CALL tsc
 
@@ -12,4 +12,4 @@ REM We are using ECMASCRIPT_2015 (without async/await support) in favor of a few
 java -jar D:\Tools\closure-compiler.jar --js assets\js\scripts.js --js_output_file assets\js\scripts.min.js --language_in ECMASCRIPT_2015 --language_out ECMASCRIPT_2015 --strict_mode_input --compilation_level SIMPLE
 REM java -jar D:\Tools\closure-compiler.jar --js assets\js\scripts.js --js_output_file assets\js\scripts.min.js --language_in ECMASCRIPT_2017 --language_out ECMASCRIPT_2017 --strict_mode_input --compilation_level SIMPLE
 
-del assets\js\scripts.js
+DEL assets\js\scripts.js
