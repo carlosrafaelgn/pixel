@@ -1,8 +1,8 @@
-@echo off
+@ECHO OFF
 
 del assets\js\scripts.min.js
 
-call tsc
+CALL tsc
 
 REM ECMASCRIPT_2015 and ES6 are the same thing...
 REM https://www.typescriptlang.org/docs/handbook/compiler-options.html (--target section)
