@@ -57,16 +57,9 @@ class PointerHandler {
 		this.moveCallback = moveCallback;
 		this.upCallback = upCallback;
 
-		if ("onpointerdown" in element) {
-			this.documentMoveEvent = "pointermove";
-			this.documentUpEvent = "pointerup";
-			this.documentCancelEvent = "pointercancel";
-
-			this.boundDocumentUp = this.pointerUp.bind(this);
-			this.boundDocumentMove = this.pointerMove.bind(this);
-
-			element.onpointerdown = this.pointerDown.bind(this);
-		} else if ("ontouchstart" in element) {
+		// Firefox mobile and a few iOS devices cause a buggy behavior if trying to handle
+		// pointerdown/move/up but not touchstart/end/cancel...
+		if ("ontouchstart" in element) {
 			this.documentMoveEvent = "touchmove";
 			this.documentUpEvent = "touchend";
 			this.documentCancelEvent = "touchcancel";
@@ -75,6 +68,15 @@ class PointerHandler {
 			this.boundDocumentMove = this.touchMove.bind(this);
 
 			(element as any).ontouchstart = this.touchStart.bind(this);
+		} else if ("onpointerdown" in element) {
+			this.documentMoveEvent = "pointermove";
+			this.documentUpEvent = "pointerup";
+			this.documentCancelEvent = "pointercancel";
+
+			this.boundDocumentUp = this.pointerUp.bind(this);
+			this.boundDocumentMove = this.pointerMove.bind(this);
+
+			element.onpointerdown = this.pointerDown.bind(this);
 		} else {
 			this.documentMoveEvent = "mousemove";
 			this.documentUpEvent = "mouseup";
@@ -170,7 +172,10 @@ class PointerHandler {
 
 		this.captured = true;
 
-		document.body.addEventListener(this.documentMoveEvent, this.boundDocumentMove, true);
+		// Firefox mobile and a few iOS devices treat a few events on the root element as passive by default
+		// https://stackoverflow.com/a/49853392/3569421
+		// https://stackoverflow.com/a/57076149/3569421
+		document.body.addEventListener(this.documentMoveEvent, this.boundDocumentMove, { capture: true, passive: false });
 		document.body.addEventListener(this.documentUpEvent, this.boundDocumentUp, true);
 		if (this.documentCancelEvent)
 			document.body.addEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
