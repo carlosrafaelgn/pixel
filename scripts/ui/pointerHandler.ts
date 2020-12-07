@@ -35,6 +35,8 @@ interface VoidPointerHandler {
 }
 
 class PointerHandler {
+	private readonly documentTarget: HTMLElement = null;
+
 	private captured = false;
 	private pointerId = -1;
 
@@ -52,6 +54,8 @@ class PointerHandler {
 	private boundDocumentMove: any = null;
 
 	public constructor(element: HTMLElement, downCallback: BooleanPointerHandler = null, moveCallback: VoidPointerHandler = null, upCallback: VoidPointerHandler = null) {
+		this.documentTarget = (document.documentElement || document.body);
+
 		this.element = element;
 		this.downCallback = downCallback;
 		this.moveCallback = moveCallback;
@@ -175,10 +179,10 @@ class PointerHandler {
 		// Firefox mobile and a few iOS devices treat a few events on the root element as passive by default
 		// https://stackoverflow.com/a/49853392/3569421
 		// https://stackoverflow.com/a/57076149/3569421
-		document.body.addEventListener(this.documentMoveEvent, this.boundDocumentMove, { capture: true, passive: false });
-		document.body.addEventListener(this.documentUpEvent, this.boundDocumentUp, true);
+		this.documentTarget.addEventListener(this.documentMoveEvent, this.boundDocumentMove, { capture: true, passive: false });
+		this.documentTarget.addEventListener(this.documentUpEvent, this.boundDocumentUp, true);
 		if (this.documentCancelEvent)
-			document.body.addEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
+			this.documentTarget.addEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
 
 		return cancelEvent(e);
 	}
@@ -197,10 +201,10 @@ class PointerHandler {
 		if (!this.captured)
 			return;
 
-		document.body.removeEventListener(this.documentUpEvent, this.boundDocumentUp, true);
-		document.body.removeEventListener(this.documentMoveEvent, this.boundDocumentMove, true);
+		this.documentTarget.removeEventListener(this.documentUpEvent, this.boundDocumentUp, true);
+		this.documentTarget.removeEventListener(this.documentMoveEvent, this.boundDocumentMove, true);
 		if (this.documentCancelEvent)
-			document.body.removeEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
+			this.documentTarget.removeEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
 
 		this.captured = false;
 
