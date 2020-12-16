@@ -27,25 +27,25 @@
 "use strict";
 
 class ScrollContainer {
-	private parent: HTMLElement = null;
-	private container: HTMLDivElement = null;
-	private scrollContainer: HTMLDivElement = null;
-	private scrollThumb: HTMLSpanElement = null;
-	private pointerHandler: PointerHandler = null;
-	private containerPointerHandler: PointerHandler = null;
+	private parent: HTMLElement;
+	private container: HTMLDivElement;
+	private scrollContainer: HTMLDivElement;
+	private scrollThumb: HTMLSpanElement;
+	private pointerHandler: PointerHandler;
+	private containerPointerHandler: PointerHandler;
 
-	private boundDocumentWheel: any = null;
+	private boundDocumentWheel: any;
 
-	private pointerLastY = 0;
-	private containerTopCss = 0;
-	private availableHeight = 0;
-	private contentHeight = 0;
-	private scrollContainerTopCss = 0;
-	private scrollThumbTopPercent = 0;
-	private scrollThumbTopCss = 0;
-	private scrollThumbInitialTopCss = 0;
-	private scrollThumbOnly = false;
-	private ignoreScroll = false;
+	private pointerLastY: number;
+	private containerTopCss: number;
+	private availableHeight: number;
+	private contentHeight: number;
+	private scrollContainerTopCss: number;
+	private scrollThumbTopPercent: number;
+	private scrollThumbTopCss: number;
+	private scrollThumbInitialTopCss: number;
+	private scrollThumbOnly: boolean;
+	private ignoreScroll: boolean;
 
 	public constructor(parent: HTMLElement, scrollThumbOnly: boolean = false, extraContainerClass: string = null, container: HTMLDivElement = null) {
 		if (container) {
@@ -66,9 +66,21 @@ class ScrollContainer {
 		this.scrollThumb = UISpriteSheet.create(UISpriteSheet.ScrollThumb, this.parent);
 		this.scrollThumb.className = "scroll-thumb";
 
+		this.pointerHandler = null;
+		this.containerPointerHandler = null;
+	
 		this.boundDocumentWheel = this.documentWheel.bind(this);
 
+		this.pointerLastY = 0;
+		this.containerTopCss = 0;
+		this.availableHeight = 0;
+		this.contentHeight = 0;
+		this.scrollContainerTopCss = 0;
+		this.scrollThumbTopPercent = 0;
+		this.scrollThumbTopCss = 0;
+		this.scrollThumbInitialTopCss = 0;
 		this.scrollThumbOnly = scrollThumbOnly;
+		this.ignoreScroll = false;
 
 		if (!scrollThumbOnly)
 			this.container.onscroll = this.containerScroll.bind(this);

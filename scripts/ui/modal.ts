@@ -130,19 +130,20 @@ class Modal {
 			Modal.modal.resizeInternal();
 	}
 
-	private fading = false;
-	private options: ModalOptions = null;
-	private containerElement: HTMLDivElement = null;
-	private modalElement: HTMLFormElement = null;
-	private modalHeaderElement: HTMLDivElement = null;
-	private modalBodyElement: HTMLDivElement = null;
-	private modalFooterElement: HTMLDivElement = null;
-	private defaultCancelButton: HTMLButtonElement = null;
-	private defaultSubmitButton: HTMLButtonElement = null;
+	private fading: boolean;
+	private options: ModalOptions;
+	private containerElement: HTMLDivElement;
+	private modalElement: HTMLFormElement;
+	private modalHeaderElement: HTMLDivElement;
+	private modalBodyElement: HTMLDivElement;
+	private modalFooterElement: HTMLDivElement;
+	private defaultCancelButton: HTMLButtonElement;
+	private defaultSubmitButton: HTMLButtonElement;
 
-	private boundDocumentKeyDown: any = null;
+	private boundDocumentKeyDown: any;
 
 	private constructor(options: ModalOptions) {
+		this.fading = false;
 		this.options = options;
 
 		this.containerElement = document.createElement("div");
@@ -187,6 +188,9 @@ class Modal {
 
 		this.modalFooterElement = document.createElement("div");
 		this.modalFooterElement.className = "modal-decoration";
+
+		this.defaultCancelButton = null;
+		this.defaultSubmitButton = null;
 
 		for (let i = 0; i < options.buttons.length; i++) {
 			const currentButton = options.buttons[i];

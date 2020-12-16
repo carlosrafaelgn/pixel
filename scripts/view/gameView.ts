@@ -44,36 +44,38 @@ class GameView extends View {
 
 	private static wakeLockSentinel: WakeLockSentinel = null;
 
-	private alive = true;
-	private paused = false;
-	private finished = false;
 	private readonly preview: boolean;
-	private alreadyCreated = false;
-	private backButton: HTMLButtonElement = null;
-	private restartButton: HTMLButtonElement = null;
-	private timeDisplay: HTMLDivElement = null;
-	private timeDisplayImage: HTMLSpanElement = null;
-	private timeDisplayText: Text = null;
-	private editNameButton: HTMLButtonElement = null;
-	private loadOptions: LevelLoadOptions = null;
-	private level: Level = null;
-	private viewY: Float32Array = null;
-	private frameRequest = 0;
-	private finalUIAttached = false;
 
-	private pointerHandler: PointerHandler = null;
-	private pointerCursorAttached: Int32Array = null;
-	private totalElapsedMilliseconds: Int32Array = null;
-	private victory: Int32Array = null;
-	private pointerCursorCenterX: Float32Array = null;
-	private pointerCursorCenterY: Float32Array = null;
-	private pointerCursorX: Float32Array = null;
-	private pointerCursorY: Float32Array = null;
+	private readonly backButton: HTMLButtonElement;
+	private readonly restartButton: HTMLButtonElement;
+	private readonly timeDisplay: HTMLDivElement;
+	private readonly timeDisplayImage: HTMLSpanElement;
+	private readonly timeDisplayText: Text;
+	private readonly editNameButton: HTMLButtonElement;
+	private readonly resourceStorage: ResourceStorage;
 
-	private boundRender: any = null;
+	private readonly boundRender: any;
 
-	private resourceStorage: ResourceStorage = null;
-	private levelTexture: Texture = null;
+	private alive: boolean;
+	private paused: boolean;
+	private finished: boolean;
+	private alreadyCreated: boolean;
+	private loadOptions: LevelLoadOptions;
+	private level: Level;
+	private viewY: Float32Array;
+	private frameRequest: number;
+	private finalUIAttached: boolean;
+
+	private pointerHandler: PointerHandler;
+	private pointerCursorAttached: Int32Array;
+	private totalElapsedMilliseconds: Int32Array;
+	private victory: Int32Array;
+	private pointerCursorCenterX: Float32Array;
+	private pointerCursorCenterY: Float32Array;
+	private pointerCursorX: Float32Array;
+	private pointerCursorY: Float32Array;
+
+	private levelTexture: Texture;
 
 	public constructor(loadOptions: LevelLoadOptions, preview: boolean) {
 		super();
@@ -87,7 +89,9 @@ class GameView extends View {
 		back.style.top = "0";
 		this.backButton = back;
 
-		if (!this.preview) {
+		this.preview = preview;
+
+		if (!preview) {
 			const restartButton = this.createButton(null, UISpriteSheet.Restart, this.restart.bind(this));
 			restartButton.style.position = "absolute";
 			restartButton.style.top = "0";
@@ -99,6 +103,11 @@ class GameView extends View {
 			timeDisplay.appendChild(this.timeDisplayText = document.createTextNode(Strings.Time));
 			this.editNameButton = this.createButton(timeDisplay, UISpriteSheet.Edit, this.editName.bind(this));
 			this.timeDisplay = timeDisplay;
+		} else {
+			this.restartButton = null;
+			this.timeDisplayImage = null;
+			this.editNameButton = null;
+			this.timeDisplay = null;
 		}
 
 		const pause = this.createButton(this.baseElement, UISpriteSheet.Pause, this.pause.bind(this));
@@ -110,8 +119,26 @@ class GameView extends View {
 
 		this.boundRender = this.render.bind(this);
 
+		this.alive = true;
+		this.paused = false;
+		this.finished = false;
+		this.alreadyCreated = false;
 		this.loadOptions = loadOptions;
-		this.preview = preview;
+		this.level = null;
+		this.viewY = null;
+		this.frameRequest = 0;
+		this.finalUIAttached = false;
+	
+		this.pointerHandler = null;
+		this.pointerCursorAttached = null;
+		this.totalElapsedMilliseconds = null;
+		this.victory = null;
+		this.pointerCursorCenterX = null;
+		this.pointerCursorCenterY = null;
+		this.pointerCursorX = null;
+		this.pointerCursorY = null;
+	
+		this.levelTexture = null;
 	}
 
 	protected get usesGL(): boolean {
@@ -241,10 +268,11 @@ class GameView extends View {
 
 		if (this.finalUIAttached) {
 			this.finalUIAttached = false;
-			if (!this.preview)
+			if (!this.preview) {
 				this.baseElement.removeChild(this.backButton);
-			this.baseElement.removeChild(this.restartButton);
-			this.baseElement.removeChild(this.timeDisplay);
+				this.baseElement.removeChild(this.restartButton);
+				this.baseElement.removeChild(this.timeDisplay);
+			}
 		}
 
 		this.paused = false;
@@ -565,14 +593,11 @@ class GameView extends View {
 		gl.prepareNativeDraw(View.sheetTexture);
 
 		if (cLib._render(gl.verticesPtr, level.levelPtr, LevelSpriteSheet.LevelSpriteSheetPtr, scaleFactor)) {
+			this.finished = true;
+			this.pointerCursorAttached[0] = 0;
 			if (this.preview) {
-				this.finished = true;
-				this.pointerCursorAttached[0] = 0;
 				this.pause(null);
 			} else {
-				this.finished = false;
-				this.pointerCursorAttached[0] = 0;
-
 				if (this.totalElapsedMilliseconds) {
 					const name = this.checkRecord();
 					if (name === null) {
@@ -590,10 +615,11 @@ class GameView extends View {
 
 				if (!this.finalUIAttached) {
 					this.finalUIAttached = true;
-					if (!this.preview)
+					if (!this.preview) {
 						this.baseElement.appendChild(this.backButton);
-					this.baseElement.appendChild(this.restartButton);
-					this.baseElement.appendChild(this.timeDisplay);
+						this.baseElement.appendChild(this.restartButton);
+						this.baseElement.appendChild(this.timeDisplay);
+					}
 				}
 			}
 		}

@@ -259,17 +259,25 @@ abstract class View {
 			window.history.back();
 	}
 
-	protected attached: boolean = false;
-	protected buttons: HTMLButtonElement[] = [];
-	protected buttonsWithMargin: HTMLButtonElement[] = [];
-	protected buttonsWithLargeMargin: HTMLButtonElement[] = [];
-	protected buttonImages: HTMLSpanElement[] = [];
+	protected readonly buttons: HTMLButtonElement[];
+	protected readonly buttonsWithMargin: HTMLButtonElement[];
+	protected readonly buttonsWithLargeMargin: HTMLButtonElement[];
+	protected readonly buttonImages: HTMLSpanElement[];
 
-	public baseElement: HTMLDivElement = null;
+	public readonly baseElement: HTMLDivElement;
+
+	protected attached: boolean;
 
 	public constructor() {
+		this.buttons = [];
+		this.buttonsWithMargin = [];
+		this.buttonsWithLargeMargin = [];
+		this.buttonImages = [];
+	
 		this.baseElement = document.createElement("div");
 		this.baseElement.className = "base-element";
+
+		this.attached = false;
 	}
 
 	protected get usesGL(): boolean {

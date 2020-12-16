@@ -27,17 +27,22 @@
 "use strict";
 
 class Texture extends Resource {
-	private gl: WebGL = null;
+	private gl: WebGL;
 
-	private _width: number = 0;
-	private _height: number = 0;
-	private _image: HTMLImageElement = null;
-	private _texture: WebGLTexture = null;
+	private _width: number;
+	private _height: number;
+	private _image: HTMLImageElement;
+	private _texture: WebGLTexture;
 
 	public constructor(gl: WebGL, image: HTMLImageElement, width = 0, height = 0) {
 		super();
 
 		this.gl = gl;
+		this._width = 0;
+		this._height = 0;
+		this._image = null;
+		this._texture = null;
+
 		this.bindImage(image, width, height);
 	}
 

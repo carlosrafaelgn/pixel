@@ -27,19 +27,20 @@
 "use strict";
 
 class SelectionView extends View {
-	private fileInput: HTMLInputElement = null;
-	private toolbarTop: HTMLDivElement = null;
-	private scrollContainer: ScrollContainer = null;
-	private thumbnails: HTMLDivElement[] = null;
-	private thumbnailImages: HTMLImageElement[] = null;
-	private thumbnailRecords: HTMLDivElement[] = null;
-	private anchors: HTMLAnchorElement[] = null;
-	private hr: HTMLHRElement = null;
+	private readonly fileInput: HTMLInputElement;
+	private readonly toolbarTop: HTMLDivElement;
+	private readonly scrollContainer: ScrollContainer;
 
-	private lastPlayedThumbnail: HTMLDivElement = null;
+	private readonly boundPlay: any;
+	private readonly boundShowMenu: any;
 
-	private boundPlay: any = null;
-	private boundShowMenu: any = null;
+	private thumbnails: HTMLDivElement[];
+	private thumbnailImages: HTMLImageElement[];
+	private thumbnailRecords: HTMLDivElement[];
+	private anchors: HTMLAnchorElement[];
+	private hr: HTMLHRElement;
+
+	private lastPlayedThumbnail: HTMLDivElement;
 
 	public constructor() {
 		super();
@@ -64,6 +65,13 @@ class SelectionView extends View {
 
 		this.boundPlay = this.play.bind(this);
 		this.boundShowMenu = this.showMenu.bind(this);
+
+		this.thumbnails = null;
+		this.thumbnailImages = null;
+		this.thumbnailRecords = null;
+		this.anchors = null;
+		this.hr = null;
+		this.lastPlayedThumbnail = null;
 	}
 
 	protected resize(): void {

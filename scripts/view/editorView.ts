@@ -38,45 +38,51 @@ class EditorView extends View {
 	private static readonly ToolDeleteObject = 6;
 	private static readonly FirstObjectTool = EditorView.ToolBall;
 	private static readonly ObjectToolCount = 5;
-	private tool = EditorView.ToolPencil;
-	private dirty = false;
-	private context: CanvasRenderingContext2D = null;
-	private contextGlobalCompositeOperation = "source-over";
-	private lastPencilColor = 0;
-	private lastPencilRainbowIndex = 0;
-	private lastBrushWidth = 0;
-	private lastObjectType = LevelObject.TypeBall;
-	private brushOffsets = [0, 10, 26, 46];
-	private brushWidths = [9, 15, 19, 39];
-	private brushCanvas: HTMLCanvasElement = null;
-	private brushContext: CanvasRenderingContext2D = null;
-	private loadOptions: LevelLoadOptions = null;
-	private selectionView = false;
-	private level: Level = null;
-	private levelBallCount = 0;
 
-	private pointerHandler: PointerHandler = null;
-	private pointerLastX = 0;
-	private pointerLastY = 0;
-	private pointerCursorAttached = false;
-	private pointerCursor: HTMLDivElement = null;
+	private static readonly BrushOffsets = [0, 10, 26, 46];
+	private static readonly BrushWidths = [9, 15, 19, 39];
 
-	private fileInput: HTMLInputElement = null;
-	private toolbarTop: HTMLDivElement = null;
-	private toolbarBottom: HTMLDivElement = null;
-	private scrollContainer: ScrollContainer = null;
-	private canvas: HTMLCanvasElement = null;
-	private objectImages: HTMLSpanElement[] = [];
-	private objectImageDrag: HTMLSpanElement = null;
-	private objectImageDragOffsetXCss = 0;
-	private objectImageDragOffsetYCss = 0;
-	private firstPencilButtonIndex = 0;
-	private firstLineWidthButtonIndex = 0;
-	private firstObjectToolButtonIndex = 0;
+	private readonly fileInput: HTMLInputElement;
+	private readonly toolbarTop: HTMLDivElement;
+	private readonly toolbarBottom: HTMLDivElement;
+	private readonly scrollContainer: ScrollContainer;
+	private readonly canvas: HTMLCanvasElement;
 
-	private keyUpTime = 0;
-	private keyUpCounter = 0;
-	private boundDocumentKeyUp: any = null;
+	private readonly pointerCursor: HTMLDivElement;
+
+	private readonly selectionView: boolean;
+
+	private readonly boundDocumentKeyUp: any;
+
+	private tool: number;
+	private dirty: boolean;
+	private context: CanvasRenderingContext2D;
+	private contextGlobalCompositeOperation: string;
+	private lastPencilColor: number;
+	private lastPencilRainbowIndex: number;
+	private lastBrushWidth: number;
+	private lastObjectType: number;
+	private brushCanvas: HTMLCanvasElement;
+	private brushContext: CanvasRenderingContext2D;
+	private loadOptions: LevelLoadOptions;
+	private level: Level;
+	private levelBallCount: number;
+
+	private pointerHandler: PointerHandler;
+	private pointerLastX: number;
+	private pointerLastY: number;
+	private pointerCursorAttached: boolean;
+
+	private objectImages: HTMLSpanElement[];
+	private objectImageDrag: HTMLSpanElement;
+	private objectImageDragOffsetXCss: number;
+	private objectImageDragOffsetYCss: number;
+	private firstPencilButtonIndex: number;
+	private firstLineWidthButtonIndex: number;
+	private firstObjectToolButtonIndex: number;
+
+	private keyUpTime: number;
+	private keyUpCounter: number;
 
 	public constructor(loadOptions?: LevelLoadOptions, selectionView?: boolean) {
 		super();
@@ -133,13 +139,41 @@ class EditorView extends View {
 
 		this.fileInput.onchange = this.openFile.bind(this);
 
-		if (!androidWrapper && !isPWA)
-			this.boundDocumentKeyUp = this.documentKeyUp.bind(this);
+		this.selectionView = !!selectionView;
+
+		this.boundDocumentKeyUp = ((!androidWrapper && !isPWA) ? this.documentKeyUp.bind(this) : null);
+
+		this.tool = EditorView.ToolPencil;
+		this.dirty = false;
+		this.context = null;
+		this.contextGlobalCompositeOperation = "source-over";
+		this.lastPencilColor = 0;
+		this.lastPencilRainbowIndex = 0;
+		this.lastBrushWidth = 0;
+		this.lastObjectType = LevelObject.TypeBall;
+		this.brushCanvas = null;
+		this.brushContext = null;
+		this.loadOptions = (loadOptions || null);
+		this.level = null;
+		this.levelBallCount = 0;
+
+		this.pointerHandler = null;
+		this.pointerLastX = 0;
+		this.pointerLastY = 0;
+		this.pointerCursorAttached = false;
+
+		this.objectImages = [];
+		this.objectImageDrag = null;
+		this.objectImageDragOffsetXCss = 0;
+		this.objectImageDragOffsetYCss = 0;
+		this.firstPencilButtonIndex = 0;
+		this.firstLineWidthButtonIndex = 0;
+		this.firstObjectToolButtonIndex = 0;
+
+		this.keyUpTime = 0;
+		this.keyUpCounter = 0;
 
 		this.highlightTool();
-
-		this.loadOptions = (loadOptions || null);
-		this.selectionView = !!selectionView;
 	}
 
 	private setGridBackground(): void {
@@ -153,7 +187,7 @@ class EditorView extends View {
 	protected resize(): void {
 		const canvasBackgroundSize = css(63),
 			maxHeightCss = css(maxHeight),
-			brushWidthCss = css(this.brushWidths[this.lastBrushWidth]);
+			brushWidthCss = css(EditorView.BrushWidths[this.lastBrushWidth]);
 
 		this.toolbarTop.style.height = toolbarAvailableHeightCss;
 		this.toolbarTop.style.borderBottomWidth = borderWidthCss;
@@ -262,7 +296,7 @@ class EditorView extends View {
 	}
 
 	private updatePointerCursor(xCss: number, yCss: number): void {
-		const halfLineWidth = cssNumber((this.brushWidths[this.lastBrushWidth] * 0.5) + 1);
+		const halfLineWidth = cssNumber((EditorView.BrushWidths[this.lastBrushWidth] * 0.5) + 1);
 		this.pointerCursor.style.left = (xCss - halfLineWidth) + "px";
 		this.pointerCursor.style.top = (yCss - halfLineWidth + this.scrollContainer.topCss) + "px";
 	}
@@ -361,9 +395,9 @@ class EditorView extends View {
 			absDy = Math.abs(dy);
 
 		if (absDx || absDy) {
-			const width = this.brushWidths[this.lastBrushWidth],
+			const width = EditorView.BrushWidths[this.lastBrushWidth],
 				radius = width >> 1,
-				offset = this.brushOffsets[this.lastBrushWidth];
+				offset = EditorView.BrushOffsets[this.lastBrushWidth];
 
 			let maxDelta = Math.max(absDx, absDy),
 				i = this.pointerLastX,
@@ -450,7 +484,7 @@ class EditorView extends View {
 		if (this.tool === EditorView.ToolPencil || this.tool === EditorView.ToolEraser)
 			this.buttons[i++].style.backgroundColor = "#fff";
 
-		e = this.firstLineWidthButtonIndex + this.brushWidths.length;
+		e = this.firstLineWidthButtonIndex + EditorView.BrushWidths.length;
 		for (; i < e; i++)
 			this.buttons[i].style.backgroundColor = "";
 
@@ -621,7 +655,7 @@ class EditorView extends View {
 				break;
 		}
 
-		const brushWidthCss = css(this.brushWidths[this.lastBrushWidth]);
+		const brushWidthCss = css(EditorView.BrushWidths[this.lastBrushWidth]);
 		this.pointerCursor.style.width = brushWidthCss;
 		this.pointerCursor.style.height = brushWidthCss;
 		this.highlightTool();

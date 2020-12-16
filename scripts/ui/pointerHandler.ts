@@ -35,26 +35,29 @@ interface VoidPointerHandler {
 }
 
 class PointerHandler {
-	private readonly documentTarget: HTMLElement = null;
+	private readonly documentTarget: HTMLElement;
 
-	private captured = false;
-	private pointerId = -1;
+	private captured: boolean;
+	private pointerId: number;
 
-	private element: HTMLElement = null;
+	private element: HTMLElement;
 
-	private documentMoveEvent: string = null;
-	private documentUpEvent: string = null;
-	private documentCancelEvent: string = null;
+	private documentMoveEvent: string;
+	private documentUpEvent: string;
+	private documentCancelEvent: string;
 
-	private downCallback: BooleanPointerHandler = null;
-	private moveCallback: VoidPointerHandler = null;
-	private upCallback: VoidPointerHandler = null;
+	private downCallback: BooleanPointerHandler;
+	private moveCallback: VoidPointerHandler;
+	private upCallback: VoidPointerHandler;
 
-	private boundDocumentUp: any = null;
-	private boundDocumentMove: any = null;
+	private boundDocumentUp: any;
+	private boundDocumentMove: any;
 
 	public constructor(element: HTMLElement, downCallback: BooleanPointerHandler = null, moveCallback: VoidPointerHandler = null, upCallback: VoidPointerHandler = null) {
 		this.documentTarget = (document.documentElement || document.body);
+
+		this.captured = false;
+		this.pointerId = -1;
 
 		this.element = element;
 		this.downCallback = downCallback;

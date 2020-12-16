@@ -27,9 +27,9 @@
 "use strict";
 
 class TitleView extends View {
-	private buttonContainer: HTMLDivElement = null;
-	private fullscreenButton: HTMLButtonElement = null;
-	private aboutButton: HTMLButtonElement = null;
+	private readonly buttonContainer: HTMLDivElement;
+	private readonly fullscreenButton: HTMLButtonElement;
+	private readonly aboutButton: HTMLButtonElement;
 
 	public constructor() {
 		super();
