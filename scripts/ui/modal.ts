@@ -143,7 +143,6 @@ class Modal {
 	private boundDocumentKeyDown: any;
 
 	private constructor(options: ModalOptions) {
-		this.fading = false;
 		this.options = options;
 
 		this.containerElement = document.createElement("div");
