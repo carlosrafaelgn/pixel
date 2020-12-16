@@ -308,9 +308,9 @@ abstract class View {
 	protected fadeInFinished(): void {
 	}
 
-	protected abstract async attach(): Promise<void>;
+	protected abstract attach(): Promise<void>;
 
-	protected abstract async detach(): Promise<void>;
+	protected abstract detach(): Promise<void>;
 
 	protected abstract destroyInternal(partial: boolean): void;
 
