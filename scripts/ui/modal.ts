@@ -26,6 +26,10 @@
 
 "use strict";
 
+interface ModalButtonCallback {
+	(id: string, button: HTMLButtonElement): void;
+}
+
 interface ModalButton {
 	id?: string;
 	defaultCancel?: boolean;
@@ -33,7 +37,7 @@ interface ModalButton {
 	iconId: number;
 	text: string;
 	className?: string;
-	onclick?: (id: string, button: HTMLButtonElement) => void;
+	onclick?: ModalButtonCallback;
 }
 
 interface ModalOptions {
@@ -43,7 +47,7 @@ interface ModalOptions {
 	okcancel?: boolean;
 	okcancelsubmit?: boolean;
 	buttons?: ModalButton[];
-	onbuttonclick?: (id: string, button: HTMLButtonElement) => void;
+	onbuttonclick?: ModalButtonCallback;
 	onresized?: () => void;
 	onshowing?: () => void;
 	onshown?: () => void;
