@@ -26,6 +26,10 @@
 
 "use strict";
 
+interface ButtonCallback {
+	(e: Event): boolean;
+}
+
 abstract class View {
 	private static _loading = false;
 	private static _fading = false;
@@ -340,7 +344,7 @@ abstract class View {
 		}
 	}
 
-	protected createButton(parent: HTMLElement, imageId: number, callback: (e: Event) => boolean, ...attributes: string[]): HTMLButtonElement {
+	protected createButton(parent: HTMLElement, imageId: number, callback: ButtonCallback, ...attributes: string[]): HTMLButtonElement {
 		const button = document.createElement("button"),
 			image = UISpriteSheet.create(imageId, button);
 		button.setAttribute("type", "button");
