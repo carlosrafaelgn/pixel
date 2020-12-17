@@ -96,7 +96,7 @@ function smoothStep(input: number): number {
 	return (input * input * (3.0 - (2.0 * input)));
 }
 
-function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback: (e: MouseEvent) => boolean): void {
+function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback: (e: Event) => boolean): void {
 	button.onclick = (e) => {
 		if (View.loading || View.fading || (!insideModal && Modal.visible) || !callback(e))
 			return;
