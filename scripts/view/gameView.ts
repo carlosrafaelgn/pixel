@@ -330,13 +330,13 @@ class GameView extends View {
 			return false;
 
 		if (!this.paused) {
-			const controlModeImg = (ControlMode.accelerationSupported ? UISpriteSheet.create(ControlMode.modeImage) : null);
+			const controlModeImg = (ControlMode.accelerationSupported ? UISpriteSheet.html(ControlMode.modeImage) : null);
 
 			if (!Modal.show({
 				title: Strings.Pause,
-				html: ((androidWrapper || isPWA) ? "" : `<button type="button" id="fullscreen" data-style="margin-bottom: ${buttonMargin}">${Strings.Fullscreen}</button><br/>`) + 
-					(!controlModeImg ? "" : `<button type="button" id="controlMode" data-style="margin-bottom: ${buttonMargin}">${Strings.ControlMode}</button><br/>`) +
-					`<button type="button" id="restart">${Strings.Restart}</button>`,
+				html: ((androidWrapper || isPWA) ? "" : `<button type="button" id="fullscreen" data-style="margin-bottom: ${buttonMargin}">${UISpriteSheet.html(UISpriteSheet.Fullscreen)}${Strings.Fullscreen}</button><br/>`) + 
+					(!controlModeImg ? "" : `<button type="button" id="controlMode" data-style="margin-bottom: ${buttonMargin}">${controlModeImg}${Strings.ControlMode}</button><br/>`) +
+					`<button type="button" id="restart">${UISpriteSheet.html(UISpriteSheet.Restart)}${Strings.Restart}</button>`,
 				buttons: [
 					{
 						iconId: UISpriteSheet.Back,
@@ -357,19 +357,6 @@ class GameView extends View {
 						}
 					}
 				],
-				onshowing: () => {
-					let button = document.getElementById("fullscreen") as HTMLButtonElement;
-					if (button)
-						button.insertBefore(UISpriteSheet.create(UISpriteSheet.Fullscreen), button.firstChild);
-
-					if (controlModeImg) {
-						button = document.getElementById("controlMode") as HTMLButtonElement;
-						button.insertBefore(controlModeImg, button.firstChild);
-					}
-
-					button = document.getElementById("restart") as HTMLButtonElement;
-					button.insertBefore(UISpriteSheet.create(UISpriteSheet.Restart), button.firstChild);
-				},
 				onbuttonclick: (id) => {
 					switch (id) {
 						case "fullscreen":
@@ -377,7 +364,7 @@ class GameView extends View {
 							break;
 						case "controlMode":
 							ControlMode.toggleMode();
-							UISpriteSheet.change(controlModeImg, ControlMode.modeImage);
+							UISpriteSheet.change(document.getElementById("controlMode").firstChild as HTMLSpanElement, ControlMode.modeImage);
 							break;
 						case "restart":
 							this.restart();

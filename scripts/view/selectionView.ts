@@ -400,8 +400,8 @@ class SelectionView extends View {
 
 		return Modal.show({
 			title: Strings.Menu,
-			html: `<button type="button" id="edit" ${builtInLevel ? "" : `data-style="margin-bottom: ${buttonMargin}"`}>${Strings.Edit}</button>
-				${builtInLevel ? "" : `<br/><button type="button" id="delete" class="danger">${Strings.Delete}</button>`}`,
+			html: `<button type="button" id="edit" ${builtInLevel ? "" : `data-style="margin-bottom: ${buttonMargin}"`}>${UISpriteSheet.html(UISpriteSheet.Edit)}${Strings.Edit}</button>
+				${builtInLevel ? "" : `<br/><button type="button" id="delete" class="danger">${UISpriteSheet.html(UISpriteSheet.ClearRed)}${Strings.Delete}</button>`}`,
 			buttons: [
 				{
 					defaultCancel: true,
@@ -420,15 +420,6 @@ class SelectionView extends View {
 					}
 				}
 			],
-			onshowing: () => {
-				let button = document.getElementById("edit") as HTMLButtonElement;
-				button.insertBefore(UISpriteSheet.create(UISpriteSheet.Edit), button.firstChild);
-
-				if (!builtInLevel) {
-					button = document.getElementById("delete") as HTMLButtonElement;
-					button.insertBefore(UISpriteSheet.create(UISpriteSheet.ClearRed), button.firstChild);
-				}
-			},
 			onbuttonclick: (id) => {
 				switch (id) {
 					case "edit":
