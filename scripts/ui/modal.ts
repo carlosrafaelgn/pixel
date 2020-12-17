@@ -37,7 +37,7 @@ interface ModalButton {
 }
 
 interface ModalOptions {
-	html: string;
+	html: string | HTMLElement;
 	title?: string;
 	large?: boolean;
 	okcancel?: boolean;
@@ -158,7 +158,10 @@ class Modal {
 
 		this.modalBodyElement = document.createElement("div");
 		this.modalBodyElement.className = "modal-body";
-		this.modalBodyElement.innerHTML = options.html;
+		if ((typeof options.html) === "string")
+			this.modalBodyElement.innerHTML = options.html as string;
+		else
+			this.modalBodyElement.appendChild(options.html as HTMLElement);
 
 		const buttons = this.modalBodyElement.getElementsByTagName("button");
 		if (buttons && buttons.length) {
