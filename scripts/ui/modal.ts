@@ -134,17 +134,18 @@ class Modal {
 			Modal.modal.resizeInternal();
 	}
 
-	private fading: boolean;
-	private options: ModalOptions;
-	private containerElement: HTMLDivElement;
-	private modalElement: HTMLFormElement;
-	private modalHeaderElement: HTMLDivElement;
-	private modalBodyElement: HTMLDivElement;
-	private modalFooterElement: HTMLDivElement;
-	private defaultCancelButton: HTMLButtonElement;
-	private defaultSubmitButton: HTMLButtonElement;
+	private readonly options: ModalOptions;
+	private readonly containerElement: HTMLDivElement;
+	private readonly modalElement: HTMLFormElement;
+	private readonly modalHeaderElement: HTMLDivElement;
+	private readonly modalBodyElement: HTMLDivElement;
+	private readonly modalFooterElement: HTMLDivElement;
+	private readonly defaultCancelButton: HTMLButtonElement;
+	private readonly defaultSubmitButton: HTMLButtonElement;
 
-	private boundDocumentKeyDown: any;
+	private readonly boundDocumentKeyDown: any;
+
+	private fading: boolean;
 
 	private constructor(options: ModalOptions) {
 		this.options = options;
