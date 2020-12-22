@@ -335,7 +335,7 @@ async function setup(): Promise<void> {
 	if (("serviceWorker" in navigator) && !androidWrapper) {
 		window.addEventListener("beforeinstallprompt", beforeInstallPrompt);
 
-		//navigator.serviceWorker.register("sw.js");
+		navigator.serviceWorker.register("sw.js");
 	}
 
 	ControlMode.init();
