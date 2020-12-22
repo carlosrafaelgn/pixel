@@ -36,8 +36,7 @@ interface VoidPointerHandler {
 
 class PointerHandler {
 	private readonly documentTarget: HTMLElement;
-
-	private readonly referenceElement: HTMLElement;
+	private readonly element: HTMLElement;
 
 	private readonly downCallback: BooleanPointerHandler;
 	private readonly moveCallback: VoidPointerHandler;
@@ -55,20 +54,17 @@ class PointerHandler {
 	private captured: boolean;
 	private pointerId: number;
 
-	public constructor(referenceElement: HTMLElement, downCallback: BooleanPointerHandler = null, moveCallback: VoidPointerHandler = null, upCallback: VoidPointerHandler = null) {
+	public constructor(element: HTMLElement, downCallback: BooleanPointerHandler = null, moveCallback: VoidPointerHandler = null, upCallback: VoidPointerHandler = null) {
 		this.documentTarget = (document.documentElement || document.body);
+		this.element = element;
 
-		this.captured = false;
-		this.pointerId = -1;
-
-		this.referenceElement = referenceElement;
 		this.downCallback = downCallback;
 		this.moveCallback = moveCallback;
 		this.upCallback = upCallback;
 
 		// Firefox mobile and a few iOS devices cause a buggy behavior if trying to handle
 		// pointerdown/move/up but not touchstart/end/cancel...
-		if ("ontouchstart" in this.documentTarget) {
+		if ("ontouchstart" in element) {
 			this.documentDownEvent = "touchstart";
 			this.documentMoveEvent = "touchmove";
 			this.documentUpEvent = "touchend";
@@ -77,7 +73,7 @@ class PointerHandler {
 			this.boundDocumentDown = this.touchStart.bind(this);
 			this.boundDocumentUp = this.touchEnd.bind(this);
 			this.boundDocumentMove = this.touchMove.bind(this);
-		} else if ("onpointerdown" in this.documentTarget) {
+		} else if ("onpointerdown" in element) {
 			this.documentDownEvent = "pointerdown";
 			this.documentMoveEvent = "pointermove";
 			this.documentUpEvent = "pointerup";
@@ -96,12 +92,16 @@ class PointerHandler {
 			this.boundDocumentUp = this.mouseUp.bind(this);
 			this.boundDocumentMove = this.mouseMove.bind(this);
 		}
-		this.documentTarget.addEventListener(this.documentDownEvent, this.boundDocumentDown);
+
+		element.addEventListener(this.documentDownEvent, this.boundDocumentDown);
+
+		this.captured = false;
+		this.pointerId = -1;
 	}
 
 	public destroy(): void {
-		if (this.boundDocumentDown)
-			this.documentTarget.removeEventListener(this.documentDownEvent, this.boundDocumentDown);
+		if (this.element && this.boundDocumentDown)
+			this.element.removeEventListener(this.documentDownEvent, this.boundDocumentDown);
 
 		this.mouseUp(null);
 
@@ -177,7 +177,7 @@ class PointerHandler {
 	private mouseDown(e: MouseEvent): boolean {
 		this.mouseUp(e);
 
-		if (e.button || View.fading || (e.target && e.target !== this.referenceElement))
+		if (e.button || View.fading || (e.target && e.target !== this.element))
 			return;
 
 		if (this.downCallback && !this.downCallback(e))

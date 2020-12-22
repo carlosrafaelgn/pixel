@@ -173,9 +173,6 @@ abstract class View {
 	}
 
 	public static createInitialView(): Promise<void> {
-		fadeLeft.style.display = "";
-		fadeRight.style.display = "";
-
 		return ((!View.currentView && !View._loading && !View._fading && !View.viewStack.length) ?
 			//(new GameView(LevelCache.loadEditorLevel(), false)).fadeIn() :
 			//(new EditorView()).fadeIn() :
