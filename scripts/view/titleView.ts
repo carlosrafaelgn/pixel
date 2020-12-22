@@ -27,6 +27,7 @@
 "use strict";
 
 class TitleView extends View {
+	private readonly logo: HTMLDivElement;
 	private readonly buttonContainer: HTMLDivElement;
 	private readonly fullscreenButton: HTMLButtonElement;
 	private readonly aboutButton: HTMLButtonElement;
@@ -34,33 +35,35 @@ class TitleView extends View {
 	public constructor() {
 		super();
 
-		this.baseElement.innerHTML = `
-		<div id="logo" class="logo"></div>
-		<div id="buttonContainer" style="position: absolute;"></div>
-		`;
+		this.logo = document.createElement("div");
+		this.logo.className = "logo";
+		this.initialElements.push(this.logo);
 
-		this.buttonContainer = this.baseElement.querySelector("#buttonContainer") as HTMLDivElement;
+		this.buttonContainer = document.createElement("div");
+		this.buttonContainer.style.position = "absolute";
+		this.initialElements.push(this.buttonContainer);
 
 		this.createButton(this.buttonContainer, UISpriteSheet.Play, this.play.bind(this));
 		this.buttonsWithLargeMargin.push(this.createButton(this.buttonContainer, UISpriteSheet.Edit, this.edit.bind(this)));
 		if (!isPWA) {
-			this.fullscreenButton = this.createButton(this.baseElement, androidWrapper ? UISpriteSheet.Exit : UISpriteSheet.Fullscreen, (androidWrapper ? this.exit : this.fullscreen).bind(this));
+			this.fullscreenButton = this.createButton(null, androidWrapper ? UISpriteSheet.Exit : UISpriteSheet.Fullscreen, (androidWrapper ? this.exit : this.fullscreen).bind(this));
 			this.fullscreenButton.style.position = "absolute";
+			this.initialElements.push(this.fullscreenButton);
 		}
-		this.aboutButton = this.createButton(this.baseElement, UISpriteSheet.Question, this.about.bind(this));
+		this.aboutButton = this.createButton(null, UISpriteSheet.Question, this.about.bind(this));
 		this.aboutButton.style.position = "absolute";
+		this.initialElements.push(this.aboutButton);
 	}
 
 	protected resize(): void {
 		const logoWidthCss = css(150),
 			logoHeightCss = css(30);
 
-		const logo = document.getElementById("logo") as HTMLDivElement;
-		logo.style.left = css((baseWidth - 150) >> 1);
-		logo.style.top = css(buttonLargeMargin << 1);
-		logo.style.width = logoWidthCss;
-		logo.style.height = logoHeightCss;
-		logo.style.backgroundSize = logoWidthCss + " " + logoHeightCss;
+		this.logo.style.left = css((baseWidth - 150) >> 1);
+		this.logo.style.top = css(buttonLargeMargin << 1);
+		this.logo.style.width = logoWidthCss;
+		this.logo.style.height = logoHeightCss;
+		this.logo.style.backgroundSize = logoWidthCss + " " + logoHeightCss;
 
 		const buttonContainerWidth = (buttonHeight << 1) + buttonLargeMargin;
 		this.buttonContainer.style.bottom = css(buttonLargeMargin);
@@ -78,9 +81,11 @@ class TitleView extends View {
 	}
 
 	protected async attach(): Promise<void> {
+		glCanvas.style.cursor = "default";
 	}
 
 	protected async detach(): Promise<void> {
+		glCanvas.style.cursor = "";
 	}
 
 	protected destroyInternal(partial: boolean): void {

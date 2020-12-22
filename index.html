@@ -66,8 +66,11 @@
 			height: 100%;
 			min-height: 100%;
 			max-height: 100%;
-			background: #99f; /* Safari for iOS and Opera for Android in fullscreen mode?!?! */
 			-webkit-tap-highlight-color: rgba(0,0,0,0);
+		}
+
+		html, body, .fade {
+			background: #99f; /* Safari for iOS and Opera for Android in fullscreen mode?!?! */
 		}
 
 		body, button, input, textarea, select, h1, h2, h3, h4, h5, h6 {
@@ -104,7 +107,6 @@
 			min-height: 100%;
 			max-height: 100%;
 			overflow: hidden;
-			background: #99f;
 		}
 
 		.toolbar {
@@ -118,7 +120,19 @@
 			/* box-shadow: 0 0 16px rgba(0,0,0,0.5); */
 		}
 
-		main, .modal-container {
+		.fade {
+			position: fixed;
+			z-index: 10000;
+			left: 0;
+			top: 0;
+			width: 4px;
+			height: 4px;
+			-webkit-transform-origin: left top;
+			-moz-transform-origin: left top;
+			transform-origin: left top;
+		}
+
+		.fade, .modal-container {
 			opacity: 0;
 			-webkit-transition: opacity ease-in-out .5s;
 			-o-transition: opacity ease-in-out .5s;
@@ -131,7 +145,7 @@
 			touch-action: none;
 		}
 
-		main, button, img, span, .toolbar, .container, .scroll-container, .scroll-thumb, .loading {
+		main, button, img, span, .toolbar, .container, .scroll-container, .scroll-thumb, .loading, .fade {
 			-webkit-user-select: none;
 			-moz-user-select: none;
 			-ms-user-select: none;
@@ -255,7 +269,7 @@
 				box-shadow: none;
 			}
 
-		aside, .gl, .base-element {
+		aside, .base-element {
 			position: absolute;
 			top: 0;
 		}
@@ -276,10 +290,6 @@
 		#fadeRight {
 			right: -24px;
 			background-position: -24px 0;
-		}
-
-		.gl {
-			left: 0;
 		}
 
 		.base-element {
@@ -318,6 +328,13 @@
 			top: 0;
 			width: 0;
 			overflow: hidden;
+		}
+
+		.editor {
+			background-size: cover;
+			background-position: top left;
+			background-repeat: no-repeat;
+			background-image: url(assets/images/editor.png);
 		}
 
 		.toolbar {
@@ -427,7 +444,8 @@
 </head>
 <body>
 	<noscript>Sorry! You need to enable JavaScript in order to run the game :(</noscript>
-	<main id="main"><aside id="fadeLeft"></aside><aside id="fadeRight"></aside><canvas id="glCanvas" class="gl"></canvas></main>
+	<main id="main"><aside id="fadeLeft" style="display: none;"></aside><aside id="fadeRight" style="display: none;"></aside><canvas id="glCanvas"></canvas></main>
+	<div id="fade" class="fade visible"></div>
 
 	<!--
 		Unfortunately, as of September 2020, emscripten does not automaticaly loads

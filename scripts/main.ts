@@ -96,6 +96,20 @@ function smoothStep(input: number): number {
 	return (input * input * (3.0 - (2.0 * input)));
 }
 
+function handleButtonBlink(args: [number, HTMLElement]): void {
+	const count = args[0], button = args[1];
+	if (count > 0 && count < buttonBlinkLastCounter) {
+		button.style.visibility = ((count & 1) ? "" : "hidden");
+		args[0] = count + 1;
+	} else {
+		const lastInterval = parseInt(button.getAttribute("data-blink-interval"));
+		if (lastInterval)
+			clearInterval(lastInterval);
+		button.style.visibility = "";
+		button.setAttribute("data-blink-interval", "");
+	}
+}
+
 function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback: ButtonCallback): void {
 	button.onclick = (e) => {
 		if (View.loading || View.fading || (!insideModal && Modal.visible) || !callback(e))
@@ -104,21 +118,7 @@ function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback:
 		if (lastInterval)
 			clearInterval(lastInterval);
 		button.style.visibility = "hidden";
-		button.setAttribute("data-blink-count", "1");
-		button.setAttribute("data-blink-interval", setInterval(() => {
-			const count = parseInt(button.getAttribute("data-blink-count"));
-			const lastInterval = parseInt(button.getAttribute("data-blink-interval"));
-			if (lastInterval && count > 0 && count < buttonBlinkLastCounter) {
-				button.style.visibility = ((count & 1) ? "" : "hidden");
-				button.setAttribute("data-blink-count", (count + 1).toString());
-			} else {
-				button.style.visibility = "";
-				if (lastInterval)
-					clearInterval(lastInterval);
-				button.setAttribute("data-blink-count", "");
-				button.setAttribute("data-blink-interval", "");
-			}
-		}, buttonBlinkSingleDurationMS).toString())
+		button.setAttribute("data-blink-interval", setInterval(handleButtonBlink, buttonBlinkSingleDurationMS, [1, button]).toString())
 	};
 }
 
@@ -202,6 +202,11 @@ function adjustWindowSize(): void {
 
 	main.style.left = baseLeftCss + "px";
 	main.style.top = baseTopCss + "px";
+
+	const transform = `scale(${Math.ceil(widthCss * 0.25)},${Math.ceil(heightCss * 0.25)})`;
+	fade.style["webkitTransform"] = transform;
+	fade.style["mozTransform"] = transform;
+	fade.style.transform = transform;
 
 	if (heightCss > widthCss || baseTopCss) {
 		if (!landscapeWarning) {
@@ -330,7 +335,7 @@ async function setup(): Promise<void> {
 	if (("serviceWorker" in navigator) && !androidWrapper) {
 		window.addEventListener("beforeinstallprompt", beforeInstallPrompt);
 
-		navigator.serviceWorker.register("sw.js");
+		//navigator.serviceWorker.register("sw.js");
 	}
 
 	ControlMode.init();

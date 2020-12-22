@@ -27,6 +27,7 @@
 "use strict";
 
 class SelectionView extends View {
+	private readonly baseElement: HTMLDivElement;
 	private readonly fileInput: HTMLInputElement;
 	private readonly toolbarTop: HTMLDivElement;
 	private readonly scrollContainer: ScrollContainer;
@@ -45,10 +46,13 @@ class SelectionView extends View {
 	public constructor() {
 		super();
 
+		this.baseElement = document.createElement("div");
+		this.baseElement.className = "base-element";
 		this.baseElement.innerHTML = `
 		<div class="hidden-container"><input id="fileInput" type="file" accept="application/json" tabindex="-1" /></div>
 		<div id="toolbarTop" class="toolbar toolbar-top"></div>
 		`;
+		this.initialElements.push(this.baseElement);
 
 		this.fileInput = this.baseElement.querySelector("#fileInput") as HTMLInputElement;
 		this.toolbarTop = this.baseElement.querySelector("#toolbarTop") as HTMLDivElement;

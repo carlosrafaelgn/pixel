@@ -80,14 +80,13 @@ class GameView extends View {
 	public constructor(loadOptions: LevelLoadOptions, preview: boolean) {
 		super();
 
-		this.baseElement.style.cursor = "crosshair";
-		this.baseElement.style.touchAction = "none";
-
-		const back = this.createButton(preview ? this.baseElement : null, UISpriteSheet.Back, this.back.bind(this));
+		const back = this.createButton(null, UISpriteSheet.Back, this.back.bind(this));
 		back.style.position = "absolute";
 		back.style.left = "0";
 		back.style.top = "0";
 		this.backButton = back;
+		if (preview)
+			this.initialElements.push(back);
 
 		this.preview = preview;
 
@@ -110,10 +109,11 @@ class GameView extends View {
 			this.timeDisplay = null;
 		}
 
-		const pause = this.createButton(this.baseElement, UISpriteSheet.Pause, this.pause.bind(this));
+		const pause = this.createButton(null, UISpriteSheet.Pause, this.pause.bind(this));
 		pause.style.position = "absolute";
 		pause.style.right = "0";
 		pause.style.top = "0";
+		this.initialElements.push(pause);
 
 		this.resourceStorage = new ResourceStorage();
 
@@ -178,7 +178,7 @@ class GameView extends View {
 			this.restartButton.style.left = css(buttonHeight + buttonMargin);
 
 		if (this.timeDisplay) {
-			this.timeDisplay.style.marginTop = buttonMarginCss;
+			this.timeDisplay.style.top = buttonMarginCss;
 			this.timeDisplay.style.left = css((buttonHeight * 3) + buttonMargin);
 			this.timeDisplay.style.lineHeight = iconSizeCss;
 			this.editNameButton.style.marginTop = "-" + buttonMarginCss;
@@ -196,7 +196,7 @@ class GameView extends View {
 		this.level = await LevelCache.loadLevelFromOptions(this.loadOptions);
 		this.loadOptions = null;
 
-		this.pointerHandler = new PointerHandler(this.baseElement, this.mouseDown.bind(this), this.mouseMove.bind(this), this.mouseUp.bind(this));
+		this.pointerHandler = new PointerHandler(glCanvas, this.mouseDown.bind(this), this.mouseMove.bind(this), this.mouseUp.bind(this));
 
 		if (!this.levelTexture) {
 			this.levelTexture = new Texture(View.gl, await loadImage(this.level.processedImage));
@@ -269,9 +269,9 @@ class GameView extends View {
 		if (this.finalUIAttached) {
 			this.finalUIAttached = false;
 			if (!this.preview) {
-				this.baseElement.removeChild(this.backButton);
-				this.baseElement.removeChild(this.restartButton);
-				this.baseElement.removeChild(this.timeDisplay);
+				main.removeChild(this.backButton);
+				main.removeChild(this.restartButton);
+				main.removeChild(this.timeDisplay);
 			}
 		}
 
@@ -603,9 +603,9 @@ class GameView extends View {
 				if (!this.finalUIAttached) {
 					this.finalUIAttached = true;
 					if (!this.preview) {
-						this.baseElement.appendChild(this.backButton);
-						this.baseElement.appendChild(this.restartButton);
-						this.baseElement.appendChild(this.timeDisplay);
+						main.appendChild(this.backButton);
+						main.appendChild(this.restartButton);
+						main.appendChild(this.timeDisplay);
 					}
 				}
 			}

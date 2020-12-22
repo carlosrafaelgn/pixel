@@ -39,9 +39,6 @@ abstract class View {
 	private static divLoadingTimeout = 0;
 	private static windowHistoryStatePushed = false;
 
-	private static readonly fadeLeft = document.getElementById("fadeLeft") as HTMLDivElement;
-	private static readonly fadeRight = document.getElementById("fadeRight") as HTMLDivElement;
-	protected static readonly glCanvas = document.getElementById("glCanvas") as HTMLCanvasElement;
 	protected static gl: WebGL = null;
 	protected static sheetTexture: Texture = null;
 	private static backgroundFrameRequest = 0;
@@ -97,7 +94,7 @@ abstract class View {
 		}
 
 		try {
-			View.gl.recreate(View.glCanvas, baseWidth >> LevelSpriteSheet.BackgroundScaleRightShift, baseHeight >> LevelSpriteSheet.BackgroundScaleRightShift);
+			View.gl.recreate(glCanvas, baseWidth >> LevelSpriteSheet.BackgroundScaleRightShift, baseHeight >> LevelSpriteSheet.BackgroundScaleRightShift);
 
 			View.gl.clearColor(1, 1, 1, 1);
 
@@ -176,6 +173,9 @@ abstract class View {
 	}
 
 	public static createInitialView(): Promise<void> {
+		fadeLeft.style.display = "";
+		fadeRight.style.display = "";
+
 		return ((!View.currentView && !View._loading && !View._fading && !View.viewStack.length) ?
 			//(new GameView(LevelCache.loadEditorLevel(), false)).fadeIn() :
 			//(new EditorView()).fadeIn() :
@@ -194,19 +194,19 @@ abstract class View {
 
 	public static windowResized(elementSizeChanged: boolean): void {
 		if (baseLeftCss < 8) {
-			if (!View.fadeLeft.style.backgroundColor) {
+			if (!fadeLeft.style.backgroundColor) {
 				const color = ((androidWrapper || isPWA) ? "#99f" : "#000");
-				View.fadeLeft.style.backgroundColor = color;
-				View.fadeRight.style.backgroundColor = color;
-				View.fadeLeft.style.backgroundImage = "none";
-				View.fadeRight.style.backgroundImage = "none";
+				fadeLeft.style.backgroundColor = color;
+				fadeRight.style.backgroundColor = color;
+				fadeLeft.style.backgroundImage = "none";
+				fadeRight.style.backgroundImage = "none";
 			}
 		} else {
-			if (View.fadeLeft.style.backgroundColor) {
-				View.fadeLeft.style.backgroundColor = "";
-				View.fadeRight.style.backgroundColor = "";
-				View.fadeLeft.style.backgroundImage = "";
-				View.fadeRight.style.backgroundImage = "";
+			if (fadeLeft.style.backgroundColor) {
+				fadeLeft.style.backgroundColor = "";
+				fadeRight.style.backgroundColor = "";
+				fadeLeft.style.backgroundImage = "";
+				fadeRight.style.backgroundImage = "";
 			}
 		}
 
@@ -216,14 +216,14 @@ abstract class View {
 		View.resizeLoading();
 
 		if (baseTopCss) {
-			if (!View.fadeLeft.style.display) {
-				View.fadeLeft.style.display = "none";
-				View.fadeRight.style.display = "none";
+			if (!fadeLeft.style.display) {
+				fadeLeft.style.display = "none";
+				fadeRight.style.display = "none";
 			}
 		} else {
-			if (View.fadeLeft.style.display) {
-				View.fadeLeft.style.display = "";
-				View.fadeRight.style.display = "";
+			if (fadeLeft.style.display) {
+				fadeLeft.style.display = "";
+				fadeRight.style.display = "";
 			}
 		}
 
@@ -231,11 +231,11 @@ abstract class View {
 		// https://www.khronos.org/webgl/wiki/HandlingHighDPI
 		// Unfortunately it was not possible to use the techniques above
 		// because the ball/camera movement ended up too jaggy :(
-		View.glCanvas.width = baseWidth * scaleFactor;
-		View.glCanvas.height = baseHeight * scaleFactor;
-		View.glCanvas.style.height = baseHeightCss + "px";
+		glCanvas.width = baseWidth * scaleFactor;
+		glCanvas.height = baseHeight * scaleFactor;
+		glCanvas.style.height = baseHeightCss + "px";
 
-		if (View.gl.checkRecreate(View.glCanvas))
+		if (View.gl.checkRecreate(glCanvas))
 			View.recreateResources();
 
 		if (View.currentView)
@@ -268,7 +268,7 @@ abstract class View {
 	protected readonly buttonsWithLargeMargin: HTMLButtonElement[];
 	protected readonly buttonImages: HTMLSpanElement[];
 
-	public readonly baseElement: HTMLDivElement;
+	protected readonly initialElements: HTMLElement[];
 
 	protected attached: boolean;
 
@@ -278,8 +278,7 @@ abstract class View {
 		this.buttonsWithLargeMargin = [];
 		this.buttonImages = [];
 	
-		this.baseElement = document.createElement("div");
-		this.baseElement.className = "base-element";
+		this.initialElements = [];
 
 		this.attached = false;
 	}
@@ -328,11 +327,12 @@ abstract class View {
 
 	// Simulating final...
 	protected readonly destroy = async (partial: boolean): Promise<void> => {
-		if (this.baseElement) {
-			if (this.baseElement.parentNode && this.attached)
-				this.baseElement.parentNode.removeChild(this.baseElement);
-
+		if (this.initialElements) {
 			if (this.attached) {
+				// 3 = fadeLeft, fadeRight, glCanvas
+				for (let i = main.childNodes.length - 1; i >= 3; i--)
+					main.removeChild(main.childNodes[i]);
+
 				this.attached = false;
 				await this.detach();
 			}
@@ -372,15 +372,16 @@ abstract class View {
 			else
 				View.backgroundFrameRequest = requestAnimationFrame(View.renderBackground);
 
-			main.className = "visible";
+			fade.className = "fade";
 
 			setTimeout(() => {
 				View._fading = false;
 				View.popHistoryStateIfNecessary();
 				this.fadeInFinished();
+				document.body.removeChild(fade);
 				resolve();
 			}, 520);
-		}, 100);
+		}, 50);
 	}
 
 	private async fadeIn(): Promise<void> {
@@ -392,8 +393,14 @@ abstract class View {
 		View.currentView = this;
 
 		return new Promise((resolve, reject) => {
-			if (this.baseElement && !this.attached) {
-				main.appendChild(this.baseElement);
+			const initialElements = this.initialElements;
+			if (initialElements && !this.attached) {
+				for (let i = 0; i < initialElements.length; i++) {
+					const element = initialElements[i];
+					if (element)
+						main.appendChild(element);
+				}
+
 				this.attached = true;
 				const promise = this.attach();
 
@@ -423,17 +430,22 @@ abstract class View {
 		}
 
 		return new Promise((resolve, reject) => {
-			main.className = "";
+			fade.className = "fade";
+			document.body.appendChild(fade);
 
-			setTimeout(async () => {
-				await this.destroy(saveViewInStack);
-				if (saveViewInStack)
-					View.viewStack.push(this);
-				View.currentView = null;
-				View._fading = false;
-				View.pushHistoryStateIfNecessary();
-				resolve();
-			}, 520);
+			setTimeout(() => {
+				fade.className = "fade visible";
+
+				setTimeout(async () => {
+					await this.destroy(saveViewInStack);
+					if (saveViewInStack)
+						View.viewStack.push(this);
+					View.currentView = null;
+					View._fading = false;
+					View.pushHistoryStateIfNecessary();
+					resolve();
+				}, 520);
+			}, 50);
 		});
 	}
 

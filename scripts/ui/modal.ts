@@ -259,7 +259,7 @@ class Modal {
 				if (this.options.onshown)
 					this.options.onshown();
 			}, 520);
-		}, 100);
+		}, 50);
 	}
 
 	private hideInternal(): void {

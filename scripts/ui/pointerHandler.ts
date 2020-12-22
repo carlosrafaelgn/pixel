@@ -37,66 +37,72 @@ interface VoidPointerHandler {
 class PointerHandler {
 	private readonly documentTarget: HTMLElement;
 
+	private readonly referenceElement: HTMLElement;
+
+	private readonly downCallback: BooleanPointerHandler;
+	private readonly moveCallback: VoidPointerHandler;
+	private readonly upCallback: VoidPointerHandler;
+
+	private readonly documentDownEvent: string;
+	private readonly documentMoveEvent: string;
+	private readonly documentUpEvent: string;
+	private readonly documentCancelEvent: string;
+
+	private readonly boundDocumentDown: any;
+	private readonly boundDocumentMove: any;
+	private readonly boundDocumentUp: any;
+
 	private captured: boolean;
 	private pointerId: number;
 
-	private element: HTMLElement;
-
-	private documentMoveEvent: string;
-	private documentUpEvent: string;
-	private documentCancelEvent: string;
-
-	private downCallback: BooleanPointerHandler;
-	private moveCallback: VoidPointerHandler;
-	private upCallback: VoidPointerHandler;
-
-	private boundDocumentUp: any;
-	private boundDocumentMove: any;
-
-	public constructor(element: HTMLElement, downCallback: BooleanPointerHandler = null, moveCallback: VoidPointerHandler = null, upCallback: VoidPointerHandler = null) {
+	public constructor(referenceElement: HTMLElement, downCallback: BooleanPointerHandler = null, moveCallback: VoidPointerHandler = null, upCallback: VoidPointerHandler = null) {
 		this.documentTarget = (document.documentElement || document.body);
 
 		this.captured = false;
 		this.pointerId = -1;
 
-		this.element = element;
+		this.referenceElement = referenceElement;
 		this.downCallback = downCallback;
 		this.moveCallback = moveCallback;
 		this.upCallback = upCallback;
 
 		// Firefox mobile and a few iOS devices cause a buggy behavior if trying to handle
 		// pointerdown/move/up but not touchstart/end/cancel...
-		if ("ontouchstart" in element) {
+		if ("ontouchstart" in this.documentTarget) {
+			this.documentDownEvent = "touchstart";
 			this.documentMoveEvent = "touchmove";
 			this.documentUpEvent = "touchend";
 			this.documentCancelEvent = "touchcancel";
 
+			this.boundDocumentDown = this.touchStart.bind(this);
 			this.boundDocumentUp = this.touchEnd.bind(this);
 			this.boundDocumentMove = this.touchMove.bind(this);
-
-			(element as any).ontouchstart = this.touchStart.bind(this);
-		} else if ("onpointerdown" in element) {
+		} else if ("onpointerdown" in this.documentTarget) {
+			this.documentDownEvent = "pointerdown";
 			this.documentMoveEvent = "pointermove";
 			this.documentUpEvent = "pointerup";
 			this.documentCancelEvent = "pointercancel";
 
+			this.boundDocumentDown = this.pointerDown.bind(this);
 			this.boundDocumentUp = this.pointerUp.bind(this);
 			this.boundDocumentMove = this.pointerMove.bind(this);
-
-			element.onpointerdown = this.pointerDown.bind(this);
 		} else {
+			this.documentDownEvent = "mousedown";
 			this.documentMoveEvent = "mousemove";
 			this.documentUpEvent = "mouseup";
 			this.documentCancelEvent = null;
 
+			this.boundDocumentDown = this.mouseDown.bind(this);
 			this.boundDocumentUp = this.mouseUp.bind(this);
 			this.boundDocumentMove = this.mouseMove.bind(this);
-
-			(element as any).onmousedown = this.mouseDown.bind(this);
 		}
+		this.documentTarget.addEventListener(this.documentDownEvent, this.boundDocumentDown);
 	}
 
 	public destroy(): void {
+		if (this.boundDocumentDown)
+			this.documentTarget.removeEventListener(this.documentDownEvent, this.boundDocumentDown);
+
 		this.mouseUp(null);
 
 		zeroObject(this);
@@ -171,7 +177,7 @@ class PointerHandler {
 	private mouseDown(e: MouseEvent): boolean {
 		this.mouseUp(e);
 
-		if (e.button || View.fading || (e.target && e.target !== this.element))
+		if (e.button || View.fading || (e.target && e.target !== this.referenceElement))
 			return;
 
 		if (this.downCallback && !this.downCallback(e))

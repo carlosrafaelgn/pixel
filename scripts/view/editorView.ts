@@ -42,6 +42,7 @@ class EditorView extends View {
 	private static readonly BrushOffsets = [0, 10, 26, 46];
 	private static readonly BrushWidths = [9, 15, 19, 39];
 
+	private readonly baseElement: HTMLDivElement;
 	private readonly fileInput: HTMLInputElement;
 	private readonly toolbarTop: HTMLDivElement;
 	private readonly toolbarBottom: HTMLDivElement;
@@ -87,12 +88,15 @@ class EditorView extends View {
 	public constructor(loadOptions?: LevelLoadOptions, selectionView?: boolean) {
 		super();
 
+		this.baseElement = document.createElement("div");
+		this.baseElement.className = "base-element editor";
 		this.baseElement.innerHTML = `
 		<div class="hidden-container"><input id="fileInput" type="file" accept="image/*" tabindex="-1" /></div>
 		<div id="toolbarTop" class="toolbar toolbar-top"></div>
 		<div id="container"></div>
 		<div id="toolbarBottom" class="toolbar toolbar-bottom"></div>
 		`;
+		this.initialElements.push(this.baseElement);
 
 		this.fileInput = this.baseElement.querySelector("#fileInput") as HTMLInputElement;
 		this.toolbarTop = this.baseElement.querySelector("#toolbarTop") as HTMLDivElement;
@@ -166,9 +170,6 @@ class EditorView extends View {
 		this.objectImageDrag = null;
 		this.objectImageDragOffsetXCss = 0;
 		this.objectImageDragOffsetYCss = 0;
-		this.firstPencilButtonIndex = 0;
-		this.firstLineWidthButtonIndex = 0;
-		this.firstObjectToolButtonIndex = 0;
 
 		this.keyUpTime = 0;
 		this.keyUpCounter = 0;
@@ -218,6 +219,8 @@ class EditorView extends View {
 	}
 
 	protected async attach(): Promise<void> {
+		glCanvas.style.display = "none";
+
 		if (!this.level) {
 			this.level = await LevelCache.loadLevelFromOptions(this.loadOptions);
 			if (this.loadOptions) {
@@ -260,6 +263,8 @@ class EditorView extends View {
 	}
 
 	protected async detach(): Promise<void> {
+		glCanvas.style.display = "";
+
 		if (this.pointerHandler) {
 			this.pointerHandler.destroy();
 			this.pointerHandler = null;

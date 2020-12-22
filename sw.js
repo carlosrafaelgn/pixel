@@ -75,6 +75,7 @@ self.addEventListener("install", (event) => {
 			"/pixel/assets/favicons/manifest.json",
 			//"/pixel/assets/fonts/PressStart2P-Regular.ttf",
 			"/pixel/assets/fonts/PressStart2P-Regular.woff2",
+			"/pixel/assets/images/editor.png",
 			"/pixel/assets/images/fade.png",
 			"/pixel/assets/images/grid1.png",
 			"/pixel/assets/images/grid2.png",
