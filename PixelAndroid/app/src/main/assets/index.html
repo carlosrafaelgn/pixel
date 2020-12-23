@@ -34,7 +34,7 @@
 			-webkit-tap-highlight-color: rgba(0,0,0,0);
 		}
 
-		html, body, .fade {
+		html, body, .cover {
 			background: #99f; /* Safari for iOS and Opera for Android in fullscreen mode?!?! */
 		}
 
@@ -85,7 +85,7 @@
 			/* box-shadow: 0 0 16px rgba(0,0,0,0.5); */
 		}
 
-		.fade {
+		.cover {
 			position: fixed;
 			z-index: 10000;
 			left: 0;
@@ -97,11 +97,11 @@
 			transform-origin: left top;
 		}
 
-		.fade, .modal-container {
+		.cover, .modal-container {
 			opacity: 0;
-			-webkit-transition: opacity ease-in-out .5s;
-			-o-transition: opacity ease-in-out .5s;
-			transition: opacity ease-in-out .5s;
+			-webkit-transition: opacity ease-in-out 0.5s;
+			-o-transition: opacity ease-in-out 0.5s;
+			transition: opacity ease-in-out 0.5s;
 		}
 
 		canvas {
@@ -110,7 +110,7 @@
 			touch-action: none;
 		}
 
-		main, button, img, span, .toolbar, .container, .scroll-container, .scroll-thumb, .loading, .fade {
+		main, button, img, span, .toolbar, .container, .scroll-container, .scroll-thumb, .loading, .cover {
 			-webkit-user-select: none;
 			-moz-user-select: none;
 			-ms-user-select: none;
@@ -410,7 +410,7 @@
 <body>
 	<noscript>Sorry! You need to enable JavaScript in order to run the game :(</noscript>
 	<main id="main"><aside id="fadeLeft" style="display: none;"></aside><aside id="fadeRight" style="display: none;"></aside><canvas id="glCanvas"></canvas></main>
-	<div id="fade" class="fade visible"></div>
+	<div id="cover" class="cover visible"></div>
 
 	<!--
 		Unfortunately, as of September 2020, emscripten does not automaticaly loads

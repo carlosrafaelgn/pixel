@@ -49,7 +49,7 @@ const isPWA = (window.location.href.indexOf("pwa") >= 0),
 	fadeLeft = document.getElementById("fadeLeft") as HTMLDivElement,
 	fadeRight = document.getElementById("fadeRight") as HTMLDivElement,
 	glCanvas = document.getElementById("glCanvas") as HTMLCanvasElement,
-	fade = document.getElementById("fade") as HTMLDivElement,
+	cover = document.getElementById("cover") as HTMLDivElement,
 	// Must be in sync with lib/shared.h
 	baseWidth = 420,
 	minHeight = baseWidth >> 1,

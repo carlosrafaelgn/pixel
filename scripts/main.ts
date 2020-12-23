@@ -204,9 +204,9 @@ function adjustWindowSize(): void {
 	main.style.top = baseTopCss + "px";
 
 	const transform = `scale(${Math.ceil(widthCss * 0.25)},${Math.ceil(heightCss * 0.25)})`;
-	fade.style["webkitTransform"] = transform;
-	fade.style["mozTransform"] = transform;
-	fade.style.transform = transform;
+	cover.style["webkitTransform"] = transform;
+	cover.style["mozTransform"] = transform;
+	cover.style.transform = transform;
 
 	if (heightCss > widthCss || baseTopCss) {
 		if (!landscapeWarning) {

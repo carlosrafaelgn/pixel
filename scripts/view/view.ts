@@ -360,22 +360,24 @@ abstract class View {
 	private finishFadeIn(resolve: () => void): void {
 		setTimeout(() => {
 			this.resize();
+
 			if (View.backgroundFrameRequest) {
 				cancelAnimationFrame(View.backgroundFrameRequest);
 				View.backgroundFrameRequest = 0;
 			}
+
 			if (this.usesGL)
 				this.loadResources();
 			else
 				View.backgroundFrameRequest = requestAnimationFrame(View.renderBackground);
 
-			fade.className = "fade";
+			cover.className = "cover";
 
 			setTimeout(() => {
 				View._fading = false;
 				View.popHistoryStateIfNecessary();
+				document.body.removeChild(cover);
 				this.fadeInFinished();
-				document.body.removeChild(fade);
 				resolve();
 			}, 520);
 		}, 50);
@@ -427,11 +429,11 @@ abstract class View {
 		}
 
 		return new Promise((resolve, reject) => {
-			fade.className = "fade";
-			document.body.appendChild(fade);
+			cover.className = "cover";
+			document.body.appendChild(cover);
 
 			setTimeout(() => {
-				fade.className = "fade visible";
+				cover.className = "cover visible";
 
 				setTimeout(async () => {
 					await this.destroy(saveViewInStack);
