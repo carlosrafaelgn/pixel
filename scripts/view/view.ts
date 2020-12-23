@@ -371,7 +371,7 @@ abstract class View {
 			else
 				View.backgroundFrameRequest = requestAnimationFrame(View.renderBackground);
 
-			cover.className = "cover";
+			cover.classList.remove("visible");
 
 			setTimeout(() => {
 				View._fading = false;
@@ -429,11 +429,10 @@ abstract class View {
 		}
 
 		return new Promise((resolve, reject) => {
-			cover.className = "cover";
 			document.body.appendChild(cover);
 
 			setTimeout(() => {
-				cover.className = "cover visible";
+				cover.classList.add("visible");
 
 				setTimeout(async () => {
 					await this.destroy(saveViewInStack);

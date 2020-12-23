@@ -249,7 +249,7 @@ class Modal {
 
 			this.resizeInternal();
 
-			this.containerElement.className = "base-element modal-container visible";
+			this.containerElement.classList.add("visible");
 
 			setTimeout(() => {
 				this.fading = false;
@@ -272,7 +272,7 @@ class Modal {
 		document.removeEventListener("keydown", this.boundDocumentKeyDown, true);
 
 		this.fading = true;
-		this.containerElement.className = "base-element modal-container";
+		this.containerElement.classList.remove("visible");
 
 		setTimeout(() => {
 			Modal.modal = null;
