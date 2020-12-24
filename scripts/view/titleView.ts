@@ -92,17 +92,11 @@ class TitleView extends View {
 	}
 
 	private play(e: Event): boolean {
-		if (Modal.visible)
-			return false;
-
 		this.fadeTo("SelectionView");
 		return true;
 	}
 
 	private edit(e: Event): boolean {
-		if (Modal.visible)
-			return false;
-
 		this.fadeTo("EditorView");
 		return true;
 	}
@@ -118,9 +112,6 @@ class TitleView extends View {
 	}
 
 	private about(e: Event): boolean {
-		if (Modal.visible)
-			return false;
-
 		const buttons: ModalButton[] = [
 			{
 				defaultCancel: true,

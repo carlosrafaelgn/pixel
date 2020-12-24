@@ -340,9 +340,6 @@ class SelectionView extends View {
 	}
 
 	private open(e: Event): boolean {
-		if (Modal.visible)
-			return false;
-
 		this.fileInput.click();
 
 		return true;
@@ -370,9 +367,6 @@ class SelectionView extends View {
 	}
 
 	private play(e: Event): boolean {
-		if (Modal.visible)
-			return false;
-
 		const target = e.target as HTMLElement;
 
 		if (target.tagName === "A" || (target.tagName === "IMG" && (target.parentNode as HTMLElement).tagName === "A"))
@@ -389,9 +383,6 @@ class SelectionView extends View {
 	}
 
 	private showMenu(e: Event): boolean {
-		if (Modal.visible)
-			return false;
-
 		const anchor = e.target as HTMLAnchorElement,
 			thumbnail = this.getTargetThumbnail(anchor);
 

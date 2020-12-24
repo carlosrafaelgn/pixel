@@ -32,7 +32,7 @@
 // whenever it detects a change in the source code of the
 // service worker).
 const CACHE_PREFIX = "pixel-static-cache";
-const CACHE_VERSION = "-v20201223";
+const CACHE_VERSION = "-v20201224";
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 
 self.addEventListener("install", (event) => {

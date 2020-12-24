@@ -739,18 +739,12 @@ class EditorView extends View {
 	}
 
 	private open(e: Event): boolean {
-		if (Modal.visible)
-			return false;
-
 		this.fileInput.click();
 
 		return true;
 	}
 
 	private download(e: Event): boolean {
-		if (Modal.visible)
-			return false;
-
 		LevelCache.downloadLevelImage(this.level.name, this.canvas).then((result) => {
 			switch (result) {
 				case LevelCache.DownloadLevelSuccess:
@@ -774,9 +768,6 @@ class EditorView extends View {
 	}
 
 	private clear(e: Event): boolean {
-		if (Modal.visible)
-			return false;
-
 		Modal.show({
 			html: Strings.ClearEntireLevel,
 			buttons: [
@@ -805,9 +796,6 @@ class EditorView extends View {
 	}
 
 	private accept(e: Event): boolean {
-		if (Modal.visible)
-			return false;
-
 		let ok = false, invalidName = false, error = false;
 
 		this.save();
