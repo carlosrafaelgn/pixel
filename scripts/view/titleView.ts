@@ -137,12 +137,12 @@ class TitleView extends View {
 					}
 
 					// Wait for the blink to finish before removing the button from the screen
-					setTimeout(() => { button.style.display = "none"; }, buttonBlinkTotalDurationMS);
+					setTimeout(() => { button.style.display = "none"; }, blinkTotalDurationMS);
 				}
 			});
 
 		Modal.show({
-			title: Strings.About,
+			title: Strings.About + ` <span style="float: right;">v${version}</span>`,
 			large: true,
 			html: Strings.About1 + (View.gl.contextVersion === 2 ? Strings.About2 : "") + Strings.About3 + (window["pixelUsingWebAssembly"] ? "" : Strings.About4) + Strings.About5 + UISpriteSheet.html(UISpriteSheet.Success) + "</p>" + ((androidWrapper || (navigator["wakeLock"] && navigator["wakeLock"].request)) ? "" : Strings.About6) + Strings.About7,
 			buttons: buttons

@@ -43,7 +43,8 @@ function detectIOSOrSafari(): boolean {
 	return false;
 }
 
-const isPWA = (window.location.href.indexOf("pwa") >= 0),
+const version = "20201226",
+	isPWA = (window.location.href.indexOf("pwa") >= 0),
 	isIOSOrSafari = detectIOSOrSafari(),
 	main = document.getElementById("main") as HTMLDivElement,
 	fadeLeft = document.getElementById("fadeLeft") as HTMLDivElement,
@@ -64,9 +65,9 @@ const isPWA = (window.location.href.indexOf("pwa") >= 0),
 	buttonMargin = iconSize >> 1,
 	buttonLargeMargin = buttonHeight,
 	buttonPadding = (buttonHeight - iconSize) >> 1,
-	buttonBlinkLastCounter = 7,
-	buttonBlinkSingleDurationMS = 75,
-	buttonBlinkTotalDurationMS = (buttonBlinkLastCounter + 1) * buttonBlinkSingleDurationMS,
+	blinkLastCounter = 7,
+	blinkSingleDurationMS = 75,
+	blinkTotalDurationMS = (blinkLastCounter + 1) * blinkSingleDurationMS,
 	
 	scrollThumbWidth = 32,
 	scrollThumbHeight = 48,

@@ -96,29 +96,42 @@ function smoothStep(input: number): number {
 	return (input * input * (3.0 - (2.0 * input)));
 }
 
-function handleButtonBlink(args: [number, HTMLElement]): void {
-	const count = args[0], button = args[1];
-	if (count > 0 && count < buttonBlinkLastCounter) {
-		button.style.visibility = ((count & 1) ? "" : "hidden");
+function handleBlink(args: [number, HTMLElement]): void {
+	const count = args[0], element = args[1];
+	if (count > 0 && count < blinkLastCounter) {
+		element.style.visibility = ((count & 1) ? "" : "hidden");
 		args[0] = count + 1;
 	} else {
-		const lastInterval = parseInt(button.getAttribute("data-blink-interval"));
-		if (lastInterval)
-			clearInterval(lastInterval);
-		button.style.visibility = "";
-		button.setAttribute("data-blink-interval", "");
+		abortBlink(element);
 	}
+}
+
+function abortBlink(element: HTMLElement): void {
+	if (!element)
+		return;
+	const blinkInterval = element.getAttribute("data-blink-interval");
+	if (blinkInterval) {
+		element.setAttribute("data-blink-interval", "");
+		const interval = parseInt(blinkInterval);
+		if (interval)
+			clearInterval(interval);
+		element.style.visibility = "";
+	}
+}
+
+function blink(element: HTMLElement): void {
+	if (!element)
+		return;
+	abortBlink(element);
+	element.style.visibility = "hidden";
+	element.setAttribute("data-blink-interval", setInterval(handleBlink, blinkSingleDurationMS, [1, element]).toString())
 }
 
 function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback: ButtonCallback): void {
 	button.onclick = (e) => {
 		if (View.loading || View.fading || (!insideModal && Modal.visible) || !callback(e))
 			return;
-		const lastInterval = parseInt(button.getAttribute("data-blink-interval"));
-		if (lastInterval)
-			clearInterval(lastInterval);
-		button.style.visibility = "hidden";
-		button.setAttribute("data-blink-interval", setInterval(handleButtonBlink, buttonBlinkSingleDurationMS, [1, button]).toString())
+		blink(button);
 	};
 }
 
