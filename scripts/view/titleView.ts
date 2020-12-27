@@ -142,7 +142,7 @@ class TitleView extends View {
 			});
 
 		Modal.show({
-			title: Strings.About + ` <span style="float: right;">v${version}</span>`,
+			title: Strings.About + ` <span style="float: right;">v${version}${(window["pixelES2017"] ? "" : "es6")}</span>`,
 			large: true,
 			html: Strings.About1 + (View.gl.contextVersion === 2 ? Strings.About2 : "") + Strings.About3 + (window["pixelUsingWebAssembly"] ? "" : Strings.About4) + Strings.About5 + UISpriteSheet.html(UISpriteSheet.Success) + "</p>" + ((androidWrapper || (navigator["wakeLock"] && navigator["wakeLock"].request)) ? "" : Strings.About6) + Strings.About7,
 			buttons: buttons

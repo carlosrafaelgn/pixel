@@ -44,12 +44,6 @@
 
 	<title>Pixel Maze</title>
 
-	<!-- 
-		All TS files are being concatenated into a single file according to the
-		order specified in the files array, inside tsconfig.json
-	-->
-	<script async type="text/javascript" charset="utf-8" src="assets/js/scripts.min.js"></script>
-
 	<style type="text/css">
 		@font-face {
 			font-family: 'Press Start 2P';
@@ -447,50 +441,121 @@
 	<main id="main"><aside id="fadeLeft" style="display: none;"></aside><aside id="fadeRight" style="display: none;"></aside><canvas id="glCanvas"></canvas></main>
 	<div id="cover" class="cover visible"></div>
 
-	<!--
-		Unfortunately, as of September 2020, emscripten does not automaticaly loads
-		the pure JS version of the compiled code, even when specifying the flag WASM=2
-
-		Tested using the following command line:
-		chrome --disable-features="WebAssembly,AsmJsToWebAssembly,WebAssemblyStreaming" --js-flags="--noexpose-wasm"
-
-		https://github.com/emscripten-core/emscripten/blob/master/src/settings.js
-		https://github.com/emscripten-core/emscripten/pull/10118
-		https://github.com/emscripten-core/emscripten/issues/11357
-	-->
 	<script type="text/javascript">
 		//<![CDATA[
 		"use strict";
 
 		window["pixelCheckSetup"] = function () {
-			if (window["pixelStepHTML"] && window["pixelStepMAIN"]) {
-				delete window["pixelStepHTML"];
+			if (window["pixelStepMAIN"]) {
 				delete window["pixelStepMAIN"];
 				delete window["pixelCheckSetup"];
-				setup();
+				var promise = setup();
+				if (promise && promise["catch"])
+					promise["catch"](function (e) {
+						alert("Error during setup " + ((e && (e.message || e.toString())) || "") + " :(");
+					});
 			}
 		};
 
-		var errorAlerted = false;
-		window.onerror = function (msg, url, line, col, error) {
-			if (errorAlerted)
-				return;
-			errorAlerted = true;
-			alert(msg + " @ " + line + ":" + col + " " + url);
-		};
-
 		(function () {
-			let script = document.createElement("script"), pixelUsingWebAssembly = ("WebAssembly" in window);
-			script.async = true;
-			script.setAttribute("type", "text/javascript");
-			script.setAttribute("charset", "utf-8");
-			window["pixelUsingWebAssembly"] = pixelUsingWebAssembly;
-			script.setAttribute("src", pixelUsingWebAssembly ? "assets/js/lib.js": "assets/js/lib-nowasm.js");
-			script.onload = function () {
-				window["pixelStepHTML"] = true;
-				window["pixelCheckSetup"]();
-			};
-			document.body.appendChild(script);
+			function loadScript(src, successCallback, errorCallback) {
+				window.onerror = errorCallback;
+				var s = document.createElement("script");
+				s.setAttribute("type", "text/javascript");
+				s.setAttribute("charset", "utf-8");
+				document.body.appendChild(s);
+				s.onload = successCallback;
+				s.onerror = errorCallback;
+				s.setAttribute("src", src);
+				return s;
+			}
+
+			function finalCallback() {
+				var errorAlerted = false;
+				window.onerror = function (msg, url, line, col, error) {
+					debugger;
+					if (errorAlerted)
+						return;
+					errorAlerted = true;
+					alert(msg + " @ " + line + ":" + col + " " + url);
+				};
+
+				if (window["pixelCheckSetup"])
+					window["pixelCheckSetup"]();
+			}
+
+			// Modified version of https://stackoverflow.com/a/29046739/3569421
+			function checkES6() {
+				try {
+					if ((typeof Symbol) == "undefined")
+						return false;
+					var a;
+					eval("a = `1`");
+				} catch (e) {
+					return false;
+				}
+				return true;
+			}
+
+			function loadMainScript() {
+				var s;
+
+				window["pixelES2017"] = true;
+				window["pixelUsingWebAssembly"] = ("WebAssembly" in window);
+
+				// Unfortunately, as of September 2020, emscripten does not automaticaly loads
+				// the pure JS version of the compiled code, even when specifying the flag WASM=2
+				//
+				// Tested using the following command line:
+				// chrome --disable-features="WebAssembly,AsmJsToWebAssembly,WebAssemblyStreaming" --js-flags="--noexpose-wasm"
+				//
+				// https://github.com/emscripten-core/emscripten/blob/master/src/settings.js
+				// https://github.com/emscripten-core/emscripten/pull/10118
+				// https://github.com/emscripten-core/emscripten/issues/11357
+				s = loadScript(window["pixelUsingWebAssembly"] ? "assets/js/lib.js": "assets/js/lib-nowasm.js", function () {
+					// All TS files are being concatenated into a single file according to the
+					// order specified in the files array, inside tsconfig.json
+					s = loadScript("assets/js/scripts.min.js", finalCallback, function () {
+						if (s.parentNode)
+							document.body.removeChild(s);
+						if (!checkES6()) {
+							alert("Sorry, but your browser does not appear to support ES6 :(");
+						} else {
+							window["pixelES2017"] = false;
+							loadScript("assets/js/scripts.es6.min.js", finalCallback, function () {
+								alert("Impossible to load the main script :(");
+							});
+						}
+					});
+				}, function () {
+					alert("Impossible to load the library :(");
+				});
+			}
+
+			function checkPromise() {
+				try {
+					if (("Promise" in window)) {
+						loadMainScript();
+						return;
+					}
+				} catch (ex) {
+				}
+
+				// I'm not using a polyfill for Promise because this game uses
+				// a lot more features than just promises...
+				alert("Sorry, but your browser does not support a required feature :(");
+			}
+
+			function checkPolyfills() {
+				if (!Function.prototype.bind || !Array.prototype.fill)
+					loadScript("assets/js/polyfills.js", checkPromise, function (e) {
+						alert("Impossible to load the polyfill script :(");
+					});
+				else
+					checkPromise();
+			}
+
+			checkPolyfills();
 		})();
 
 		//]]>

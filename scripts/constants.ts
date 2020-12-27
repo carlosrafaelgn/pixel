@@ -26,26 +26,24 @@
 
 "use strict";
 
-function detectIOSOrSafari(): boolean {
-	// https://stackoverflow.com/q/9038625/3569421
-	if ((navigator.userAgent.indexOf("Chrome") <= 0 && navigator.userAgent.indexOf("Safari") >= 0) ||
-		(navigator.userAgent.indexOf("Mac") >= 0 && ("ontouchend" in document)))
-		return true;
-	switch (navigator.platform) {
-		case "iPad Simulator":
-		case "iPhone Simulator":
-		case "iPod Simulator":
-		case "iPad":
-		case "iPhone":
-		case "iPod":
-			return true;
-	}
-	return false;
-}
-
-const version = "20201226",
+const version = "20201227",
 	isPWA = (window.location.href.indexOf("pwa") >= 0),
-	isIOSOrSafari = detectIOSOrSafari(),
+	isIOSOrSafari = (function () {
+		// https://stackoverflow.com/q/9038625/3569421
+		if ((navigator.userAgent.indexOf("Chrome") <= 0 && navigator.userAgent.indexOf("Safari") >= 0) ||
+			(navigator.userAgent.indexOf("Mac") >= 0 && ("ontouchend" in document)))
+			return true;
+		switch (navigator.platform) {
+			case "iPad Simulator":
+			case "iPhone Simulator":
+			case "iPod Simulator":
+			case "iPad":
+			case "iPhone":
+			case "iPod":
+				return true;
+		}
+		return false;
+	})(),
 	main = document.getElementById("main") as HTMLDivElement,
 	fadeLeft = document.getElementById("fadeLeft") as HTMLDivElement,
 	fadeRight = document.getElementById("fadeRight") as HTMLDivElement,

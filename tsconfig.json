@@ -1,7 +1,6 @@
 {
 	"compilerOptions": {
 		"module": "system",
-		"target": "ES2015",
 		"lib": [ "ES2017", "DOM" ],
 		"sourceMap": false,
 		"outFile": "assets/js/scripts.js",
