@@ -21,8 +21,10 @@ SET SRCS=^
 	%CHIP_SRC%\cpSpaceHash.c %CHIP_SRC%\cpSpaceQuery.c ^
 	%CHIP_SRC%\cpSpaceStep.c %CHIP_SRC%\cpSpatialIndex.c ^
 	%CHIP_SRC%\cpSweep1D.c ^
-	%LIB_DIR%\memory.c %LIB_DIR%\physics.c %LIB_DIR%\gl.c %LIB_DIR%\imageProcessing.c
+	%LIB_DIR%\math_fix_sincos.c %LIB_DIR%\memory.c %LIB_DIR%\physics.c %LIB_DIR%\gl.c %LIB_DIR%\imageProcessing.c
 
+REM emcc (Emscripten gcc/clang-like replacement) 2.0.11 (6e28e4fa4fa1bc50d58b9ddbbb9603a3cf21ea9e)
+REM
 REM General options: https://emscripten.org/docs/tools_reference/emcc.html
 REM -s flags: https://github.com/emscripten-core/emscripten/blob/master/src/settings.js
 REM
@@ -46,13 +48,14 @@ REM 8388608 bytes (2097152 stack + 6291456 heap) is enough to hold even the larg
 REM structure, ImageInfo, which has a total of 4719244 bytes.
 
 DEL %OUT_DIR%\lib.js
-DEL %OUT_DIR%\lib.js.mem
 DEL %OUT_DIR%\lib.wasm
 DEL %OUT_DIR%\lib-nowasm.js
 
 CALL emcc ^
 	-I%CHIP_INC% ^
 	-s WASM=0 ^
+	-s LEGACY_VM_SUPPORT=1 ^
+	--memory-init-file 0 ^
 	-s PRECISE_F32=0 ^
 	-s DYNAMIC_EXECUTION=0 ^
 	-s EXPORTED_FUNCTIONS="['_allocateImageInfo', '_getImageInfoData', '_getImageInfoPoints', '_freeImageInfo', '_processImage', '_allocateBuffer', '_freeBuffer', '_draw', '_drawScale', '_drawRotate', '_drawScaleRotate', '_init', '_getViewYPtr', '_getFirstPropertyPtr', '_viewResized', '_step', '_destroy', '_initLevelSpriteSheet', '_renderBackground', '_render']" ^
@@ -62,13 +65,16 @@ CALL emcc ^
 	-s MAXIMUM_MEMORY=8388608 ^
 	-s TOTAL_STACK=2097152 ^
 	-s SUPPORT_LONGJMP=0 ^
+	-s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=1 ^
+	-s HTML5_SUPPORT_DEFERRING_USER_SENSITIVE_REQUESTS=0 ^
+	-s DISABLE_EXCEPTION_THROWING=1 ^
 	-s MINIMAL_RUNTIME=0 ^
 	-s ASSERTIONS=0 ^
 	-s STACK_OVERFLOW_CHECK=0 ^
 	-s EXPORT_NAME=CLib ^
 	-s MODULARIZE=1 ^
 	-s ENVIRONMENT='web,webview' ^
-	-Os ^
+	-O3 ^
 	-DNDEBUG ^
 	-DCP_USE_DOUBLES=0 ^
 	-o %OUT_DIR%\lib.js ^
@@ -87,19 +93,21 @@ CALL emcc ^
 	-s MAXIMUM_MEMORY=8388608 ^
 	-s TOTAL_STACK=2097152 ^
 	-s SUPPORT_LONGJMP=0 ^
+	-s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=1 ^
+	-s HTML5_SUPPORT_DEFERRING_USER_SENSITIVE_REQUESTS=0 ^
+	-s DISABLE_EXCEPTION_THROWING=1 ^
 	-s MINIMAL_RUNTIME=0 ^
 	-s ASSERTIONS=0 ^
 	-s STACK_OVERFLOW_CHECK=0 ^
 	-s EXPORT_NAME=CLib ^
 	-s MODULARIZE=1 ^
 	-s ENVIRONMENT='web,webview' ^
-	-Os ^
+	-O3 ^
 	-DNDEBUG ^
 	-DCP_USE_DOUBLES=0 ^
 	-o %OUT_DIR%\lib.js ^
 	%SRCS%
 
 cacls %OUT_DIR%\lib.js /E /P Todos:R
-cacls %OUT_DIR%\lib.js.mem /E /P Todos:R
 cacls %OUT_DIR%\lib.wasm /E /P Todos:R
 cacls %OUT_DIR%\lib-nowasm.js /E /P Todos:R

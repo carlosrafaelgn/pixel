@@ -28,7 +28,7 @@
 			-webkit-tap-highlight-color: rgba(0,0,0,0);
 		}
 
-		html, body, .cover {
+		html, body, #cover {
 			background: #99f; /* Safari for iOS and Opera for Android in fullscreen mode?!?! */
 		}
 
@@ -41,19 +41,19 @@
 			-moz-osx-font-smoothing: auto;
 		}
 
-		body, main, canvas, div, img, span, .base-element, button {
+		body, canvas, div, img, span, .base-element, button {
 			image-rendering: pixelated;
 			image-rendering: -moz-crisp-edges;
 			image-rendering: crisp-edges;
 		}
 
-		main, aside, canvas, div, .base-element, button {
+		canvas, div, .base-element, button {
 			margin: 0;
 			padding: 0;
 			border: 0;
 		}
 
-		main, canvas, div, .base-element {
+		canvas, div, .base-element {
 			box-sizing: content-box;
 		}
 
@@ -72,7 +72,7 @@
 			background-color: rgba(253,190,148,0.4);
 		}
 
-		main {
+		#main {
 			position: absolute;
 			z-index: 1;
 			overflow: visible;
@@ -104,7 +104,7 @@
 			touch-action: none;
 		}
 
-		main, button, img, span, .toolbar, .container, .scroll-container, .scroll-thumb, .loading, .cover {
+		#main, button, img, span, .toolbar, .container, .scroll-container, .scroll-thumb, .loading, .cover {
 			-webkit-user-select: none;
 			-moz-user-select: none;
 			-ms-user-select: none;
@@ -228,12 +228,12 @@
 				box-shadow: none;
 			}
 
-		aside, .base-element {
+		#fadeLeft, #fadeRight, .base-element {
 			position: absolute;
 			top: 0;
 		}
 
-		aside {
+		#fadeLeft, #fadeRight {
 			bottom: 0;
 			width: 24px;
 			background-size: 48px 100%;
@@ -403,7 +403,7 @@
 </head>
 <body>
 	<noscript>Sorry! You need to enable JavaScript in order to run the game :(</noscript>
-	<main id="main"><aside id="fadeLeft" style="display: none;"></aside><aside id="fadeRight" style="display: none;"></aside><canvas id="glCanvas"></canvas></main>
+	<div id="main"><div id="fadeLeft" style="display: none;"></div><div id="fadeRight" style="display: none;"></div><canvas id="glCanvas"></canvas></div>
 	<div id="cover" class="cover visible"></div>
 
 	<script type="text/javascript">
@@ -462,10 +462,46 @@
 				return true;
 			}
 
-			function loadMainScript() {
+			function showError(msg, a) {
+				var i;
+				if (a && a.length) {
+					msg += "\n\nError: " + a[0];
+					for (i = 1; i < a.length; i++)
+						msg += ", " + a[i];
+				}
+				alert(msg);
+			}
+
+			function loadMainScriptES(version) {
 				var s;
 
-				window["pixelES2017"] = true;
+				window["pixelES"] = "es" + version;
+
+				// All TS files are being concatenated into a single file according to the
+				// order specified in the files array, inside tsconfig.json
+				s = loadScript("assets/js/scripts.es" + version + ".min.js", finalCallback, function () {
+					showError("Impossible to load the main script :(", arguments);
+				});
+			}
+
+			function loadMainScriptES2017() {
+				var s;
+
+				window["pixelES"] = "";
+
+				// All TS files are being concatenated into a single file according to the
+				// order specified in the files array, inside tsconfig.json
+				s = loadScript("assets/js/scripts.min.js", finalCallback, function () {
+					if (s.parentNode)
+						document.body.removeChild(s);
+					if (checkES6())
+						loadMainScriptES(6);
+					else
+						loadMainScriptES(5);
+				});
+			}
+
+			function loadLibScript() {
 				window["pixelUsingWebAssembly"] = ("WebAssembly" in window);
 
 				// Unfortunately, as of September 2020, emscripten does not automaticaly loads
@@ -477,47 +513,66 @@
 				// https://github.com/emscripten-core/emscripten/blob/master/src/settings.js
 				// https://github.com/emscripten-core/emscripten/pull/10118
 				// https://github.com/emscripten-core/emscripten/issues/11357
-				s = loadScript(window["pixelUsingWebAssembly"] ? "assets/js/lib.js": "assets/js/lib-nowasm.js", function () {
-					// All TS files are being concatenated into a single file according to the
-					// order specified in the files array, inside tsconfig.json
-					s = loadScript("assets/js/scripts.min.js", finalCallback, function () {
-						if (s.parentNode)
-							document.body.removeChild(s);
-						if (!checkES6()) {
-							alert("Sorry, but your browser does not appear to support ES6 :(");
-						} else {
-							window["pixelES2017"] = false;
-							loadScript("assets/js/scripts.es6.min.js", finalCallback, function () {
-								alert("Impossible to load the main script :(");
-							});
-						}
-					});
+				loadScript(window["pixelUsingWebAssembly"] ? "assets/js/lib.js": "assets/js/lib-nowasm.js", function () {
+					if (window["pixelUsingWebAssembly"])
+						loadMainScriptES2017();
+					else if (checkES6())
+						loadMainScriptES(6);
+					else
+						loadMainScriptES(5);
 				}, function () {
-					alert("Impossible to load the library :(");
+					showError("Impossible to load the library script :(", arguments);
 				});
 			}
 
 			function checkPromise() {
 				try {
 					if (("Promise" in window)) {
-						loadMainScript();
+						loadLibScript();
 						return;
 					}
 				} catch (ex) {
 				}
 
-				// I'm not using a polyfill for Promise because this game uses
-				// a lot more features than just promises...
-				alert("Sorry, but your browser does not support a required feature :(");
+				loadScript("assets/js/es6-promise.auto.min.js", loadLibScript, function (e) {
+					showError("Impossible to load the promise script :(", arguments);
+				});
 			}
 
 			function checkPolyfills() {
-				if (!Function.prototype.bind || !Array.prototype.fill)
-					loadScript("assets/js/polyfills.js", checkPromise, function (e) {
-						alert("Impossible to load the polyfill script :(");
-					});
-				else
-					checkPromise();
+				if (!Function.prototype.bind) {
+					Function.prototype.bind = function (_this) {
+						// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+						// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply#Description
+						// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/arguments
+						var originalFunction = this, slice, originalExtraArguments;
+						if (arguments.length <= 1)
+							return function () {
+								return originalFunction.apply(_this, arguments);
+							};
+						slice = Array.prototype.slice;
+						originalExtraArguments = slice.call(arguments, 1);
+						return function () {
+							return originalFunction.apply(_this, originalExtraArguments.concat(slice.call(arguments)));
+						};
+					};
+				}
+
+				if (!Array.prototype.fill) {
+					// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
+					Array.prototype.fill = function (value, start, end) {
+						var i, length = this.length | 0;
+						start |= 0;
+						end = ((end === undefined) ? length : (end | 0));
+						end = ((end < 0) ? Math.max(length + end, 0) : Math.min(end, length));
+						i = ((start < 0) ? Math.max(length + start, 0) : Math.min(start, length));
+						while (i < end)
+							this[i++] = value;
+						return this;
+					};
+				}
+
+				checkPromise();
 			}
 
 			checkPolyfills();

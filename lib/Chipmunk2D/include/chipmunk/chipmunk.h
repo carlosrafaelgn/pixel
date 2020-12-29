@@ -23,7 +23,7 @@
 #define CHIPMUNK_H
 
 #include <stdlib.h>
-#include <math.h>
+#include "../../../math_fix_sincos.h"
 
 #ifndef alloca
 	#ifdef _WIN32

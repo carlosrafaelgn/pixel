@@ -346,7 +346,7 @@ class SelectionView extends View {
 	}
 
 	private fullscreen(e: Event): boolean {
-		fullscreenControl.toggleFullscreen();
+		FullscreenControl.toggleFullscreen();
 		return true;
 	}
 

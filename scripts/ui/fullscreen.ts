@@ -34,7 +34,7 @@ class FullscreenControl {
 	// There is a bunch of weird try/catch's here... I know... I don't care!
 	// It's a jungle out there! Fullscreen is bizarre!
 
-	public requestFullscreen(element?: HTMLElement): void {
+	public static requestFullscreen(element?: HTMLElement): void {
 		if (!element)
 			element = document.body;
 
@@ -57,12 +57,12 @@ class FullscreenControl {
 		}
 
 		if (!ok && element !== document.body)
-			this.requestFullscreen(null);
+			FullscreenControl.requestFullscreen(null);
 		else
 			ignorePromise(p);
 	}
 
-	public exitFullscreen(): void {
+	public static exitFullscreen(): void {
 		let p: Promise<void> = null;
 
 		try {
@@ -81,7 +81,7 @@ class FullscreenControl {
 		ignorePromise(p);
 	}
 
-	public get fullscreenElement(): HTMLElement {
+	public static get fullscreenElement(): HTMLElement {
 		let e: HTMLElement = null;
 
 		try {
@@ -118,7 +118,7 @@ class FullscreenControl {
 		return null;
 	}
 
-	public set onfullscreenchange(listener: EventListener) {
+	public static set onfullscreenchange(listener: EventListener) {
 		try {
 			if (("onfullscreenchange" in document))
 				document["onfullscreenchange"] = listener;
@@ -133,20 +133,18 @@ class FullscreenControl {
 		}
 	}
 
-	public toggleFullscreen(): void {
-		this.fullscreenMode = !this.fullscreenMode;
+	public static toggleFullscreen(): void {
+		FullscreenControl.fullscreenMode = !FullscreenControl.fullscreenMode;
 	}
 
-	public get fullscreenMode(): boolean {
-		return !!this.fullscreenElement;
+	public static get fullscreenMode(): boolean {
+		return !!FullscreenControl.fullscreenElement;
 	}
 
-	public set fullscreenMode(fullscreen: boolean) {
+	public static set fullscreenMode(fullscreen: boolean) {
 		if (fullscreen)
-			this.requestFullscreen();
+			FullscreenControl.requestFullscreen();
 		else
-			this.exitFullscreen();
+			FullscreenControl.exitFullscreen();
 	}
 }
-
-const fullscreenControl = new FullscreenControl();

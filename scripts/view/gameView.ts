@@ -196,7 +196,7 @@ class GameView extends View {
 		this.level = await LevelCache.loadLevelFromOptions(this.loadOptions);
 		this.loadOptions = null;
 
-		this.pointerHandler = new PointerHandler(glCanvas, this.mouseDown.bind(this), this.mouseMove.bind(this), this.mouseUp.bind(this));
+		this.pointerHandler = new PointerHandler(View.glCanvas, this.mouseDown.bind(this), this.mouseMove.bind(this), this.mouseUp.bind(this));
 
 		if (!this.levelTexture) {
 			this.levelTexture = new Texture(View.gl, await loadImage(this.level.processedImage));
@@ -269,9 +269,9 @@ class GameView extends View {
 		if (this.finalUIAttached) {
 			this.finalUIAttached = false;
 			if (!this.preview) {
-				main.removeChild(this.backButton);
-				main.removeChild(this.restartButton);
-				main.removeChild(this.timeDisplay);
+				View.main.removeChild(this.backButton);
+				View.main.removeChild(this.restartButton);
+				View.main.removeChild(this.timeDisplay);
 			}
 		}
 
@@ -360,7 +360,7 @@ class GameView extends View {
 				onbuttonclick: (id) => {
 					switch (id) {
 						case "fullscreen":
-							fullscreenControl.toggleFullscreen();
+							FullscreenControl.toggleFullscreen();
 							break;
 						case "controlMode":
 							ControlMode.toggleMode();
@@ -603,9 +603,9 @@ class GameView extends View {
 				if (!this.finalUIAttached) {
 					this.finalUIAttached = true;
 					if (!this.preview) {
-						main.appendChild(this.backButton);
-						main.appendChild(this.restartButton);
-						main.appendChild(this.timeDisplay);
+						View.main.appendChild(this.backButton);
+						View.main.appendChild(this.restartButton);
+						View.main.appendChild(this.timeDisplay);
 					}
 				}
 			}

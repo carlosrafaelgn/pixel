@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
+#include "../../math_fix_sincos.h"
 
 #include "chipmunk/chipmunk_private.h"
 #include "chipmunk/cpPolyline.h"

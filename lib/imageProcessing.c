@@ -26,7 +26,7 @@
 
 #include <emscripten.h>
 #include <stdlib.h>
-#include <math.h>
+#include "math_fix_sincos.h"
 #include <memory.h>
 
 #include "shared.h"

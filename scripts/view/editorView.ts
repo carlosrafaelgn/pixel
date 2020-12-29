@@ -219,7 +219,7 @@ class EditorView extends View {
 	}
 
 	protected async attach(): Promise<void> {
-		glCanvas.style.display = "none";
+		View.glCanvas.style.display = "none";
 
 		if (!this.level) {
 			this.level = await LevelCache.loadLevelFromOptions(this.loadOptions);
@@ -263,7 +263,7 @@ class EditorView extends View {
 	}
 
 	protected async detach(): Promise<void> {
-		glCanvas.style.display = "";
+		View.glCanvas.style.display = "";
 
 		if (this.pointerHandler) {
 			this.pointerHandler.destroy();

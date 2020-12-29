@@ -236,7 +236,7 @@ class Modal {
 		this.modalElement.appendChild(this.modalBodyElement);
 		this.modalElement.appendChild(this.modalFooterElement);
 		this.containerElement.appendChild(this.modalElement);
-		main.appendChild(this.containerElement);
+		View.main.appendChild(this.containerElement);
 
 		this.boundDocumentKeyDown = this.documentKeyDown.bind(this);
 		document.addEventListener("keydown", this.boundDocumentKeyDown, true);
@@ -282,7 +282,7 @@ class Modal {
 			if (this.options.onhidden)
 				this.options.onhidden();
 
-			main.removeChild(this.containerElement);
+			View.main.removeChild(this.containerElement);
 
 			for (let i = this.options.buttons.length - 1; i >= 0; i--)
 				zeroObject(this.options.buttons[i]);

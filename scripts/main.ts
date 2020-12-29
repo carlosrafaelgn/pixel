@@ -213,13 +213,13 @@ function adjustWindowSize(): void {
 	if (baseTopPx < 0) baseTopPx = 0;
 	baseTopCss = baseTopPx / pixelRatio;
 
-	main.style.left = baseLeftCss + "px";
-	main.style.top = baseTopCss + "px";
+	View.main.style.left = baseLeftCss + "px";
+	View.main.style.top = baseTopCss + "px";
 
 	const transform = `scale(${Math.ceil(widthCss * 0.25)},${Math.ceil(heightCss * 0.25)})`;
-	cover.style["webkitTransform"] = transform;
-	cover.style["mozTransform"] = transform;
-	cover.style.transform = transform;
+	View.cover.style["webkitTransform"] = transform;
+	View.cover.style["mozTransform"] = transform;
+	View.cover.style.transform = transform;
 
 	if (heightCss > widthCss || baseTopCss) {
 		if (!landscapeWarning) {
@@ -241,8 +241,8 @@ function adjustWindowSize(): void {
 	}
 
 	if (scaleFactor !== lastScaleFactor || baseHeight !== lastBaseHeight) {
-		main.style.width = baseWidthCss + "px";
-		main.style.height = baseHeightCss + "px";
+		View.main.style.width = baseWidthCss + "px";
+		View.main.style.height = baseHeightCss + "px";
 
 		maxHeightCss = cssNumber(maxHeight);
 		thumbnailWidthCss = css(thumbnailWidth);
@@ -282,7 +282,7 @@ function fullscreenChanged(e: Event): void {
 	}
 
 	try {
-		if (fullscreenControl.fullscreenMode)
+		if (FullscreenControl.fullscreenMode)
 			fullscreenChangedTimeout = setTimeout(fullscreenChangedHandler, 150);
 		else
 			fullscreenChangedHandler();
@@ -298,7 +298,7 @@ function fullscreenChangedHandler(): void {
 	// https://developer.mozilla.org/en-US/docs/Web/API/Screen/lockOrientation
 	if (screen["mozLockOrientation"] && screen["mozUnlockOrientation"]) {
 		try {
-			if (fullscreenControl.fullscreenMode) {
+			if (FullscreenControl.fullscreenMode) {
 				if (screen["mozLockOrientation"]("landscape-primary"))
 					return;
 			} else {
@@ -311,7 +311,7 @@ function fullscreenChangedHandler(): void {
 	}
 	if (screen["msLockOrientation"] && screen["msUnlockOrientation"]) {
 		try {
-			if (fullscreenControl.fullscreenMode) {
+			if (FullscreenControl.fullscreenMode) {
 				if (screen["msLockOrientation"]("landscape-primary"))
 					return;
 			} else {
@@ -324,7 +324,7 @@ function fullscreenChangedHandler(): void {
 	}
 	if (screen.orientation && screen.orientation.lock && screen.orientation.unlock) {
 		try {
-			ignorePromise(fullscreenControl.fullscreenMode ?
+			ignorePromise(FullscreenControl.fullscreenMode ?
 				screen.orientation.lock("landscape-primary") :
 				// Are there browsers out there returning a promise here?!?!
 				screen.orientation.unlock());
@@ -365,7 +365,7 @@ async function setup(): Promise<void> {
 	adjustWindowSize();
 
 	if (!androidWrapper)
-		fullscreenControl.onfullscreenchange = fullscreenChanged;
+		FullscreenControl.onfullscreenchange = fullscreenChanged;
 
 	View.loading = false;
 

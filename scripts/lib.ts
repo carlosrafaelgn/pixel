@@ -40,7 +40,7 @@ interface CLib {
 	_freeImageInfo(imageInfo: number): void;
 	_processImage(imageInfo: number): number;
 
-	_allocateBuffer(floatCount: number): number;
+	_allocateBuffer(size: number): number;
 	_freeBuffer(bufferPtr: number): void;
 
 	_draw(verticesPtr: number, modelCoordinatesPtr: number, alpha: number, textureCoordinatesPtr: number, viewX: number, viewY: number): void;

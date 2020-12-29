@@ -26,7 +26,7 @@
 
 "use strict";
 
-const version = "20201227",
+const version = "20201229",
 	isPWA = (window.location.href.indexOf("pwa") >= 0),
 	isIOSOrSafari = (function () {
 		// https://stackoverflow.com/q/9038625/3569421
@@ -44,11 +44,6 @@ const version = "20201227",
 		}
 		return false;
 	})(),
-	main = document.getElementById("main") as HTMLDivElement,
-	fadeLeft = document.getElementById("fadeLeft") as HTMLDivElement,
-	fadeRight = document.getElementById("fadeRight") as HTMLDivElement,
-	glCanvas = document.getElementById("glCanvas") as HTMLCanvasElement,
-	cover = document.getElementById("cover") as HTMLDivElement,
 	// Must be in sync with lib/shared.h
 	baseWidth = 420,
 	minHeight = baseWidth >> 1,

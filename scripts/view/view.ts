@@ -31,6 +31,12 @@ interface ButtonCallback {
 }
 
 abstract class View {
+	public static readonly main = document.getElementById("main") as HTMLDivElement;
+	public static readonly fadeLeft = document.getElementById("fadeLeft") as HTMLDivElement;
+	public static readonly fadeRight = document.getElementById("fadeRight") as HTMLDivElement;
+	public static readonly glCanvas = document.getElementById("glCanvas") as HTMLCanvasElement;
+	public static readonly cover = document.getElementById("cover") as HTMLDivElement;
+
 	private static _loading = false;
 	private static _fading = false;
 	private static currentView: View = null;
@@ -94,7 +100,7 @@ abstract class View {
 		}
 
 		try {
-			View.gl.recreate(glCanvas, baseWidth >> LevelSpriteSheet.BackgroundScaleRightShift, baseHeight >> LevelSpriteSheet.BackgroundScaleRightShift);
+			View.gl.recreate(View.glCanvas, baseWidth >> LevelSpriteSheet.BackgroundScaleRightShift, baseHeight >> LevelSpriteSheet.BackgroundScaleRightShift);
 
 			View.gl.clearColor(1, 1, 1, 1);
 
@@ -191,19 +197,19 @@ abstract class View {
 
 	public static windowResized(elementSizeChanged: boolean): void {
 		if (baseLeftCss < 8) {
-			if (!fadeLeft.style.backgroundColor) {
+			if (!View.fadeLeft.style.backgroundColor) {
 				const color = ((androidWrapper || isPWA) ? "#99f" : "#000");
-				fadeLeft.style.backgroundColor = color;
-				fadeRight.style.backgroundColor = color;
-				fadeLeft.style.backgroundImage = "none";
-				fadeRight.style.backgroundImage = "none";
+				View.fadeLeft.style.backgroundColor = color;
+				View.fadeRight.style.backgroundColor = color;
+				View.fadeLeft.style.backgroundImage = "none";
+				View.fadeRight.style.backgroundImage = "none";
 			}
 		} else {
-			if (fadeLeft.style.backgroundColor) {
-				fadeLeft.style.backgroundColor = "";
-				fadeRight.style.backgroundColor = "";
-				fadeLeft.style.backgroundImage = "";
-				fadeRight.style.backgroundImage = "";
+			if (View.fadeLeft.style.backgroundColor) {
+				View.fadeLeft.style.backgroundColor = "";
+				View.fadeRight.style.backgroundColor = "";
+				View.fadeLeft.style.backgroundImage = "";
+				View.fadeRight.style.backgroundImage = "";
 			}
 		}
 
@@ -213,14 +219,14 @@ abstract class View {
 		View.resizeLoading();
 
 		if (baseTopCss) {
-			if (!fadeLeft.style.display) {
-				fadeLeft.style.display = "none";
-				fadeRight.style.display = "none";
+			if (!View.fadeLeft.style.display) {
+				View.fadeLeft.style.display = "none";
+				View.fadeRight.style.display = "none";
 			}
 		} else {
-			if (fadeLeft.style.display) {
-				fadeLeft.style.display = "";
-				fadeRight.style.display = "";
+			if (View.fadeLeft.style.display) {
+				View.fadeLeft.style.display = "";
+				View.fadeRight.style.display = "";
 			}
 		}
 
@@ -228,11 +234,11 @@ abstract class View {
 		// https://www.khronos.org/webgl/wiki/HandlingHighDPI
 		// Unfortunately it was not possible to use the techniques above
 		// because the ball/camera movement ended up too jaggy :(
-		glCanvas.width = baseWidth * scaleFactor;
-		glCanvas.height = baseHeight * scaleFactor;
-		glCanvas.style.height = baseHeightCss + "px";
+		View.glCanvas.width = baseWidth * scaleFactor;
+		View.glCanvas.height = baseHeight * scaleFactor;
+		View.glCanvas.style.height = baseHeightCss + "px";
 
-		if (View.gl.checkRecreate(glCanvas))
+		if (View.gl.checkRecreate(View.glCanvas))
 			View.recreateResources();
 
 		if (View.currentView)
@@ -327,8 +333,8 @@ abstract class View {
 		if (this.initialElements) {
 			if (this.attached) {
 				// 3 = fadeLeft, fadeRight, glCanvas
-				for (let i = main.childNodes.length - 1; i >= 3; i--)
-					main.removeChild(main.childNodes[i]);
+				for (let i = View.main.childNodes.length - 1; i >= 3; i--)
+					View.main.removeChild(View.main.childNodes[i]);
 
 				this.attached = false;
 				await this.detach();
@@ -371,12 +377,12 @@ abstract class View {
 			else
 				View.backgroundFrameRequest = requestAnimationFrame(View.renderBackground);
 
-			cover.classList.remove("visible");
+			View.cover.classList.remove("visible");
 
 			setTimeout(() => {
 				View._fading = false;
 				View.popHistoryStateIfNecessary();
-				document.body.removeChild(cover);
+				document.body.removeChild(View.cover);
 				this.fadeInFinished();
 				resolve();
 			}, 520);
@@ -397,7 +403,7 @@ abstract class View {
 				for (let i = 0; i < initialElements.length; i++) {
 					const element = initialElements[i];
 					if (element)
-						main.appendChild(element);
+						View.main.appendChild(element);
 				}
 
 				this.attached = true;
@@ -429,10 +435,10 @@ abstract class View {
 		}
 
 		return new Promise((resolve, reject) => {
-			document.body.appendChild(cover);
+			document.body.appendChild(View.cover);
 
 			setTimeout(() => {
-				cover.classList.add("visible");
+				View.cover.classList.add("visible");
 
 				setTimeout(async () => {
 					await this.destroy(saveViewInStack);

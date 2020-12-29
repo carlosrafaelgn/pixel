@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 #include <float.h>
-#include <math.h>
+#include "../../../math_fix_sincos.h"
 
 #ifdef __APPLE__
    #include "TargetConditionals.h"

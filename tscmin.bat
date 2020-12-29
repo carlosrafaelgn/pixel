@@ -2,6 +2,7 @@
 
 DEL assets\js\scripts.min.js
 DEL assets\js\scripts.es6.min.js
+DEL assets\js\scripts.es5.min.js
 
 REM We are specifying the target here and not at tsconfig.json
 REM https://www.typescriptlang.org/docs/handbook/compiler-options.html (--target section)
@@ -16,4 +17,8 @@ DEL assets\js\scripts.js
 
 CALL tsc --target ES2015
 java -jar D:\Tools\closure-compiler.jar --js assets\js\scripts.js --js_output_file assets\js\scripts.es6.min.js --language_in ECMASCRIPT_2015 --language_out ECMASCRIPT_2015 --strict_mode_input --compilation_level SIMPLE
+DEL assets\js\scripts.js
+
+CALL tsc --target ES5
+java -jar D:\Tools\closure-compiler.jar --js assets\js\scripts.js --js_output_file assets\js\scripts.es5.min.js --language_in ECMASCRIPT5_STRICT --language_out ECMASCRIPT5_STRICT --strict_mode_input --compilation_level SIMPLE
 DEL assets\js\scripts.js
