@@ -58,6 +58,8 @@ class ScrollContainer {
 		}
 
 		this.container.className = (scrollThumbOnly ? "container" : "container scrollable-container");
+		if (!scrollThumbOnly)
+			this.parent.style.overflow = "hidden"; // To hide the ScrollContainer in older browsers
 
 		this.scrollContainer = document.createElement("div") as HTMLDivElement;
 		this.scrollContainer.className = (extraContainerClass ? ("scroll-container " + extraContainerClass) : "scroll-container");
