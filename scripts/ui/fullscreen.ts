@@ -42,14 +42,14 @@ class FullscreenControl {
 			p: Promise<void> = null;
 
 		try {
-			if (("requestFullscreen" in element))
+			if (element["requestFullscreen"])
 				p = (element["requestFullscreen"] as FullscreenCall)();
-			else if (("webkitRequestFullscreen" in element))
+			else if (element["webkitRequestFullscreen"])
 				p = (element["webkitRequestFullscreen"] as FullscreenCall)();
-			else if (("mozRequestFullScreen" in element))
+			else if (element["mozRequestFullScreen"])
 				p = (element["mozRequestFullScreen"] as FullscreenCall)();
-			else if (("msRequestFullScreen" in element))
-				p = (element["msRequestFullScreen"] as FullscreenCall)();
+			else if (element["msRequestFullscreen"])
+				p = (element["msRequestFullscreen"] as FullscreenCall)();
 			else
 				ok = false;
 		} catch (ex) {
@@ -66,13 +66,13 @@ class FullscreenControl {
 		let p: Promise<void> = null;
 
 		try {
-			if (("exitFullscreen" in document))
+			if (document["exitFullscreen"])
 				p = (document["exitFullscreen"] as FullscreenCall)();
-			else if (("webkitExitFullscreen" in document))
+			else if (document["webkitExitFullscreen"])
 				p = (document["webkitExitFullscreen"] as FullscreenCall)();
-			else if (("mozExitFullScreen" in document))
+			else if (document["mozExitFullScreen"])
 				p = (document["mozExitFullScreen"] as FullscreenCall)();
-			else if (("msExitFullscreen" in document))
+			else if (document["msExitFullscreen"])
 				p = (document["msExitFullscreen"] as FullscreenCall)();
 		} catch (ex) {
 			// Just ignore...

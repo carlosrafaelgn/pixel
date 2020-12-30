@@ -138,7 +138,8 @@ class EditorView extends View {
 		this.buttonsWithLargeMargin.push(this.createButton(toolbarBottom, UISpriteSheet.Open, this.open.bind(this)));
 		this.createButton(toolbarBottom, UISpriteSheet.Download, this.download.bind(this));
 		this.createButton(toolbarBottom, UISpriteSheet.Clear, this.clear.bind(this));
-		this.createButton(toolbarBottom, UISpriteSheet.Accept, this.accept.bind(this)).style.float = "right";
+		if (LevelCache.isSupported())
+			this.createButton(toolbarBottom, UISpriteSheet.Accept, this.accept.bind(this)).style.float = "right";
 		this.createButton(toolbarBottom, UISpriteSheet.Play, this.play.bind(this)).style.float = "right";
 
 		this.fileInput.onchange = this.openFile.bind(this);

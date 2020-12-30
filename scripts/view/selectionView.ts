@@ -62,7 +62,8 @@ class SelectionView extends View {
 
 		this.fileInput.onchange = this.openFile.bind(this);
 
-		const open = this.createButton(this.toolbarTop, UISpriteSheet.Open, this.open.bind(this));
+		if (LevelCache.isSupported())
+			this.createButton(this.toolbarTop, UISpriteSheet.Open, this.open.bind(this));
 
 		if (!androidWrapper && !isPWA)
 			this.buttonsWithMargin.push(this.createButton(this.toolbarTop, UISpriteSheet.Fullscreen, this.fullscreen.bind(this)));

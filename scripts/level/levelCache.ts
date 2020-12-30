@@ -60,6 +60,15 @@ class LevelCache {
 	private static LevelRecords: { [levelIdOrName: string]: LevelRecord } = null;
 	public static LastRecordName: string = null;
 
+	public static isSupported(): boolean {
+		try {
+			return (("caches" in window) && ("open" in caches));
+		} catch (ex) {
+			// Just ignore...
+		}
+		return false;
+	}
+
 	public static loadBuiltInLevels(): Promise<void> {
 		return new Promise((resolve, reject) => {
 			if (LevelCache.BuiltInLevelIds)
@@ -311,9 +320,16 @@ class LevelCache {
 				return androidWrapper.downloadLevel(name, null, imageBase64);
 			} else {
 				return new Promise<number>((resolve, reject) => {
-					canvas.toBlob((blob) => {
-						resolve((blob && BlobDownloader.download(blob, name, "image/png")) ? LevelCache.DownloadLevelSuccess : LevelCache.DownloadLevelError);
-					}, "image/png");
+					let blob: Blob;
+					if (canvas["toBlob"]) {
+						canvas.toBlob((blob) => {
+							resolve((blob && BlobDownloader.download(blob, name, "image/png")) ? LevelCache.DownloadLevelSuccess : LevelCache.DownloadLevelError);
+						}, "image/png");
+					} else if (canvas["msToBlob"] && (blob = canvas["msToBlob"]())) {
+						resolve(BlobDownloader.download(blob, name, "image/png") ? LevelCache.DownloadLevelSuccess : LevelCache.DownloadLevelError);
+					} else {
+						resolve(LevelCache.DownloadLevelError);
+					}
 				});
 			}
 		} catch (ex) {

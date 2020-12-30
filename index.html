@@ -607,6 +607,49 @@
 					};
 				}
 
+				if (!String.prototype.trim) {
+					String.prototype.trim = (function () {
+						var expr = /^\s+|\s+$/g;
+						return function () { return this.replace(expr, ""); };
+					})();
+				}
+
+				if (!String.prototype.startsWith) {
+					String.prototype.startsWith = function (start, position) {
+						// Try to simulate the actual behavior of startsWith()
+						if (this === "")
+							return (start === "");
+						if (!this)
+							return false;
+						if (start === "")
+							return true;
+						if (position === undefined || position < 0)
+							position = 0;
+						if (!start || (start.length + position) > this.length)
+							return false;
+						var i = this.indexOf(start, position);
+						return (i);
+					};
+				}
+
+				if (!String.prototype.endsWith) {
+					String.prototype.endsWith = function (end, desiredLength) {
+						// Try to simulate the actual behavior of endsWith()
+						if (this === "")
+							return (end === "");
+						if (!this)
+							return false;
+						if (end === "")
+							return true;
+						if (desiredLength === undefined || desiredLength > this.length)
+							desiredLength = this.length;
+						if (!end || end.length > desiredLength)
+							return false;
+						var i = this.lastIndexOf(end, desiredLength);
+						return (i >= 0 && i === (desiredLength - end.length));
+					};
+				}
+
 				checkPromise();
 			}
 
