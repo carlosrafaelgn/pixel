@@ -293,7 +293,6 @@ void main() {
 		this.throwIfError();
 
 		this.vertexBuffer = gl.createBuffer();
-		this.vertexBuffer = gl.createBuffer();
 		this.indexBuffer = gl.createBuffer();
 
 		this.allocateRectangleBuffers();
@@ -472,7 +471,9 @@ void main() {
 		// several times later, with size <= maximum size, for increased performance!
 		gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
 		// Speed up next bufferSubData() calls on Chrome???
-		gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertices);
+		// (It does not really change anything, as the first call made to
+		// gl.bufferSubData() in every new frame is always the slowest one)
+		//gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.vertices);
 	}
 
 	public useFramebuffer(use: boolean): void {
