@@ -26,7 +26,7 @@
 
 "use strict";
 
-const version = "20201230",
+const version = "20201231",
 	isPWA = (window.location.href.indexOf("pwa") >= 0),
 	isIOSOrSafari = (function () {
 		// https://stackoverflow.com/q/9038625/3569421
