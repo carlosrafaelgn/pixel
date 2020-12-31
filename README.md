@@ -10,4 +10,4 @@ The game uses the physics engine [Chipmunk2D](https://github.com/slembcke/Chipmu
 
 In old browsers the game uses the [es6-promise polyfill](https://github.com/stefanpenner/es6-promise), licensed under the [MIT License](https://github.com/stefanpenner/es6-promise/blob/master/LICENSE).
 
-The game was tested in several different devices and browsers thanks to the infrastructure kindly provided, for free, by [BrowserStack](https://www.browserstack.com/) ❤.
+The game was tested in several different devices and browsers thanks to the infrastructure kindly provided, for free, by [BrowserStack](https://www.browserstack.com/) ❤
