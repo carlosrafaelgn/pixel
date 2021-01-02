@@ -21,6 +21,14 @@
 				url('assets/fonts/PressStart2P-Regular.ttf') format('truetype');
 		}
 
+		* {
+			image-rendering: pixelated;
+			image-rendering: -moz-crisp-edges;
+			image-rendering: crisp-edges;
+			-ms-touch-action: none;
+			touch-action: none;
+		}
+
 		html {
 			height: 100%;
 			min-height: 100%;
@@ -39,12 +47,6 @@
 			line-height: 1;
 			-webkit-font-smoothing: none;
 			-moz-osx-font-smoothing: auto;
-		}
-
-		body, canvas, div, img, span, .base-element, button {
-			image-rendering: pixelated;
-			image-rendering: -moz-crisp-edges;
-			image-rendering: crisp-edges;
 		}
 
 		canvas, div, .base-element, button {
@@ -101,7 +103,6 @@
 		canvas {
 			width: 100%;
 			cursor: crosshair;
-			touch-action: none;
 		}
 
 		#main, button, img, span, .toolbar, .container, .scroll-container, .scroll-thumb, .loading, .cover {
@@ -152,8 +153,6 @@
 		button {
 			display: inline-block;
 			cursor: pointer;
-			-ms-touch-action: manipulation;
-			touch-action: manipulation;
 			text-align: center;
 			box-sizing: border-box;
 			vertical-align: top;
@@ -167,6 +166,11 @@
 		button, button:focus, button:hover, button:active {
 			outline: 0 none transparent;
 			background: none;
+		}
+
+		/* https://stackoverflow.com/a/199319/3569421 */
+		button::-moz-focus-inner {
+			border: 0;
 		}
 
 		.modal a {
@@ -337,6 +341,11 @@
 			height: 0;
 		}
 
+		.scrollable-container, .scrollable-container * {
+			-ms-touch-action: pan-y;
+			touch-action: pan-y;
+		}
+
 		.scroll-container {
 			position: relative;
 			width: 100%;
@@ -353,7 +362,6 @@
 			right: 0;
 			top: 0;
 			cursor: ns-resize;
-			touch-action: none;
 		}
 
 		.pointer-cursor {

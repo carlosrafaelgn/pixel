@@ -393,9 +393,13 @@ class GameView extends View {
 		if (View.loading || !this.alive || this.paused || ControlMode.mode !== ControlMode.Pointer || this.finished)
 			return false;
 
+		const x = model(e.clientX - baseLeftCss), y = model(e.clientY - baseTopCss);
+
 		this.pointerCursorAttached[0] = 1;
-		this.pointerCursorCenterX[0] = this.pointerCursorX[0] = model(e.clientX - baseLeftCss);
-		this.pointerCursorCenterY[0] = this.pointerCursorY[0] = model(e.clientY - baseTopCss);
+		this.pointerCursorCenterX[0] = x;
+		this.pointerCursorX[0] = x;
+		this.pointerCursorCenterY[0] = y;
+		this.pointerCursorY[0] = y;
 
 		return true;
 	}

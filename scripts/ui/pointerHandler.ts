@@ -37,15 +37,16 @@ interface VoidPointerHandler {
 class PointerHandler {
 	private readonly documentTarget: HTMLElement;
 	private readonly element: HTMLElement;
-
+	
 	private readonly downCallback: BooleanPointerHandler;
 	private readonly moveCallback: VoidPointerHandler;
 	private readonly upCallback: VoidPointerHandler;
-
+	
 	private readonly documentDownEvent: string;
 	private readonly documentMoveEvent: string;
 	private readonly documentUpEvent: string;
 	private readonly documentCancelEvent: string;
+	private readonly elementHasExtraTouchStartHandler: boolean;
 
 	private readonly boundDocumentDown: any;
 	private readonly boundDocumentMove: any;
@@ -62,18 +63,9 @@ class PointerHandler {
 		this.moveCallback = moveCallback;
 		this.upCallback = upCallback;
 
-		// Firefox mobile and a few iOS devices cause a buggy behavior if trying to handle
-		// pointerdown/move/up but not touchstart/end/cancel...
-		if ("ontouchstart" in element) {
-			this.documentDownEvent = "touchstart";
-			this.documentMoveEvent = "touchmove";
-			this.documentUpEvent = "touchend";
-			this.documentCancelEvent = "touchcancel";
+		this.elementHasExtraTouchStartHandler = false;
 
-			this.boundDocumentDown = this.touchStart.bind(this);
-			this.boundDocumentUp = this.touchEnd.bind(this);
-			this.boundDocumentMove = this.touchMove.bind(this);
-		} else if ("onpointerdown" in element) {
+		if ("onpointerdown" in element) {
 			this.documentDownEvent = "pointerdown";
 			this.documentMoveEvent = "pointermove";
 			this.documentUpEvent = "pointerup";
@@ -82,6 +74,22 @@ class PointerHandler {
 			this.boundDocumentDown = this.pointerDown.bind(this);
 			this.boundDocumentUp = this.pointerUp.bind(this);
 			this.boundDocumentMove = this.pointerMove.bind(this);
+
+			// Firefox mobile and a few iOS devices cause a buggy behavior if trying to handle
+			// pointerdown/move/up but not touchstart/end/cancel...
+			if ("ontouchstart" in element) {
+				this.elementHasExtraTouchStartHandler = true;
+				element.addEventListener("touchstart", cancelEvent);
+			}
+		} else if ("ontouchstart" in element) {
+			this.documentDownEvent = "touchstart";
+			this.documentMoveEvent = "touchmove";
+			this.documentUpEvent = "touchend";
+			this.documentCancelEvent = "touchcancel";
+
+			this.boundDocumentDown = this.touchStart.bind(this);
+			this.boundDocumentUp = this.touchEnd.bind(this);
+			this.boundDocumentMove = this.touchMove.bind(this);
 		} else {
 			this.documentDownEvent = "mousedown";
 			this.documentMoveEvent = "mousemove";
@@ -94,14 +102,36 @@ class PointerHandler {
 		}
 
 		element.addEventListener(this.documentDownEvent, this.boundDocumentDown);
+		// Firefox mobile and a few iOS devices treat a few events on the root element as passive by default
+		// https://stackoverflow.com/a/49853392/3569421
+		// https://stackoverflow.com/a/57076149/3569421
+		this.documentTarget.addEventListener(this.documentMoveEvent, this.boundDocumentMove, { capture: true, passive: false });
+		this.documentTarget.addEventListener(this.documentUpEvent, this.boundDocumentUp, true);
+		if (this.documentCancelEvent)
+			this.documentTarget.addEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
 
 		this.captured = false;
 		this.pointerId = -1;
 	}
 
 	public destroy(): void {
-		if (this.element && this.boundDocumentDown)
-			this.element.removeEventListener(this.documentDownEvent, this.boundDocumentDown);
+		if (this.element) {
+			if (this.boundDocumentDown)
+				this.element.removeEventListener(this.documentDownEvent, this.boundDocumentDown);
+			if (this.elementHasExtraTouchStartHandler)
+				this.element.removeEventListener("touchstart", cancelEvent);
+		}
+
+		if (this.documentTarget) {
+			if (this.boundDocumentUp) {
+				this.documentTarget.removeEventListener(this.documentUpEvent, this.boundDocumentUp, true);
+				if (this.documentCancelEvent)
+					this.documentTarget.removeEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
+			}
+
+			if (this.boundDocumentMove)
+				this.documentTarget.removeEventListener(this.documentMoveEvent, this.boundDocumentMove, true);
+		}
 
 		this.mouseUp(null);
 
@@ -185,14 +215,6 @@ class PointerHandler {
 
 		this.captured = true;
 
-		// Firefox mobile and a few iOS devices treat a few events on the root element as passive by default
-		// https://stackoverflow.com/a/49853392/3569421
-		// https://stackoverflow.com/a/57076149/3569421
-		this.documentTarget.addEventListener(this.documentMoveEvent, this.boundDocumentMove, { capture: true, passive: false });
-		this.documentTarget.addEventListener(this.documentUpEvent, this.boundDocumentUp, true);
-		if (this.documentCancelEvent)
-			this.documentTarget.addEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
-
 		return cancelEvent(e);
 	}
 
@@ -209,11 +231,6 @@ class PointerHandler {
 	private mouseUp(e: MouseEvent): boolean {
 		if (!this.captured)
 			return;
-
-		this.documentTarget.removeEventListener(this.documentUpEvent, this.boundDocumentUp, true);
-		this.documentTarget.removeEventListener(this.documentMoveEvent, this.boundDocumentMove, true);
-		if (this.documentCancelEvent)
-			this.documentTarget.removeEventListener(this.documentCancelEvent, this.boundDocumentUp, true);
 
 		this.captured = false;
 
