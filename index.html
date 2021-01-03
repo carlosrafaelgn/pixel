@@ -583,6 +583,38 @@
 				});
 			}
 
+			function fixRequestAnimationFrame() {
+				// Modified version of https://gist.github.com/desandro/1866474
+				var lastTime = 0, prefixes = "webkit moz ms o".split(" "),
+					requestAnimationFrame = window.requestAnimationFrame,
+					cancelAnimationFrame = window.cancelAnimationFrame,
+					prefix, i;
+
+				for (i = 0; i < prefixes.length; i++) {
+					if (requestAnimationFrame && cancelAnimationFrame)
+						break;
+					prefix = prefixes[i];
+					if (!requestAnimationFrame)
+						requestAnimationFrame = window[prefix + "RequestAnimationFrame"];
+					if (!cancelAnimationFrame)
+						cancelAnimationFrame = window[prefix + "CancelAnimationFrame"] || window[prefix + "CancelRequestAnimationFrame"];
+				}
+
+				if (!requestAnimationFrame || !cancelAnimationFrame) {
+					requestAnimationFrame = function (callback) {
+						return window.setTimeout(function() {
+							lastTime = Date.now();
+							callback(lastTime);
+						}, Math.max(0, 16 - (Date.now() - lastTime)));
+					};
+
+					cancelAnimationFrame = window.clearTimeout;
+				}
+
+				window.requestAnimationFrame = requestAnimationFrame;
+				window.cancelAnimationFrame = cancelAnimationFrame;
+			}
+
 			function checkPolyfills() {
 				if (!Function.prototype.bind) {
 					Function.prototype.bind = function (_this) {
@@ -658,6 +690,15 @@
 						return (i >= 0 && i === (desiredLength - end.length));
 					};
 				}
+
+				if (!Date.now) {
+					Date.now = function () {
+						return (new Date()).getTime();
+					};
+				}
+
+				if (!window.requestAnimationFrame || !window.cancelAnimationFrame)
+					fixRequestAnimationFrame();
 
 				checkPromise();
 			}
