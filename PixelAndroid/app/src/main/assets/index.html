@@ -568,9 +568,9 @@
 				if (!requestAnimationFrame || !cancelAnimationFrame) {
 					requestAnimationFrame = function (callback) {
 						return window.setTimeout(function() {
-							lastTime = Date.now();
+							lastTime = performance.now();
 							callback(lastTime);
-						}, Math.max(0, 16 - (Date.now() - lastTime)));
+						}, Math.max(0, 16 - (performance.now() - lastTime)));
 					};
 
 					cancelAnimationFrame = window.clearTimeout;
@@ -660,6 +660,17 @@
 					Date.now = function () {
 						return (new Date()).getTime();
 					};
+				}
+
+				if (!window.performance || !window.performance.now) {
+					(function () {
+						var initialNow = Date.now();
+						if (!window.performance)
+							window.performance = {};
+						window.performance.now = function () {
+							return Date.now() - initialNow;
+						};
+					});
 				}
 
 				if (!window.requestAnimationFrame || !window.cancelAnimationFrame)
