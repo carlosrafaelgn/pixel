@@ -89,7 +89,7 @@ class EditorView extends View {
 		super();
 
 		this.baseElement = document.createElement("div");
-		this.baseElement.className = "base-element editor";
+		this.baseElement.className = "base-element fixed-bg";
 		this.baseElement.innerHTML = `
 		<div class="hidden-container"><input id="fileInput" type="file" accept="image/*" tabindex="-1" /></div>
 		<div id="toolbarTop" class="toolbar toolbar-top"></div>
@@ -104,6 +104,7 @@ class EditorView extends View {
 		this.scrollContainer = new ScrollContainer(null, true, "scroll-container-editor", this.baseElement.querySelector("#container") as HTMLDivElement);
 		this.setGridBackground();
 		this.canvas = document.createElement("canvas") as HTMLCanvasElement;
+		this.canvas.className = "transform-top-left";
 		this.canvas.width = baseWidth;
 		this.canvas.height = maxHeight;
 		this.scrollContainer.containerElement.appendChild(this.canvas);
@@ -188,6 +189,7 @@ class EditorView extends View {
 
 	protected resize(): void {
 		const canvasBackgroundSize = css(63),
+			baseWidthCss = css(baseWidth),
 			maxHeightCss = css(maxHeight),
 			brushWidthCss = css(EditorView.BrushWidths[this.lastBrushWidth]);
 
@@ -197,7 +199,16 @@ class EditorView extends View {
 		this.toolbarBottom.style.height = toolbarAvailableHeightCss;
 		this.toolbarBottom.style.borderTopWidth = borderWidthCss;
 
-		this.canvas.style.height = maxHeightCss;
+		// Try to save memory without compromising the crispness
+		if (isIOSOrSafari) {
+			this.canvas.style.width = baseWidthCss;
+			this.canvas.style.height = maxHeightCss;
+		} else {
+			this.canvas.style.width = (baseWidth / pixelRatio) + "px";
+			this.canvas.style.height = (maxHeight / pixelRatio) + "px";
+			applyCSSTransform(this.canvas, `scale(${scaleFactor}, ${scaleFactor})`);
+			this.scrollContainer.containerElement.style.height = maxHeightCss;
+		}
 
 		this.setGridBackground();
 		this.scrollContainer.containerElement.style.backgroundSize = canvasBackgroundSize + " " + canvasBackgroundSize;

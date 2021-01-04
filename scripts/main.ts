@@ -135,6 +135,14 @@ function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback:
 	};
 }
 
+function applyCSSTransform(element: HTMLElement, transform: string): void {
+	element.style["oTransform"] = transform;
+	element.style["msTransform"] = transform;
+	element.style["mozTransform"] = transform;
+	element.style["webkitTransform"] = transform;
+	element.style.transform = transform;
+}
+
 function zeroObject(o: any): void {
 	for (let p in o) {
 		switch (typeof o[p]) {
@@ -216,10 +224,7 @@ function adjustWindowSize(): void {
 	View.main.style.left = baseLeftCss + "px";
 	View.main.style.top = baseTopCss + "px";
 
-	const transform = `scale(${Math.ceil(widthCss * 0.25)},${Math.ceil(heightCss * 0.25)})`;
-	View.cover.style["webkitTransform"] = transform;
-	View.cover.style["mozTransform"] = transform;
-	View.cover.style.transform = transform;
+	applyCSSTransform(View.cover, `scale(${Math.ceil(widthCss * 0.25)},${Math.ceil(heightCss * 0.25)})`);
 
 	if (heightCss > widthCss || baseTopCss) {
 		if (!landscapeWarning) {

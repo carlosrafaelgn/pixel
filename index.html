@@ -82,6 +82,7 @@
 			line-height: 1;
 			-webkit-font-smoothing: none;
 			-moz-osx-font-smoothing: auto;
+			font-smooth: never;
 		}
 
 		canvas, div, .base-element, button {
@@ -116,6 +117,14 @@
 			/* box-shadow: 0 0 16px rgba(0,0,0,0.5); */
 		}
 
+		.cover, .transform-top-left {
+			-o-transform-origin: left top;
+			-ms-transform-origin: left top;
+			-moz-transform-origin: left top;
+			-webkit-transform-origin: left top;
+			transform-origin: left top;
+		}
+
 		.cover {
 			position: fixed;
 			z-index: 10000;
@@ -123,9 +132,6 @@
 			top: 0;
 			width: 4px;
 			height: 4px;
-			-webkit-transform-origin: left top;
-			-moz-transform-origin: left top;
-			transform-origin: left top;
 		}
 
 		.cover, .modal-container {
@@ -136,7 +142,6 @@
 		}
 
 		canvas {
-			width: 100%;
 			cursor: crosshair;
 		}
 
@@ -328,11 +333,11 @@
 			overflow: hidden;
 		}
 
-		.editor {
-			background-size: cover;
-			background-position: top left;
+		.fixed-bg {
+			background-size: 100%;
+			background-position: top center;
 			background-repeat: no-repeat;
-			background-image: url(assets/images/editor.png);
+			background-image: url(assets/images/fixed-bg.png);
 		}
 
 		.toolbar {

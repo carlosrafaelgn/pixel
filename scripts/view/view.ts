@@ -236,6 +236,7 @@ abstract class View {
 		// because the ball/camera movement ended up too jaggy :(
 		View.glCanvas.width = baseWidth * scaleFactor;
 		View.glCanvas.height = baseHeight * scaleFactor;
+		View.glCanvas.style.width = baseWidthCss + "px";
 		View.glCanvas.style.height = baseHeightCss + "px";
 
 		if (View.gl.checkRecreate(View.glCanvas))
