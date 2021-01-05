@@ -330,6 +330,22 @@ void renderBackground(float* vertices, Level* level, LevelSpriteSheet* levelSpri
 	if (level) {
 		level->deltaMilliseconds = (int)deltaMilliseconds;
 		level->deltaSeconds = (cpFloat)deltaSeconds;
+
+		if (level->finished) {
+			float fadeBgAlpha = level->fadeBgAlpha;
+			fadeBgAlpha += (2.0f * level->deltaSeconds);
+			if (fadeBgAlpha > 1.0f)
+				fadeBgAlpha = 1.0f;
+			level->fadeBgAlpha = fadeBgAlpha;
+			level->globalAlpha = 1.0f - (fadeBgAlpha * 0.8f);
+
+			incrementSmallRectangleCount();
+			if ((level->finished & FinishedVictory))
+				draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), fadeBgAlpha, &(levelSpriteSheet->fadeBgTextureCoordinates), 0, 0);
+			else
+				draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), fadeBgAlpha, &(levelSpriteSheet->fadeBgSadTextureCoordinates), 0, 0);
+		}
+
 		if (level->explosionBgAlpha != 0.0f) {
 			incrementSmallRectangleCount();
 			draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), level->explosionBgAlpha, &(levelSpriteSheet->explosionBgTextureCoordinates), 0, 0);
@@ -337,6 +353,23 @@ void renderBackground(float* vertices, Level* level, LevelSpriteSheet* levelSpri
 	}
 
 	call_drawNative(rectangleCount);
+}
+
+void renderCompactBackground(float* vertices, Level* level, LevelSpriteSheet* levelSpriteSheet, float time) {
+	float deltaMilliseconds = time - levelSpriteSheet->backgroundLastTime;
+	if (deltaMilliseconds >= 33.0f)
+		deltaMilliseconds = 33.0f;
+	const float deltaSeconds = deltaMilliseconds * 0.001f;
+
+	levelSpriteSheet->backgroundLastTime = time;
+
+	level->deltaMilliseconds = (int)deltaMilliseconds;
+	level->deltaSeconds = (cpFloat)deltaSeconds;
+	if (level->explosionBgAlpha != 0.0f) {
+		draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), level->explosionBgAlpha, &(levelSpriteSheet->explosionBgTextureCoordinates), 0, 0);
+
+		call_drawNative(1);
+	}
 }
 
 int render(float* vertices, Level* level, const LevelSpriteSheet* levelSpriteSheet, float scaleFactor) {
@@ -347,17 +380,33 @@ int render(float* vertices, Level* level, const LevelSpriteSheet* levelSpriteShe
 	const cpFloat* const objectX = level->objectX;
 	const cpFloat* const objectY = level->objectY;
 	const float viewY = (float)level->viewY * scaleFactor;
+	const float globalAlpha = level->globalAlpha;
 
 	int rectangleCount = 0;
 	vertices -= FloatsPerRectangle;
 	float* const verticesOriginal = vertices;
+
+	int finishedThisFrame = 0;
+
+	if (level->finished && !level->finishedFading) {
+		if (level->fadeBgAlpha >= 2.0f) {
+			level->fadeBgAlpha = 0.0f;
+			level->finishedFading = (level->preview ? FinishedPreview : FinishedGame);
+		} else if (level->fadeBgAlpha >= 1.0f) {
+			// We need one extra frame to be sure the victory fragments
+			// are only rendered when renderCompactBackground() is called
+			// (for performance reasons on low-end browsers/devices)
+			level->fadeBgAlpha = 2.0f;
+			finishedThisFrame = FinishedThisFrame;
+		}
+	}
 
 	if (level->cucumbersAnimating) {
 		for (int i = level->objectCount - 1; i >= 0; i--) {
 			const int visibility = objectVisibility[i];
 			if ((visibility & VisibilityVisible) && !(visibility & 0xff00)) {
 				incrementRectangleCount();
-				draw(vertices, levelObjectModelCoordinates, 1.0f, &(levelObjectTextureCoordinatesByType[objectType[i]]), truncf((objectX[i] * scaleFactor) + 0.5), truncf((objectY[i] * scaleFactor) + 0.5) - viewY);
+				draw(vertices, levelObjectModelCoordinates, globalAlpha, &(levelObjectTextureCoordinatesByType[objectType[i]]), truncf((objectX[i] * scaleFactor) + 0.5), truncf((objectY[i] * scaleFactor) + 0.5) - viewY);
 			}
 		}
 
@@ -371,7 +420,7 @@ int render(float* vertices, Level* level, const LevelSpriteSheet* levelSpriteShe
 					drawScale(vertices, levelObjectModelCoordinates, alpha, &(levelObjectTextureCoordinatesByType[objectType[i]]), 1.0f + ((1.0f - alpha) * 4.0f), truncf((objectX[i] * scaleFactor) + 0.5), truncf((objectY[i] * scaleFactor) + 0.5) - viewY);
 				} else {
 					incrementRectangleCount();
-					draw(vertices, levelObjectModelCoordinates, 1.0f, &(levelObjectTextureCoordinatesByType[objectType[i]]), truncf((objectX[i] * scaleFactor) + 0.5), truncf((objectY[i] * scaleFactor) + 0.5) - viewY);
+					draw(vertices, levelObjectModelCoordinates, globalAlpha, &(levelObjectTextureCoordinatesByType[objectType[i]]), truncf((objectX[i] * scaleFactor) + 0.5), truncf((objectY[i] * scaleFactor) + 0.5) - viewY);
 				}
 			}
 		}
@@ -379,7 +428,7 @@ int render(float* vertices, Level* level, const LevelSpriteSheet* levelSpriteShe
 		for (int i = level->objectCount - 1; i >= 0; i--) {
 			if ((objectVisibility[i] & VisibilityVisible)) {
 				incrementRectangleCount();
-				draw(vertices, levelObjectModelCoordinates, 1.0f, &(levelObjectTextureCoordinatesByType[objectType[i]]), truncf((objectX[i] * scaleFactor) + 0.5), truncf((objectY[i] * scaleFactor) + 0.5) - viewY);
+				draw(vertices, levelObjectModelCoordinates, globalAlpha, &(levelObjectTextureCoordinatesByType[objectType[i]]), truncf((objectX[i] * scaleFactor) + 0.5), truncf((objectY[i] * scaleFactor) + 0.5) - viewY);
 			}
 		}
 	}
@@ -415,12 +464,12 @@ int render(float* vertices, Level* level, const LevelSpriteSheet* levelSpriteShe
 
 	if (level->pointerCursorAttached) {
 		incrementRectangleCount();
-		draw(vertices, &(levelSpriteSheet->cursorCenterModelCoordinates), 1.0f, &(levelSpriteSheet->cursorCenterTextureCoordinates), level->pointerCursorCenterX * scaleFactor, level->pointerCursorCenterY * scaleFactor);
+		draw(vertices, &(levelSpriteSheet->cursorCenterModelCoordinates), globalAlpha, &(levelSpriteSheet->cursorCenterTextureCoordinates), level->pointerCursorCenterX * scaleFactor, level->pointerCursorCenterY * scaleFactor);
 		incrementRectangleCount();
-		draw(vertices, &(levelSpriteSheet->cursorTargetModelCoordinates), 1.0f, &(levelSpriteSheet->cursorTargetTextureCoordinates), truncf(level->pointerCursorX * scaleFactor), truncf(level->pointerCursorY * scaleFactor));
+		draw(vertices, &(levelSpriteSheet->cursorTargetModelCoordinates), globalAlpha, &(levelSpriteSheet->cursorTargetTextureCoordinates), truncf(level->pointerCursorX * scaleFactor), truncf(level->pointerCursorY * scaleFactor));
 	}
 
-	if (level->finished) {
+	if (level->finishedFading == FinishedGame) {
 		flushRectangleCount();
 
 		float fadeBgAlpha = level->fadeBgAlpha;
@@ -429,22 +478,27 @@ int render(float* vertices, Level* level, const LevelSpriteSheet* levelSpriteShe
 			if (fadeBgAlpha > 1.0f)
 				fadeBgAlpha = 1.0f;
 			level->fadeBgAlpha = fadeBgAlpha;
+			fadeBgAlpha = smoothStepF(fadeBgAlpha);
 		}
 
 		if ((level->finished & FinishedVictory)) {
-			incrementRectangleCount();
-			draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), fadeBgAlpha * 0.8f, &(levelSpriteSheet->fadeBgTextureCoordinates), 0, 0);
-
 			const int* const fragmentSaved = level->fragmentSaved;
 			float* const fragmentX = level->fragmentX;
 			float* const fragmentY = level->fragmentY;
 			const GLModelCoordinates* const fragmentModelCoordinates = levelSpriteSheet->fragmentModelCoordinates;
 			const GLTextureCoordinates* const fragmentTextureCoordinates = levelSpriteSheet->fragmentTextureCoordinates;
+			const float limitY = (float)level->viewHeight + 4.0f;
 
 			for (int i = level->countByType[TypeBall], j = i * FragmentsPerBall, c = VictoryFragmentCount - 1; c >= 0; i++, j++, c--) {
 				if (fragmentSaved[i]) {
+					const float x = fragmentX[j];
+					if (x <= -4.0f || x >= ((float)baseWidth + 4.0f))
+						continue;
+					const float y = fragmentY[j];
+					if (y >= limitY)
+						continue;
 					incrementRectangleCount();
-					draw(vertices, &(fragmentModelCoordinates[j & 7]), 1.0f, &(fragmentTextureCoordinates[8 + (j & 7)]), /*truncf*/(fragmentX[j] * scaleFactor), /*truncf*/(fragmentY[j] * scaleFactor));
+					draw(vertices, &(fragmentModelCoordinates[j & 7]), 1.0f, &(fragmentTextureCoordinates[8 + (j & 7)]), /*truncf*/(x * scaleFactor), /*truncf*/(y * scaleFactor));
 				}
 			}
 
@@ -458,14 +512,11 @@ int render(float* vertices, Level* level, const LevelSpriteSheet* levelSpriteShe
 			draw(vertices, &(levelSpriteSheet->faceModelCoordinates), fadeBgAlpha, &(levelSpriteSheet->happyFaceTextureCoordinates), truncf((((float)baseWidth * 0.5f) + (((victoryTime > 1.0f ? (2.0f - victoryTime) : victoryTime) - 0.5f) * 20.0f)) * scaleFactor), truncf((75.0f - fabsf(sinf(3.1415926535f * victoryTime) * 25.0f)) * scaleFactor));
 		} else {
 			incrementRectangleCount();
-			draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), fadeBgAlpha * 0.8f, &(levelSpriteSheet->fadeBgSadTextureCoordinates), 0, 0);
-
-			incrementRectangleCount();
 			draw(vertices, &(levelSpriteSheet->faceModelCoordinates), fadeBgAlpha, &(levelSpriteSheet->sadFaceTextureCoordinates), truncf((float)baseWidth * scaleFactor * 0.5f), 50.0f * scaleFactor);
 		}
 	}
 
 	call_drawNative(rectangleCount);
 
-	return (level->finished & FinishedThisFrame);
+	return finishedThisFrame;
 }

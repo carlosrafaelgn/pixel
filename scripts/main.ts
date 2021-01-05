@@ -93,7 +93,7 @@ function modelFrac(cssCoord: number): number {
 function smoothStep(input: number): number {
 	// Hermite interpolation (GLSL's smoothstep)
 	// https://www.opengl.org/sdk/docs/man/html/smoothstep.xhtml
-	return (input * input * (3.0 - (2.0 * input)));
+	return (input * input * (3 - (2 * input)));
 }
 
 function handleBlink(args: [number, HTMLElement]): void {

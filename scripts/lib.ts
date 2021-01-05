@@ -48,7 +48,7 @@ interface CLib {
 	_drawRotate(verticesPtr: number, modelCoordinatesPtr: number, alpha: number, textureCoordinatesPtr: number, radians: number, viewX: number, viewY: number): void;
 	_drawScaleRotate(verticesPtr: number, modelCoordinatesPtr: number, alpha: number, textureCoordinatesPtr: number, scale: number, radians: number, viewX: number, viewY: number): void;
 
-	_init(height: number, viewWidth: number, viewHeight: number, wallCount: number, wallX0Ptr: number, wallY0Ptr: number, wallX1Ptr: number, wallY1Ptr: number, objectCount: number, objectTypePtr: number, objectXPtr: number, objectYPtr: number, objectRadiusPtr: number): number;
+	_init(height: number, viewWidth: number, viewHeight: number, wallCount: number, wallX0Ptr: number, wallY0Ptr: number, wallX1Ptr: number, wallY1Ptr: number, objectCount: number, objectTypePtr: number, objectXPtr: number, objectYPtr: number, objectRadiusPtr: number, preview: boolean): number;
 	_getViewYPtr(levelPtr: number): number;
 	_getFirstPropertyPtr(levelPtr: number): number;
 	_viewResized(levelPtr: number, viewWidth: number, viewHeight: number): void;
@@ -57,5 +57,6 @@ interface CLib {
 
 	_initLevelSpriteSheet(): number;
 	_renderBackground(verticesPtr: number, levelPtr: number, levelSpriteSheetPtr: number, baseHeight: number, time: number, animate: boolean): void;
+	_renderCompactBackground(verticesPtr: number, levelPtr: number, levelSpriteSheetPtr: number, time: number): void;
 	_render(verticesPtr: number, levelPtr: number, levelSpriteSheetPtr: number, scaleFactor: number): number;
 }

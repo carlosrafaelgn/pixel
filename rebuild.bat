@@ -58,7 +58,7 @@ CALL emcc ^
 	--memory-init-file 0 ^
 	-s PRECISE_F32=0 ^
 	-s DYNAMIC_EXECUTION=0 ^
-	-s EXPORTED_FUNCTIONS="['_allocateImageInfo', '_getImageInfoData', '_getImageInfoPoints', '_freeImageInfo', '_processImage', '_allocateBuffer', '_freeBuffer', '_draw', '_drawScale', '_drawRotate', '_drawScaleRotate', '_init', '_getViewYPtr', '_getFirstPropertyPtr', '_viewResized', '_step', '_destroy', '_initLevelSpriteSheet', '_renderBackground', '_render']" ^
+	-s EXPORTED_FUNCTIONS="['_allocateImageInfo', '_getImageInfoData', '_getImageInfoPoints', '_freeImageInfo', '_processImage', '_allocateBuffer', '_freeBuffer', '_draw', '_drawScale', '_drawRotate', '_drawScaleRotate', '_init', '_getViewYPtr', '_getFirstPropertyPtr', '_viewResized', '_step', '_destroy', '_initLevelSpriteSheet', '_renderBackground', '_renderCompactBackground', '_render']" ^
 	-s EXTRA_EXPORTED_RUNTIME_METHODS="[stackSave, stackAlloc, stackRestore]" ^
 	-s ALLOW_MEMORY_GROWTH=0 ^
 	-s INITIAL_MEMORY=8388608 ^
@@ -86,7 +86,7 @@ CALL emcc ^
 	-I%CHIP_INC% ^
 	-s WASM=1 ^
 	-s DYNAMIC_EXECUTION=0 ^
-	-s EXPORTED_FUNCTIONS="['_allocateImageInfo', '_getImageInfoData', '_getImageInfoPoints', '_freeImageInfo', '_processImage', '_allocateBuffer', '_freeBuffer', '_draw', '_drawScale', '_drawRotate', '_drawScaleRotate', '_init', '_getViewYPtr', '_getFirstPropertyPtr', '_viewResized', '_step', '_destroy', '_initLevelSpriteSheet', '_renderBackground', '_render']" ^
+	-s EXPORTED_FUNCTIONS="['_allocateImageInfo', '_getImageInfoData', '_getImageInfoPoints', '_freeImageInfo', '_processImage', '_allocateBuffer', '_freeBuffer', '_draw', '_drawScale', '_drawRotate', '_drawScaleRotate', '_init', '_getViewYPtr', '_getFirstPropertyPtr', '_viewResized', '_step', '_destroy', '_initLevelSpriteSheet', '_renderBackground', '_renderCompactBackground', '_render']" ^
 	-s EXTRA_EXPORTED_RUNTIME_METHODS="['stackSave', 'stackAlloc', 'stackRestore']" ^
 	-s ALLOW_MEMORY_GROWTH=0 ^
 	-s INITIAL_MEMORY=8388608 ^

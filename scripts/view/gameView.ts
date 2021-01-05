@@ -74,29 +74,34 @@ class GameView extends View {
 	private pointerCursorCenterY: Float32Array;
 	private pointerCursorX: Float32Array;
 	private pointerCursorY: Float32Array;
+	private globalAlpha: Float32Array;
 
 	private levelTexture: Texture;
 
 	public constructor(loadOptions: LevelLoadOptions, preview: boolean) {
 		super();
 
-		const back = this.createButton(null, UISpriteSheet.Back, this.back.bind(this));
-		back.style.position = "absolute";
-		back.style.left = "0";
-		back.style.top = "0";
-		this.backButton = back;
+		const backButton = this.createButton(null, UISpriteSheet.Back, this.back.bind(this));
+		backButton.style.position = "absolute";
+		backButton.style.left = "0";
+		backButton.style.top = "0";
+		this.backButton = backButton;
 		if (preview)
-			this.initialElements.push(back);
+			this.initialElements.push(backButton);
+		else
+			backButton.className = "fade";
 
 		this.preview = preview;
 
 		if (!preview) {
 			const restartButton = this.createButton(null, UISpriteSheet.Restart, this.restart.bind(this));
+			restartButton.className = "fade";
 			restartButton.style.position = "absolute";
 			restartButton.style.top = "0";
 			this.restartButton = restartButton;
 
 			const timeDisplay = document.createElement("div");
+			timeDisplay.className = "fade";
 			timeDisplay.style.position = "absolute";
 			this.timeDisplayImage = UISpriteSheet.create(UISpriteSheet.Clock, timeDisplay);
 			timeDisplay.appendChild(this.timeDisplayText = document.createTextNode(Strings.Time));
@@ -109,11 +114,11 @@ class GameView extends View {
 			this.timeDisplay = null;
 		}
 
-		const pause = this.createButton(null, UISpriteSheet.Pause, this.pause.bind(this));
-		pause.style.position = "absolute";
-		pause.style.right = "0";
-		pause.style.top = "0";
-		this.initialElements.push(pause);
+		const pauseButton = this.createButton(null, UISpriteSheet.Pause, this.pause.bind(this));
+		pauseButton.style.position = "absolute";
+		pauseButton.style.right = "0";
+		pauseButton.style.top = "0";
+		this.initialElements.push(pauseButton);
 
 		this.resourceStorage = new ResourceStorage();
 
@@ -137,6 +142,7 @@ class GameView extends View {
 		this.pointerCursorCenterY = null;
 		this.pointerCursorX = null;
 		this.pointerCursorY = null;
+		this.globalAlpha = null;
 	
 		this.levelTexture = null;
 	}
@@ -255,6 +261,7 @@ class GameView extends View {
 		this.pointerCursorCenterY = null;
 		this.pointerCursorX = null;
 		this.pointerCursorY = null;
+		this.globalAlpha = null;
 
 		if (partial)
 			this.resourceStorage.release();
@@ -277,7 +284,8 @@ class GameView extends View {
 
 		this.paused = false;
 		this.finished = false;
-		this.level.restart();
+		this.level.restart(this.preview);
+		View.gl.clearColor(1, 1, 1, 1);
 
 		const buffer = cLib.HEAP8.buffer as ArrayBuffer;
 		let firstPropertyPtr = cLib._getFirstPropertyPtr(this.level.levelPtr);
@@ -297,6 +305,8 @@ class GameView extends View {
 		this.pointerCursorX = new Float32Array(buffer, firstPropertyPtr, 1);
 		firstPropertyPtr += 4;
 		this.pointerCursorY = new Float32Array(buffer, firstPropertyPtr, 1);
+		firstPropertyPtr += 4;
+		this.globalAlpha = new Float32Array(buffer, firstPropertyPtr, 1);
 	
 		if (this.frameRequest) {
 			cancelAnimationFrame(this.frameRequest);
@@ -558,7 +568,7 @@ class GameView extends View {
 		// Performance profiling
 		//let p1 = performance.now();
 
-		if (!View.drawBackground(time, level.levelPtr, true)) {
+		if (!View.drawBackground(time, level.levelPtr, true, !this.finished)) {
 			if (this.frameRequest) {
 				cancelAnimationFrame(this.frameRequest);
 				this.frameRequest = 0;
@@ -579,13 +589,17 @@ class GameView extends View {
 
 		const gl = View.gl;
 
-		gl.draw(this.levelTexture, LevelSpriteSheet.LevelModelCoordinates, 1, LevelSpriteSheet.FullTextureCoordinates, 0, -((this.viewY[0] * scaleFactor) | 0));
+		gl.draw(this.levelTexture, LevelSpriteSheet.LevelModelCoordinates, this.globalAlpha[0], LevelSpriteSheet.FullTextureCoordinates, 0, -((this.viewY[0] * scaleFactor) | 0));
 
 		gl.prepareNativeDraw(View.sheetTexture);
 
 		if (cLib._render(gl.verticesPtr, level.levelPtr, LevelSpriteSheet.LevelSpriteSheetPtr, scaleFactor)) {
 			this.finished = true;
 			this.pointerCursorAttached[0] = 0;
+			if (this.victory[0])
+				gl.clearColor(253 / 255, 190 / 255, 148 / 255, 1);
+			else
+				gl.clearColor(204 / 255, 204 / 255, 1, 1);
 			if (this.preview) {
 				this.pause(null);
 			} else {
@@ -607,9 +621,17 @@ class GameView extends View {
 				if (!this.finalUIAttached) {
 					this.finalUIAttached = true;
 					if (!this.preview) {
+						this.backButton.className = "fade";
+						this.restartButton.className = "fade";
+						this.timeDisplay.className = "fade";
 						View.main.appendChild(this.backButton);
 						View.main.appendChild(this.restartButton);
 						View.main.appendChild(this.timeDisplay);
+						setTimeout(() => {
+							this.backButton.className = "fade visible";
+							this.restartButton.className = "fade visible";
+							this.timeDisplay.className = "fade visible";
+						}, 10);
 					}
 				}
 			}

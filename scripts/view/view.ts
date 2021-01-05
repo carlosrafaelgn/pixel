@@ -50,10 +50,10 @@ abstract class View {
 	private static backgroundFrameRequest = 0;
 	private static recreateResourcesTimeout = 0;
 
-	protected static drawBackground(time: number, levelPtr: number, animate: boolean): boolean {
+	protected static drawBackground(time: number, levelPtr: number, animate: boolean, regularBackground: boolean): boolean {
 		const gl = View.gl;
 
-		if (!gl.checkForLostContextUseFrameBufferAndClear()) {
+		if (!gl.checkForLostContextUseFrameBufferAndClear(regularBackground)) {
 			if (!View.recreateResourcesTimeout)
 				View.recreateResourcesTimeout = setTimeout(View.recreateResourcesFromTimeout, 1000);
 			return false;
@@ -61,13 +61,17 @@ abstract class View {
 
 		gl.prepareNativeDraw(View.sheetTexture);
 
-		cLib._renderBackground(gl.verticesPtr, levelPtr, LevelSpriteSheet.LevelSpriteSheetPtr, baseHeight, time, animate);
+		if (regularBackground) {
+			cLib._renderBackground(gl.verticesPtr, levelPtr, LevelSpriteSheet.LevelSpriteSheetPtr, baseHeight, time, animate);
 
-		gl.useFramebuffer(false);
+			gl.useFramebuffer(false);
 
-		gl.draw(gl.framebufferTexture, LevelSpriteSheet.FullViewModelCoordinates, 1, LevelSpriteSheet.FramebufferTextureCoordinates, 0, 0);
+			gl.draw(gl.framebufferTexture, LevelSpriteSheet.FullViewModelCoordinates, 1, LevelSpriteSheet.FramebufferTextureCoordinates, 0, 0);
 
-		gl.flush();
+			gl.flush();
+		} else {
+			cLib._renderCompactBackground(gl.verticesPtr, levelPtr, LevelSpriteSheet.LevelSpriteSheetPtr, time);
+		}
 
 		return true;
 	}
@@ -102,8 +106,6 @@ abstract class View {
 		try {
 			View.gl.recreate(View.glCanvas, baseWidth >> LevelSpriteSheet.BackgroundScaleRightShift, baseHeight >> LevelSpriteSheet.BackgroundScaleRightShift);
 
-			View.gl.clearColor(1, 1, 1, 1);
-
 			View.sheetTexture.load();
 		} catch (ex) {
 			View.recreateResourcesTimeout = setTimeout(View.recreateResourcesFromTimeout, 500);
@@ -121,7 +123,7 @@ abstract class View {
 
 		View.backgroundFrameRequest = (animate ? requestAnimationFrame(View.renderBackground) : 0);
 
-		if (!View.drawBackground(time, 0, animate)) {
+		if (!View.drawBackground(time, 0, animate, true)) {
 			if (View.backgroundFrameRequest) {
 				cancelAnimationFrame(View.backgroundFrameRequest);
 				View.backgroundFrameRequest = 0;
@@ -372,6 +374,8 @@ abstract class View {
 				cancelAnimationFrame(View.backgroundFrameRequest);
 				View.backgroundFrameRequest = 0;
 			}
+
+			View.gl.clearColor(1, 1, 1, 1);
 
 			if (this.usesGL)
 				this.loadResources();

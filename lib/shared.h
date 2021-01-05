@@ -55,6 +55,10 @@
 #define FinishedVictory 2
 #define FinishedLoss 4
 
+// Finish behaviors
+#define FinishedGame 1
+#define FinishedPreview 2
+
 // Collision types
 #define CollisionBall 1
 #define CollisionWall 2
@@ -100,14 +104,14 @@ typedef struct LevelStruct {
 
 	int wallCount, objectCount, goalBlinkCount, goalBlinkFrames, cucumbersCollected,
 		thisFrameAllCucumbersCollected, thisFrameDestroyedCount, ballsDestroyed,
-		ballsSaved, deltaMilliseconds, cucumbersAnimating, finished, fragmentsAlive,
-		firstIndexByType[TypeCount], countByType[TypeCount];
+		ballsSaved, deltaMilliseconds, cucumbersAnimating, finished, finishedFading,
+		fragmentsAlive, firstIndexByType[TypeCount], countByType[TypeCount], preview;
 
 	float fadeBgAlpha, explosionBgAlpha, victoryTime;
 
 	// Must be in sync with scripts/view/gameView.ts
 	int pointerCursorAttached, totalElapsedMilliseconds, victory;
-	float pointerCursorCenterX, pointerCursorCenterY, pointerCursorX, pointerCursorY;
+	float pointerCursorCenterX, pointerCursorCenterY, pointerCursorX, pointerCursorY, globalAlpha;
 } Level;
 
 cpFloat smoothStep(cpFloat input);

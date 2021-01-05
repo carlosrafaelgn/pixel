@@ -100,7 +100,7 @@ cpBool beginCollision(cpArbiter* arb, struct cpSpace* space, cpDataPointer data)
 	}
 }
 
-Level* init(cpFloat height, cpFloat viewWidth, cpFloat viewHeight, int wallCount, const cpFloat* wallX0, const cpFloat* wallY0, const cpFloat* wallX1, const cpFloat* wallY1, int objectCount, const int* objectType, const cpFloat* objectX, const cpFloat* objectY, const cpFloat* objectRadius) {
+Level* init(cpFloat height, cpFloat viewWidth, cpFloat viewHeight, int wallCount, const cpFloat* wallX0, const cpFloat* wallY0, const cpFloat* wallX1, const cpFloat* wallY1, int objectCount, const int* objectType, const cpFloat* objectX, const cpFloat* objectY, const cpFloat* objectRadius, int preview) {
 	// For most of the structures you will use, Chipmunk uses a more or less standard and straightforward set of memory management functions. Take the cpSpace struct for example:
 	//
 	// cpSpaceNew() – Allocates and initializes a cpSpace struct. It calls cpSpaceAlloc() then cpSpaceInit().
@@ -218,6 +218,8 @@ Level* init(cpFloat height, cpFloat viewWidth, cpFloat viewHeight, int wallCount
 	level->viewHeight = viewHeight;
 	level->wallCount = wallCount;
 	level->objectCount = objectCount;
+	level->preview = preview;
+	level->globalAlpha = 1.0f;
 	memcpy(level->firstIndexByType, firstIndexByType, sizeof(int) * TypeCount);
 	memcpy(level->countByType, countByType, sizeof(int) * TypeCount);
 
@@ -544,11 +546,11 @@ void step(Level* level, cpFloat gravityX, cpFloat gravityY, int mode, int paused
 
 		if ((level->ballsDestroyed + level->ballsSaved) >= level->countByType[TypeBall]) {
 			if (level->ballsSaved > (level->countByType[TypeBall] >> 1)) {
-				level->finished = FinishedThisFrame | FinishedVictory;
+				level->finished = FinishedVictory;
 				level->victory = FinishedVictory;
 				prepareVictoryFragments((float)level->viewWidth, (float)level->viewHeight, 0, level->countByType[TypeBall], fragmentSaved, fragmentX, fragmentY, fragmentVX, fragmentVY);
 			} else {
-				level->finished = FinishedThisFrame | FinishedLoss;
+				level->finished = FinishedLoss;
 				level->victory = 0;
 			}
 		} else {
@@ -641,8 +643,7 @@ void step(Level* level, cpFloat gravityX, cpFloat gravityY, int mode, int paused
 				level->viewYStep = viewYStep;
 			}
 		}
-	} else {
-		level->finished &= ~FinishedThisFrame;
+	} else if (level->finishedFading == FinishedGame) {
 		if ((level->finished & FinishedVictory)) {
 			const float maxY = (float)level->viewHeight + 10.0f;
 			const float dv = 150.0f * deltaSecondsF;

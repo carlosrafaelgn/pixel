@@ -230,7 +230,7 @@ class Level implements LevelFullInfo {
 			cLib._viewResized(this.levelPtr, baseWidth, baseHeight);
 	}
 
-	private createLevelPtr(): void {
+	private createLevelPtr(preview: boolean): void {
 		this.destroyLevelPtr();
 
 		const polygons = this.polygons;
@@ -313,7 +313,7 @@ class Level implements LevelFullInfo {
 			objectRadius[i] = object.radius;
 		}
 
-		const levelPtr = cLib._init(this.height, baseWidth, baseHeight, wallCount, wallX0Ptr, wallY0Ptr, wallX1Ptr, wallY1Ptr, objectCount, objectTypePtr, objectXPtr, objectYPtr, objectRadiusPtr);
+		const levelPtr = cLib._init(this.height, baseWidth, baseHeight, wallCount, wallX0Ptr, wallY0Ptr, wallX1Ptr, wallY1Ptr, objectCount, objectTypePtr, objectXPtr, objectYPtr, objectRadiusPtr, preview);
 		this.levelPtr = levelPtr;
 
 		cLib.stackRestore(lastStack);
@@ -339,8 +339,8 @@ class Level implements LevelFullInfo {
 		this.objects = [];
 	}
 
-	public restart(): void {
-		this.createLevelPtr();
+	public restart(preview: boolean): void {
+		this.createLevelPtr(preview);
 	}
 
 	public step(paused: boolean): void {

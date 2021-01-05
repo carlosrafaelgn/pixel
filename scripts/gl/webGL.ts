@@ -127,6 +127,11 @@ void main() {
 	private currentTexture: Texture = null;
 	private uniformViewConstants: WebGLUniformLocation = null;
 
+	private clearR = 1;
+	private clearG = 1;
+	private clearB = 1;
+	private clearA = 1;
+
 	private rectangleCount = 0;
 	public verticesPtr = 0;
 	private vertices: Float32Array = null;
@@ -332,12 +337,18 @@ void main() {
 
 		gl.vertexAttribPointer(attributePosition, WebGL.FloatsPerPosition, gl.FLOAT, false, WebGL.BytesPerVertex, WebGL.BufferIndexPosition);
 		gl.vertexAttribPointer(attributeAlphaTextureCoordinates, WebGL.FloatsPerAlphaTextureCoordinates, gl.FLOAT, false, WebGL.BytesPerVertex, WebGL.BufferIndexAlphaTextureCoordinates);
+
+		gl.clearColor(this.clearR, this.clearG, this.clearB, this.clearA);
 	}
 
 	public destroy(partial: boolean): void {
 		const gl = this.context,
 			verticesPtr = this.verticesPtr,
-			vertices = this.vertices;
+			vertices = this.vertices,
+			clearR = this.clearR,
+			clearG = this.clearG,
+			clearB = this.clearB,
+			clearA = this.clearA;
 
 		if (gl) {
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -363,6 +374,10 @@ void main() {
 		if (partial) {
 			this.verticesPtr = verticesPtr;
 			this.vertices = vertices;
+			this.clearR = clearR;
+			this.clearG = clearG;
+			this.clearB = clearB;
+			this.clearA = clearA;
 		} else if (verticesPtr) {
 			cLib._freeBuffer(verticesPtr);
 		}
@@ -389,10 +404,15 @@ void main() {
 	public clearColor(red: number, green: number, blue: number, alpha: number): void {
 		const gl = this.context;
 
+		this.clearR = red;
+		this.clearG = green;
+		this.clearB = blue;
+		this.clearA = alpha;
+
 		gl.clearColor(red, green, blue, alpha);
 	}
 
-	public checkForLostContextUseFrameBufferAndClear(): boolean {
+	public checkForLostContextUseFrameBufferAndClear(useFramebuffer: boolean): boolean {
 		// https://www.khronos.org/webgl/wiki/HandlingContextLost
 
 		const gl = this.context;
@@ -405,7 +425,8 @@ void main() {
 			return false;
 		}
 
-		this.useFramebuffer(true);
+		if (useFramebuffer)
+			this.useFramebuffer(true);
 
 		gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -491,7 +512,7 @@ void main() {
 			height = this.viewHeight;
 		}
 
-		gl.uniform2f(this.uniformViewConstants, 2.0 / width, -2.0 / height);
+		gl.uniform2f(this.uniformViewConstants, 2 / width, -2 / height);
 		gl.viewport(0, 0, width, height);
 	}
 
