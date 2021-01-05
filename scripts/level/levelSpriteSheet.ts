@@ -61,6 +61,7 @@ class LevelSpriteSheet {
 	private static FaceModelCoordinates: ModelCoordinates = null;
 	private static SadFaceTextureCoordinates: TextureCoordinates = null;
 	private static HappyFaceTextureCoordinates: TextureCoordinates = null;
+	private static ClearBackgroundTextureCoordinates: TextureCoordinates = null;
 
 	private static image: HTMLImageElement = null;
 	private static scaleFactor = 0;
@@ -134,6 +135,9 @@ class LevelSpriteSheet {
 		ptr += ptrInc;
 		LevelSpriteSheet.HappyFaceTextureCoordinates = new TextureCoordinates(ptr);
 		ptr += ptrInc;
+
+		LevelSpriteSheet.ClearBackgroundTextureCoordinates = new TextureCoordinates(ptr);
+		ptr += ptrInc;
 	}
 
 	private static setupFixedCoordinates(): void {
@@ -200,6 +204,8 @@ class LevelSpriteSheet {
 
 		LevelSpriteSheet.SadFaceTextureCoordinates.setCoordinates(96, 32, 31, 31);
 		LevelSpriteSheet.HappyFaceTextureCoordinates.setCoordinates(96, 80, 31, 31);
+
+		LevelSpriteSheet.ClearBackgroundTextureCoordinates.setCoordinates(105, 8, 8, 8);
 	}
 
 	public static recreateIfNecessary(): void {

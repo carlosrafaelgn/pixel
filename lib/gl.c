@@ -48,7 +48,7 @@ typedef struct GLTextureCoordinatesStruct {
 
 // Must be in sync with scripts/level/levelSpriteSheet.ts and scripts/gl/webGL.ts
 typedef struct LevelSpriteSheetStruct {
-	// Total count: 67
+	// Total count: 68
 	const GLModelCoordinates levelModelCoordinates;
 
 	const GLTextureCoordinates fullTextureCoordinates;
@@ -78,6 +78,8 @@ typedef struct LevelSpriteSheetStruct {
 	const GLModelCoordinates faceModelCoordinates;
 	const GLTextureCoordinates sadFaceTextureCoordinates;
 	const GLTextureCoordinates happyFaceTextureCoordinates;
+
+	const GLTextureCoordinates clearBackgroundTextureCoordinates;
 
 	float backgroundLastTime;
 	float backgroundSpeed[BackgroundCount];
@@ -315,6 +317,9 @@ void renderBackground(float* vertices, Level* level, LevelSpriteSheet* levelSpri
 	int rectangleCount = 0;
 	vertices -= FloatsPerRectangle;
 
+	incrementSmallRectangleCount();
+	draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), 1.0f, &(levelSpriteSheet->clearBackgroundTextureCoordinates), 0, 0);
+
 	for (int i = BackgroundCount - 1; i >= 0; i--) {
 		float a = backgroundAngle[i] + (backgroundSpeed[i] * deltaSeconds * 0.25f);
 		if (a >= 6.283185307f)
@@ -337,13 +342,11 @@ void renderBackground(float* vertices, Level* level, LevelSpriteSheet* levelSpri
 			if (fadeBgAlpha > 1.0f)
 				fadeBgAlpha = 1.0f;
 			level->fadeBgAlpha = fadeBgAlpha;
+			fadeBgAlpha = smoothStepF(fadeBgAlpha);
 			level->globalAlpha = 1.0f - (fadeBgAlpha * 0.8f);
 
 			incrementSmallRectangleCount();
-			if ((level->finished & FinishedVictory))
-				draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), fadeBgAlpha, &(levelSpriteSheet->fadeBgTextureCoordinates), 0, 0);
-			else
-				draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), fadeBgAlpha, &(levelSpriteSheet->fadeBgSadTextureCoordinates), 0, 0);
+			draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), fadeBgAlpha, (level->finished & FinishedVictory) ? &(levelSpriteSheet->fadeBgTextureCoordinates) : &(levelSpriteSheet->fadeBgSadTextureCoordinates), 0, 0);
 		}
 
 		if (level->explosionBgAlpha != 0.0f) {
@@ -363,13 +366,20 @@ void renderCompactBackground(float* vertices, Level* level, LevelSpriteSheet* le
 
 	levelSpriteSheet->backgroundLastTime = time;
 
+	int rectangleCount = 0;
+	vertices -= FloatsPerRectangle;
+
+	incrementSmallRectangleCount();
+	draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), 1.0f, (level->finished & FinishedVictory) ? &(levelSpriteSheet->fadeBgTextureCoordinates) : &(levelSpriteSheet->fadeBgSadTextureCoordinates), 0, 0);
+
 	level->deltaMilliseconds = (int)deltaMilliseconds;
 	level->deltaSeconds = (cpFloat)deltaSeconds;
 	if (level->explosionBgAlpha != 0.0f) {
+		incrementSmallRectangleCount();
 		draw(vertices, &(levelSpriteSheet->fullViewModelCoordinates), level->explosionBgAlpha, &(levelSpriteSheet->explosionBgTextureCoordinates), 0, 0);
-
-		call_drawNative(1);
 	}
+
+	call_drawNative(rectangleCount);
 }
 
 int render(float* vertices, Level* level, const LevelSpriteSheet* levelSpriteSheet, float scaleFactor) {

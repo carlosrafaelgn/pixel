@@ -53,7 +53,7 @@ abstract class View {
 	protected static drawBackground(time: number, levelPtr: number, animate: boolean, regularBackground: boolean): boolean {
 		const gl = View.gl;
 
-		if (!gl.checkForLostContextUseFrameBufferAndClear(regularBackground)) {
+		if (!gl.checkForLostContext()) {
 			if (!View.recreateResourcesTimeout)
 				View.recreateResourcesTimeout = setTimeout(View.recreateResourcesFromTimeout, 1000);
 			return false;
@@ -62,6 +62,8 @@ abstract class View {
 		gl.prepareNativeDraw(View.sheetTexture);
 
 		if (regularBackground) {
+			gl.useFramebuffer(true);
+
 			cLib._renderBackground(gl.verticesPtr, levelPtr, LevelSpriteSheet.LevelSpriteSheetPtr, baseHeight, time, animate);
 
 			gl.useFramebuffer(false);
@@ -175,9 +177,6 @@ abstract class View {
 	public static initGL(): void {
 		View.gl = new WebGL();
 		View.sheetTexture = LevelSpriteSheet.createTexture(View.gl);
-		window["drawNative"] = (rectangleCount: number) => {
-			View.gl.drawNative(rectangleCount);
-		};
 	}
 
 	public static createInitialView(): Promise<void> {
@@ -374,8 +373,6 @@ abstract class View {
 				cancelAnimationFrame(View.backgroundFrameRequest);
 				View.backgroundFrameRequest = 0;
 			}
-
-			View.gl.clearColor(1, 1, 1, 1);
 
 			if (this.usesGL)
 				this.loadResources();

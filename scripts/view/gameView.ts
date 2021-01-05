@@ -285,7 +285,6 @@ class GameView extends View {
 		this.paused = false;
 		this.finished = false;
 		this.level.restart(this.preview);
-		View.gl.clearColor(1, 1, 1, 1);
 
 		const buffer = cLib.HEAP8.buffer as ArrayBuffer;
 		let firstPropertyPtr = cLib._getFirstPropertyPtr(this.level.levelPtr);
@@ -596,10 +595,6 @@ class GameView extends View {
 		if (cLib._render(gl.verticesPtr, level.levelPtr, LevelSpriteSheet.LevelSpriteSheetPtr, scaleFactor)) {
 			this.finished = true;
 			this.pointerCursorAttached[0] = 0;
-			if (this.victory[0])
-				gl.clearColor(253 / 255, 190 / 255, 148 / 255, 1);
-			else
-				gl.clearColor(204 / 255, 204 / 255, 1, 1);
 			if (this.preview) {
 				this.pause(null);
 			} else {
