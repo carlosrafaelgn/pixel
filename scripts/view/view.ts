@@ -258,8 +258,17 @@ abstract class View {
 	public static pushHistoryStateIfNecessary(): void {
 		if (!View.windowHistoryStatePushed && (!View.currentView || !(View.currentView instanceof TitleView) || View._fading || Modal.visible)) {
 			View.windowHistoryStatePushed = true;
-			if (!window.history.state || !window.history.state.pixelMaze)
-				window.history.pushState({ pixelMaze: true }, "Pixel Maze");
+			// Closing the browser with our state already pushed to the top of
+			// window.history will cause the current state to have
+			// window.history.state.pixelMaze = true when opening the browser
+			// again later. But, given that the browser cannot confirm the
+			// state has been pushed by "this page", since the browser has been
+			// closed and reopened, calling window.history.back() inside
+			// popHistoryStateIfNecessary() will actually make the browser
+			// navigate to the previous page. Therefore, we are better off not
+			// performing these checks here.
+			//if (!window.history.state || !window.history.state.pixelMaze)
+			window.history.pushState({ pixelMaze: true }, "Pixel Maze");
 		}
 	}
 
