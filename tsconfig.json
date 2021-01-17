@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"module": "system",
+		"module": "System",
 		"target": "ES2017",
 		"lib": [ "ES2017", "DOM" ],
 		"sourceMap": false,
