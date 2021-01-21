@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"module": "System",
 		"target": "ES2017",
-		"lib": [ "ES2017", "DOM" ],
+		"lib": ["ES2017", "DOM"],
 		"sourceMap": false,
 		"outFile": "assets/js/scripts.js",
 		"emitBOM": true,
