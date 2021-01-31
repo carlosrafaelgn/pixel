@@ -243,6 +243,8 @@ class Modal {
 
 		this.fading = true;
 
+		View.pauseGL();
+
 		setTimeout(() => {
 			if (options.onshowing)
 				options.onshowing();
@@ -288,6 +290,8 @@ class Modal {
 				zeroObject(this.options.buttons[i]);
 			zeroObject(this.options);
 			zeroObject(this);
+
+			View.resumeGL();
 		}, 520);
 	}
 

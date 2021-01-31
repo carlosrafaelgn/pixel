@@ -341,6 +341,8 @@ class GameView extends View {
 		if (!this.paused) {
 			const controlModeImg = (ControlMode.accelerationSupported ? UISpriteSheet.html(ControlMode.modeImage) : null);
 
+			let unpause = false, restart = false;
+
 			if (!Modal.show({
 				title: Strings.Pause,
 				html: ((androidWrapper || isPWA) ? "" : `<button type="button" id="fullscreen" data-style="margin-bottom: ${buttonMargin}">${UISpriteSheet.html(UISpriteSheet.Fullscreen)}${Strings.Fullscreen}</button><br/>`) + 
@@ -361,8 +363,8 @@ class GameView extends View {
 						text: Strings.Play,
 						className: "accept",
 						onclick: () => {
+							unpause = true;
 							Modal.hide();
-							this.pause(null);
 						}
 					}
 				],
@@ -376,10 +378,16 @@ class GameView extends View {
 							UISpriteSheet.change(document.getElementById("controlMode").firstChild as HTMLSpanElement, ControlMode.modeImage);
 							break;
 						case "restart":
-							this.restart();
+							restart = true;
 							Modal.hide();
 							break;
 					}
+				},
+				onhidden: () => {
+					if (unpause)
+						this.pause(null);
+					else if (restart)
+						this.restart();
 				}
 			}))
 				return false;
@@ -547,16 +555,16 @@ class GameView extends View {
 	// Also, on the browsers tested, changing WebGL version from 2 to 1 does not produce any significant changes in the timing.
 	//
 	// Tested using built-in level with name/id 2, with ControlMode.Pointer, in fullscreen + landscape mode, without touching the screen even once.
-	
+
 	// Performance profiling (used to produce the results above)
 	//private pc = 0;
 	//private p1 = 0;
 	//private p2 = 0;
 	//private p3 = 0;
-	
+
 	private render(time: number): void {
 		if (this.alive) {
-			this.frameRequest = requestAnimationFrame(this.boundRender);
+			this.frameRequest = (View.glPaused ? 0 : requestAnimationFrame(this.boundRender));
 		} else {
 			this.frameRequest = 0;
 			return;

@@ -47,6 +47,7 @@ abstract class View {
 
 	protected static gl: WebGL = null;
 	protected static sheetTexture: Texture = null;
+	protected static glPaused = false;
 	private static backgroundFrameRequest = 0;
 	private static recreateResourcesTimeout = 0;
 
@@ -92,10 +93,9 @@ abstract class View {
 			View.recreateResourcesTimeout = 0;
 		}
 
-		const currentView = View.currentView,
-			viewUsesGL = (currentView && currentView.usesGL);
+		const currentView = View.currentView;
 
-		if (viewUsesGL)
+		if (currentView && currentView.usesGL)
 			currentView.releaseResources();
 
 		View.sheetTexture.release();
@@ -114,14 +114,11 @@ abstract class View {
 			throw ex;
 		}
 
-		if (viewUsesGL)
-			currentView.loadResources();
-		else
-			View.backgroundFrameRequest = requestAnimationFrame(View.renderBackground);
+		View.refreshGL();
 	}
 
 	private static renderBackground(time: number): void {
-		const animate = (!View.currentView || !View.currentView.pausedBackground);
+		const animate = !View.glPaused;
 
 		View.backgroundFrameRequest = (animate ? requestAnimationFrame(View.renderBackground) : 0);
 
@@ -177,6 +174,32 @@ abstract class View {
 	public static initGL(): void {
 		View.gl = new WebGL();
 		View.sheetTexture = LevelSpriteSheet.createTexture(View.gl);
+	}
+
+	public static pauseGL(): void {
+		View.glPaused = true;
+	}
+
+	public static resumeGL(): void {
+		View.glPaused = false;
+		View.refreshGL();
+	}
+
+	public static refreshGL(view?: View): void {
+		if (!view)
+			view = View.currentView;
+
+		if (View.backgroundFrameRequest) {
+			cancelAnimationFrame(View.backgroundFrameRequest);
+			View.backgroundFrameRequest = 0;
+		}
+
+		if (view) {
+			if (view.usesGL)
+				view.loadResources();
+			else if (!view.pausedBackground)
+				View.backgroundFrameRequest = requestAnimationFrame(View.renderBackground);
+		}
 	}
 
 	public static createInitialView(): Promise<void> {
@@ -378,15 +401,7 @@ abstract class View {
 		setTimeout(() => {
 			this.resize();
 
-			if (View.backgroundFrameRequest) {
-				cancelAnimationFrame(View.backgroundFrameRequest);
-				View.backgroundFrameRequest = 0;
-			}
-
-			if (this.usesGL)
-				this.loadResources();
-			else
-				View.backgroundFrameRequest = requestAnimationFrame(View.renderBackground);
+			View.refreshGL(this);
 
 			View.cover.classList.remove("visible");
 
