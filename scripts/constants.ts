@@ -26,7 +26,7 @@
 
 "use strict";
 
-const version = "20210131",
+const version = "20210208",
 	isPWA = (window.location.href.indexOf("pwa") >= 0),
 	isIOSOrSafari = (function () {
 		// https://stackoverflow.com/q/9038625/3569421
@@ -45,6 +45,7 @@ const version = "20210131",
 		return false;
 	})(),
 	// Must be in sync with lib/shared.h
+	combineAlphaAndTexture = false,
 	baseWidth = 420,
 	minHeight = baseWidth >> 1,
 	maxHeight = baseWidth << 1,

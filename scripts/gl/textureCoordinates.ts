@@ -35,17 +35,27 @@ class TextureCoordinates {
 		this.ptr = ptr;
 	}
 
+	/**
+	 * left, top, width and height take LevelSpriteSheet.TextureWidth and LevelSpriteSheet.TextureHeight as reference
+	 */
 	public setCoordinates(left: number, top: number, width: number, height: number): void {
 		// sizeof(float) = 4
 		const i = this.ptr >> 2,
 			right = left + width,
 			bottom = top + height;
 
-		// MSB                         LSB
-		// 8 bits for x, 8 bits for y, 1 bit (integer) + up to 7 fractional bits for alpha
-		cLib.HEAPF32[i] = (left << 9) | (top << 1);
-		cLib.HEAPF32[i + 1] = (left << 9) | (bottom << 1);
-		cLib.HEAPF32[i + 2] = (right << 9) | (top << 1);
-		cLib.HEAPF32[i + 3] = (right << 9) | (bottom << 1);
+		if (combineAlphaAndTexture) {
+			// MSB                         LSB
+			// 8 bits for x, 8 bits for y, 1 bit (integer) + up to 7 fractional bits for alpha
+			cLib.HEAPF32[i] = (left << 9) | (top << 1);
+			cLib.HEAPF32[i + 1] = (left << 9) | (bottom << 1);
+			cLib.HEAPF32[i + 2] = (right << 9) | (top << 1);
+			cLib.HEAPF32[i + 3] = (right << 9) | (bottom << 1);
+		} else {
+			cLib.HEAPF32[i] = left / LevelSpriteSheet.TextureWidth;
+			cLib.HEAPF32[i + 1] = top / LevelSpriteSheet.TextureHeight;
+			cLib.HEAPF32[i + 2] = right / LevelSpriteSheet.TextureWidth;
+			cLib.HEAPF32[i + 3] = bottom / LevelSpriteSheet.TextureHeight;
+		}
 	}
 }

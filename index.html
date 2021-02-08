@@ -487,11 +487,16 @@
 			function finalCallback() {
 				var errorAlerted = false;
 				window.onerror = function (msg, url, line, col, error) {
+					// Firefox for iOS, user agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15,
+					// reports a script error when loading the scripts but nothing is wrong! Everything works fine!
+					// Not even this prevented the script error from being generated: https://stackoverflow.com/a/7778424/3569421
+					if (msg && (msg == "Script error" || msg == "Script error."))
+						return;
 					debugger;
 					if (errorAlerted)
 						return;
 					errorAlerted = true;
-					alert(msg + " @ " + line + ":" + col + " " + url);
+					alert("Error: " + msg + " @ " + line + ":" + col + " " + url);
 				};
 
 				if (window["pixelCheckSetup"])
@@ -514,6 +519,11 @@
 			function showError(msg, a) {
 				var i;
 				if (a && a.length) {
+					// Firefox for iOS, user agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1 Safari/605.1.15,
+					// reports a script error when loading the scripts but nothing is wrong! Everything works fine!
+					// Not even this prevented the script error from being generated: https://stackoverflow.com/a/7778424/3569421
+					if (a[0] && (a[0] == "Script error" || a[0] == "Script error."))
+						return;
 					msg += "\n\nError: " + a[0];
 					for (i = 1; i < a.length; i++)
 						msg += ", " + a[i];
@@ -521,32 +531,15 @@
 				alert(msg);
 			}
 
-			function loadMainScriptES(version) {
+			function loadMainScript(version) {
 				var s;
 
-				window["pixelES"] = "es" + version;
+				window["pixelES"] = version;
 
 				// All TS files are being concatenated into a single file according to the
 				// order specified in the files array, inside tsconfig.json
-				s = loadScript("assets/js/scripts.es" + version + ".min.js", finalCallback, function () {
+				s = loadScript("assets/js/scripts." + (version ? (version + ".") : version) + "min.js", finalCallback, function (msg, url, line, col, error) {
 					showError("Impossible to load the main script :(", arguments);
-				});
-			}
-
-			function loadMainScriptES2017() {
-				var s;
-
-				window["pixelES"] = "";
-
-				// All TS files are being concatenated into a single file according to the
-				// order specified in the files array, inside tsconfig.json
-				s = loadScript("assets/js/scripts.min.js", finalCallback, function () {
-					if (s.parentNode)
-						document.body.removeChild(s);
-					if (checkES6())
-						loadMainScriptES(6);
-					else
-						loadMainScriptES(5);
 				});
 			}
 
@@ -563,13 +556,21 @@
 				// https://github.com/emscripten-core/emscripten/pull/10118
 				// https://github.com/emscripten-core/emscripten/issues/11357
 				loadScript(window["pixelUsingWebAssembly"] ? "assets/js/lib.js": "assets/js/lib-nowasm.js", function () {
+					// Trying to add a script to the body element, then removing it and adding
+					// another version leads to duplicate variable declaration (using let/const),
+					// because all globals remain declared, even if the script tag is removed.
+					// Therefore, we need to know the exact version that must be loaded.
+					// According to Can I Use:
+					// https://caniuse.com/wasm / https://caniuse.com/mdn-javascript_operators_await
+					// if a browser has support for WebAssembly it also has support for async/await
+					// (but not the opposite).
 					if (window["pixelUsingWebAssembly"])
-						loadMainScriptES2017();
+						loadMainScript("");
 					else if (checkES6())
-						loadMainScriptES(6);
+						loadMainScript("es6");
 					else
-						loadMainScriptES(5);
-				}, function () {
+						loadMainScript("es5");
+				}, function (msg, url, line, col, error) {
 					showError("Impossible to load the library script :(", arguments);
 				});
 			}
@@ -583,7 +584,7 @@
 				} catch (ex) {
 				}
 
-				loadScript("assets/js/es6-promise.auto.min.js", loadLibScript, function (e) {
+				loadScript("assets/js/es6-promise.auto.min.js", loadLibScript, function (msg, url, line, col, error) {
 					showError("Impossible to load the promise script :(", arguments);
 				});
 			}

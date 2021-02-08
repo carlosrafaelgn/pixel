@@ -41,7 +41,9 @@ class WebGL {
 	// Each vertex has 3 attributes: position x, position y, alpha, texture x and texture y
 	// Each attribute has 4 bytes (1 = 4 bytes)
 	private static readonly FloatsPerPosition = 2;
-	private static readonly FloatsPerAlphaTextureCoordinates = 1;
+	private static readonly FloatsPerAlpha = 1;
+	private static readonly FloatsPerTextureCoordinates = 2;
+	private static readonly FloatsPerAlphaTextureCoordinates = (combineAlphaAndTexture ? 1 : (WebGL.FloatsPerAlpha + WebGL.FloatsPerTextureCoordinates));
 
 	private static readonly FloatsPerVertex = (WebGL.FloatsPerPosition + WebGL.FloatsPerAlphaTextureCoordinates);
 	private static readonly BytesPerVertex = 4 * WebGL.FloatsPerVertex;
@@ -51,14 +53,17 @@ class WebGL {
 
 	// Index of the start of each attribute within the buffer
 	private static readonly BufferIndexPosition = 0;
-	private static readonly BufferIndexAlphaTextureCoordinates = 4 * WebGL.FloatsPerPosition;
+	private static readonly BufferIndexAlphaTextureCoordinates = WebGL.BufferIndexPosition + (4 * WebGL.FloatsPerPosition);
+	private static readonly BufferIndexAlpha = WebGL.BufferIndexPosition + (4 * WebGL.FloatsPerPosition);
+	private static readonly BufferIndexTextureCoordinates = WebGL.BufferIndexAlpha + 4;
 
 	// Must be in sync with scripts/level/levelSpriteSheet.ts
 	// 0.0078125 = 1 / 128 (Texture width and height)
 	// Must be in sync with scripts/gl/textureCoordinates.ts
 	// 0.001953125 = 1 / 512 (8 bits + 1 bit)
 	// 0.5 = 1 / 2 (1 extra bit added)
-	private static readonly VertexShaderSource2 = `#version 300 es
+	private static readonly VertexShaderSource2 = (combineAlphaAndTexture ?
+`#version 300 es
 precision highp float;
 in vec2 aPosition;
 in float aAlphaTextureCoordinates;
@@ -73,8 +78,23 @@ void main() {
 		aAlphaTextureCoordinates * 0.001953125,
 		mod(aAlphaTextureCoordinates * 0.5, 256.0)
 	)) * 0.0078125;
-}`;
-	private static readonly VertexShaderSource = `#version 100
+}` :
+`#version 300 es
+precision highp float;
+in vec2 aPosition;
+in float aAlpha;
+in vec2 aTextureCoordinates;
+flat out lowp float vAlpha;
+out lowp vec2 vTextureCoordinates;
+uniform vec2 uViewConstants;
+const vec2 uViewOffsets = vec2(-1.0, 1.0);
+void main() {
+	gl_Position = vec4(aPosition * uViewConstants + uViewOffsets, 0.0, 1.0);
+	vAlpha = aAlpha;
+	vTextureCoordinates = aTextureCoordinates;
+}`);
+	private static readonly VertexShaderSource = (combineAlphaAndTexture ?
+`#version 100
 precision highp float;
 attribute vec2 aPosition;
 attribute float aAlphaTextureCoordinates;
@@ -89,7 +109,21 @@ void main() {
 		aAlphaTextureCoordinates * 0.001953125,
 		mod(aAlphaTextureCoordinates * 0.5, 256.0)
 	)) * 0.0078125;
-}`;
+}` :
+`#version 100
+precision highp float;
+attribute vec2 aPosition;
+attribute float aAlpha;
+attribute vec2 aTextureCoordinates;
+varying lowp float vAlpha;
+varying lowp vec2 vTextureCoordinates;
+uniform vec2 uViewConstants;
+const vec2 uViewOffsets = vec2(-1.0, 1.0);
+void main() {
+	gl_Position = vec4(aPosition * uViewConstants + uViewOffsets, 0.0, 1.0);
+	vAlpha = aAlpha;
+	vTextureCoordinates = aTextureCoordinates;
+}`);
 
 	// We are doing color * vAlpha in order to produce premultiplied alpha images,
 	// making the premultipliedAlpha setting, the default blending (refer to
@@ -329,13 +363,21 @@ void main() {
 		this.useFramebuffer(false);
 
 		const attributePosition = gl.getAttribLocation(program, "aPosition");
-		const attributeAlphaTextureCoordinates = gl.getAttribLocation(program, "aAlphaTextureCoordinates");
-		
 		gl.enableVertexAttribArray(attributePosition);
-		gl.enableVertexAttribArray(attributeAlphaTextureCoordinates);
-
 		gl.vertexAttribPointer(attributePosition, WebGL.FloatsPerPosition, gl.FLOAT, false, WebGL.BytesPerVertex, WebGL.BufferIndexPosition);
-		gl.vertexAttribPointer(attributeAlphaTextureCoordinates, WebGL.FloatsPerAlphaTextureCoordinates, gl.FLOAT, false, WebGL.BytesPerVertex, WebGL.BufferIndexAlphaTextureCoordinates);
+
+		if (combineAlphaAndTexture) {
+			const attributeAlphaTextureCoordinates = gl.getAttribLocation(program, "aAlphaTextureCoordinates");
+			gl.enableVertexAttribArray(attributeAlphaTextureCoordinates);
+			gl.vertexAttribPointer(attributeAlphaTextureCoordinates, WebGL.FloatsPerAlphaTextureCoordinates, gl.FLOAT, false, WebGL.BytesPerVertex, WebGL.BufferIndexAlphaTextureCoordinates);
+		} else {
+			const attributeAlpha = gl.getAttribLocation(program, "aAlpha");
+			const attributeTextureCoordinates = gl.getAttribLocation(program, "aTextureCoordinates");
+			gl.enableVertexAttribArray(attributeAlpha);
+			gl.enableVertexAttribArray(attributeTextureCoordinates);
+			gl.vertexAttribPointer(attributeAlpha, WebGL.FloatsPerAlpha, gl.FLOAT, false, WebGL.BytesPerVertex, WebGL.BufferIndexAlpha);
+			gl.vertexAttribPointer(attributeTextureCoordinates, WebGL.FloatsPerTextureCoordinates, gl.FLOAT, false, WebGL.BytesPerVertex, WebGL.BufferIndexTextureCoordinates);
+		}
 	}
 
 	public destroy(partial: boolean): void {

@@ -27,6 +27,7 @@
 #include <chipmunk/chipmunk.h>
 
 // Must be in sync with scripts/constants.ts
+#define combineAlphaAndTexture 0
 #define baseWidth 420
 #define maxHeight (baseWidth << 1)
 
@@ -70,7 +71,13 @@
 // Each vertex has 3 attributes: position x, position y, (mix of alpha, texture x and texture y)
 // Each attribute has 4 bytes (1 = 4 bytes)
 #define FloatsPerPosition 2
+#define FloatsPerAlpha 1
+#define FloatsPerTextureCoordinates 2
+#if combineAlphaAndTexture
 #define FloatsPerAlphaTextureCoordinates 1
+#else
+#define FloatsPerAlphaTextureCoordinates (FloatsPerAlpha + FloatsPerTextureCoordinates)
+#endif
 
 #define FloatsPerVertex (FloatsPerPosition + FloatsPerAlphaTextureCoordinates)
 #define BytesPerVertex (4 * FloatsPerVertex)

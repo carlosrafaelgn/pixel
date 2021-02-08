@@ -38,7 +38,11 @@ typedef struct GLModelCoordinatesStruct {
 
 // Must be in sync with scripts/gl/textureCoordinates.ts
 typedef struct GLTextureCoordinatesStruct {
+#if combineAlphaAndTexture
 	float leftTop, leftBottom, rightTop, rightBottom;
+#else
+	float left, top, right, bottom;
+#endif
 } GLTextureCoordinates;
 
 // Must be in sync with scripts/level/levelSpriteSheet.ts
@@ -106,6 +110,7 @@ void draw(float* vertices, const GLModelCoordinates* modelCoordinates, float alp
 	const float right = modelCoordinates->right + viewX;
 	const float bottom = modelCoordinates->bottom + viewY;
 
+#if combineAlphaAndTexture
 	vertices[0 ] = left;
 	vertices[1 ] = top;
 	vertices[2 ] = textureCoordinates->leftTop + alpha;
@@ -121,6 +126,36 @@ void draw(float* vertices, const GLModelCoordinates* modelCoordinates, float alp
 	vertices[9 ] = right;
 	vertices[10] = bottom;
 	vertices[11] = textureCoordinates->rightBottom + alpha;
+#else
+	const float tleft = textureCoordinates->left;
+	const float ttop = textureCoordinates->top;
+	const float tright = textureCoordinates->right;
+	const float tbottom = textureCoordinates->bottom;
+
+	vertices[0 ] = left;
+	vertices[1 ] = top;
+	vertices[2 ] = alpha;
+	vertices[3 ] = tleft;
+	vertices[4 ] = ttop;
+
+	vertices[5 ] = left;
+	vertices[6 ] = bottom;
+	vertices[7 ] = alpha;
+	vertices[8 ] = tleft;
+	vertices[9 ] = tbottom;
+
+	vertices[10] = right;
+	vertices[11] = top;
+	vertices[12] = alpha;
+	vertices[13] = tright;
+	vertices[14] = ttop;
+
+	vertices[15] = right;
+	vertices[16] = bottom;
+	vertices[17] = alpha;
+	vertices[18] = tright;
+	vertices[19] = tbottom;
+#endif
 }
 
 void drawScale(float* vertices, const GLModelCoordinates* modelCoordinates, float alpha, const GLTextureCoordinates* textureCoordinates, float scale, float viewX, float viewY) {
@@ -143,6 +178,7 @@ void drawScale(float* vertices, const GLModelCoordinates* modelCoordinates, floa
 	const float right = (modelCoordinates->right * scale) + viewX;
 	const float bottom = (modelCoordinates->bottom * scale) + viewY;
 
+#if combineAlphaAndTexture
 	vertices[0 ] = left;
 	vertices[1 ] = top;
 	vertices[2 ] = textureCoordinates->leftTop + alpha;
@@ -158,6 +194,36 @@ void drawScale(float* vertices, const GLModelCoordinates* modelCoordinates, floa
 	vertices[9 ] = right;
 	vertices[10] = bottom;
 	vertices[11] = textureCoordinates->rightBottom + alpha;
+#else
+	const float tleft = textureCoordinates->left;
+	const float ttop = textureCoordinates->top;
+	const float tright = textureCoordinates->right;
+	const float tbottom = textureCoordinates->bottom;
+
+	vertices[0 ] = left;
+	vertices[1 ] = top;
+	vertices[2 ] = alpha;
+	vertices[3 ] = tleft;
+	vertices[4 ] = ttop;
+
+	vertices[5 ] = left;
+	vertices[6 ] = bottom;
+	vertices[7 ] = alpha;
+	vertices[8 ] = tleft;
+	vertices[9 ] = tbottom;
+
+	vertices[10] = right;
+	vertices[11] = top;
+	vertices[12] = alpha;
+	vertices[13] = tright;
+	vertices[14] = ttop;
+
+	vertices[15] = right;
+	vertices[16] = bottom;
+	vertices[17] = alpha;
+	vertices[18] = tright;
+	vertices[19] = tbottom;
+#endif
 }
 
 void drawRotate(float* vertices, const GLModelCoordinates* modelCoordinates, float alpha, const GLTextureCoordinates* textureCoordinates, float radians, float viewX, float viewY) {
@@ -183,27 +249,68 @@ void drawRotate(float* vertices, const GLModelCoordinates* modelCoordinates, flo
 	const float right = modelCoordinates->right;
 	const float bottom = modelCoordinates->bottom;
 
+	const float cleft = (cosv * left) + viewX;
+	const float ctop = (cosv * top) + viewY;
+	const float cright = (cosv * right) + viewX;
+	const float cbottom = (cosv * bottom) + viewY;
+
+	const float sleft = sinv * left;
+	const float stop = sinv * top;
+	const float sright = sinv * right;
+	const float sbottom = sinv * bottom;
+
 	// The correct would be:
 	// Destination x = (cos * Source x) - (sin * Source y)
 	// Destination y = (sin * Source x) + (cos * Source y)
 	// But, since positive y points downwards in the bitmap, but points upwards
 	// in OpenGL/WebGL, we invert the sign of sin to make up for the difference.
 
-	vertices[0 ] = (cosv * left) + (sinv * top) + viewX;
-	vertices[1 ] = (cosv * top) - (sinv * left) + viewY;
+#if combineAlphaAndTexture
+	vertices[0 ] = cleft + stop;
+	vertices[1 ] = ctop - sleft;
 	vertices[2 ] = textureCoordinates->leftTop + alpha;
 
-	vertices[3 ] = (cosv * left) + (sinv * bottom) + viewX;
-	vertices[4 ] = (cosv * bottom) - (sinv * left) + viewY;
+	vertices[3 ] = cleft + sbottom;
+	vertices[4 ] = cbottom - sleft;
 	vertices[5 ] = textureCoordinates->leftBottom + alpha;
 
-	vertices[6 ] = (cosv * right) + (sinv * top) + viewX;
-	vertices[7 ] = (cosv * top) - (sinv * right) + viewY;
+	vertices[6 ] = cright + stop;
+	vertices[7 ] = ctop - sright;
 	vertices[8 ] = textureCoordinates->rightTop + alpha;
 
-	vertices[9 ] = (cosv * right) + (sinv * bottom) + viewX;
-	vertices[10] = (cosv * bottom) - (sinv * right) + viewY;
+	vertices[9 ] = cright + sbottom;
+	vertices[10] = cbottom - sright;
 	vertices[11] = textureCoordinates->rightBottom + alpha;
+#else
+	const float tleft = textureCoordinates->left;
+	const float ttop = textureCoordinates->top;
+	const float tright = textureCoordinates->right;
+	const float tbottom = textureCoordinates->bottom;
+
+	vertices[0 ] = cleft + stop;
+	vertices[1 ] = ctop - sleft;
+	vertices[2 ] = alpha;
+	vertices[3 ] = tleft;
+	vertices[4 ] = ttop;
+
+	vertices[5 ] = cleft + sbottom;
+	vertices[6 ] = cbottom - sleft;
+	vertices[7 ] = alpha;
+	vertices[8 ] = tleft;
+	vertices[9 ] = tbottom;
+
+	vertices[10] = cright + stop;
+	vertices[11] = ctop - sright;
+	vertices[12] = alpha;
+	vertices[13] = tright;
+	vertices[14] = ttop;
+
+	vertices[15] = cright + sbottom;
+	vertices[16] = cbottom - sright;
+	vertices[17] = alpha;
+	vertices[18] = tright;
+	vertices[19] = tbottom;
+#endif
 }
 
 void drawScaleRotate(float* vertices, const GLModelCoordinates* modelCoordinates, float alpha, const GLTextureCoordinates* textureCoordinates, float scale, float radians, float viewX, float viewY) {
@@ -229,27 +336,68 @@ void drawScaleRotate(float* vertices, const GLModelCoordinates* modelCoordinates
 	const float right = modelCoordinates->right * scale;
 	const float bottom = modelCoordinates->bottom * scale;
 
+	const float cleft = (cosv * left) + viewX;
+	const float ctop = (cosv * top) + viewY;
+	const float cright = (cosv * right) + viewX;
+	const float cbottom = (cosv * bottom) + viewY;
+
+	const float sleft = sinv * left;
+	const float stop = sinv * top;
+	const float sright = sinv * right;
+	const float sbottom = sinv * bottom;
+
 	// The correct would be:
 	// Destination x = (cos * Source x) - (sin * Source y)
 	// Destination y = (sin * Source x) + (cos * Source y)
 	// But, since positive y points downwards in the bitmap, but points upwards
 	// in OpenGL/WebGL, we invert the sign of sin to make up for the difference.
 
-	vertices[0 ] = (cosv * left) + (sinv * top) + viewX;
-	vertices[1 ] = (cosv * top) - (sinv * left) + viewY;
+#if combineAlphaAndTexture
+	vertices[0 ] = cleft + stop;
+	vertices[1 ] = ctop - sleft;
 	vertices[2 ] = textureCoordinates->leftTop + alpha;
 
-	vertices[3 ] = (cosv * left) + (sinv * bottom) + viewX;
-	vertices[4 ] = (cosv * bottom) - (sinv * left) + viewY;
+	vertices[3 ] = cleft + sbottom;
+	vertices[4 ] = cbottom - sleft;
 	vertices[5 ] = textureCoordinates->leftBottom + alpha;
 
-	vertices[6 ] = (cosv * right) + (sinv * top) + viewX;
-	vertices[7 ] = (cosv * top) - (sinv * right) + viewY;
+	vertices[6 ] = cright + stop;
+	vertices[7 ] = ctop - sright;
 	vertices[8 ] = textureCoordinates->rightTop + alpha;
 
-	vertices[9 ] = (cosv * right) + (sinv * bottom) + viewX;
-	vertices[10] = (cosv * bottom) - (sinv * right) + viewY;
+	vertices[9 ] = cright + sbottom;
+	vertices[10] = cbottom - sright;
 	vertices[11] = textureCoordinates->rightBottom + alpha;
+#else
+	const float tleft = textureCoordinates->left;
+	const float ttop = textureCoordinates->top;
+	const float tright = textureCoordinates->right;
+	const float tbottom = textureCoordinates->bottom;
+
+	vertices[0 ] = cleft + stop;
+	vertices[1 ] = ctop - sleft;
+	vertices[2 ] = alpha;
+	vertices[3 ] = tleft;
+	vertices[4 ] = ttop;
+
+	vertices[5 ] = cleft + sbottom;
+	vertices[6 ] = cbottom - sleft;
+	vertices[7 ] = alpha;
+	vertices[8 ] = tleft;
+	vertices[9 ] = tbottom;
+
+	vertices[10] = cright + stop;
+	vertices[11] = ctop - sright;
+	vertices[12] = alpha;
+	vertices[13] = tright;
+	vertices[14] = ttop;
+
+	vertices[15] = cright + sbottom;
+	vertices[16] = cbottom - sright;
+	vertices[17] = alpha;
+	vertices[18] = tright;
+	vertices[19] = tbottom;
+#endif
 }
 
 // IntelliSense does not like this... :(
@@ -302,8 +450,10 @@ LevelSpriteSheet* initLevelSpriteSheet() {
 
 void renderBackground(float* vertices, Level* level, LevelSpriteSheet* levelSpriteSheet, float baseHeight, float time, int animate) {
 	float deltaMilliseconds = (animate ? (time - levelSpriteSheet->backgroundLastTime) : 0);
-	if (deltaMilliseconds >= 33.0f)
-		deltaMilliseconds = 33.0f;
+	if (deltaMilliseconds > 20.0f)
+		deltaMilliseconds = 20.0f;
+	else if (deltaMilliseconds < 1.0f)
+		deltaMilliseconds = 1.0f;
 	const float deltaSeconds = deltaMilliseconds * 0.001f;
 	float* const backgroundAngle = levelSpriteSheet->backgroundAngle;
 	float* const backgroundSpeed = levelSpriteSheet->backgroundSpeed;
