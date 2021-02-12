@@ -40,30 +40,30 @@ class LevelSpriteSheet {
 	private static readonly BackgroundCount = 15;
 	public static readonly BackgroundScale = 0.5;
 	public static readonly BackgroundScaleRightShift = 1;
-	public static LevelModelCoordinates: ModelCoordinates = null;
-	public static FullTextureCoordinates: TextureCoordinates = null;
-	public static FramebufferTextureCoordinates: TextureCoordinates = null;
+	public static LevelModelCoordinates: ModelCoordinates;
+	public static FullTextureCoordinates: TextureCoordinates;
+	public static FramebufferTextureCoordinates: TextureCoordinates;
 	private static readonly BackgroundModelCoordinates: ModelCoordinates[] = new Array(LevelSpriteSheet.BackgroundCount);
 	private static readonly BackgroundTextureCoordinates: TextureCoordinates[] = new Array(8);
-	private static LevelObjectModelCoordinates: ModelCoordinates = null;
+	private static LevelObjectModelCoordinates: ModelCoordinates;
 	private static readonly LevelObjectTextureCoordinatesByType: TextureCoordinates[] = new Array(LevelObject.TypeCount);
-	public static FullViewModelCoordinates: ModelCoordinates = null;
-	private static ExplosionBgTextureCoordinates: TextureCoordinates = null;
-	private static FadeBgModelCoordinates: ModelCoordinates = null;
-	private static FadeBgTextureCoordinates: TextureCoordinates = null;
-	private static FadeBgSadTextureCoordinates: TextureCoordinates = null;
+	public static FullViewModelCoordinates: ModelCoordinates;
+	private static ExplosionBgTextureCoordinates: TextureCoordinates;
+	private static FadeBgModelCoordinates: ModelCoordinates;
+	private static FadeBgTextureCoordinates: TextureCoordinates;
+	private static FadeBgSadTextureCoordinates: TextureCoordinates;
 	private static readonly FragmentModelCoordinates: ModelCoordinates[] = new Array(8);
 	private static readonly FragmentTextureCoordinates: TextureCoordinates[] = new Array(16);
-	private static CursorCenterModelCoordinates: ModelCoordinates = null;
-	private static CursorCenterTextureCoordinates: TextureCoordinates = null;
-	private static CursorTargetModelCoordinates: ModelCoordinates = null;
-	private static CursorTargetTextureCoordinates: TextureCoordinates = null;
-	private static FaceModelCoordinates: ModelCoordinates = null;
-	private static SadFaceTextureCoordinates: TextureCoordinates = null;
-	private static HappyFaceTextureCoordinates: TextureCoordinates = null;
-	private static ClearBackgroundTextureCoordinates: TextureCoordinates = null;
+	private static CursorCenterModelCoordinates: ModelCoordinates;
+	private static CursorCenterTextureCoordinates: TextureCoordinates;
+	private static CursorTargetModelCoordinates: ModelCoordinates;
+	private static CursorTargetTextureCoordinates: TextureCoordinates;
+	private static FaceModelCoordinates: ModelCoordinates;
+	private static SadFaceTextureCoordinates: TextureCoordinates;
+	private static HappyFaceTextureCoordinates: TextureCoordinates;
+	private static ClearBackgroundTextureCoordinates: TextureCoordinates;
 
-	private static image: HTMLImageElement = null;
+	private static image: HTMLImageElement;
 	private static scaleFactor = 0;
 
 	private static allocateCoordinates(): void {

@@ -153,25 +153,26 @@ void main() {
 	private framebufferTextureViewWidth = 0;
 	private framebufferTextureViewHeight = 0;
 
-	private program: WebGLProgram = null;
-	private vertexShader: WebGLShader = null;
-	private fragmentShader: WebGLShader = null;
-	private vertexBuffer: WebGLBuffer = null;
-	private indexBuffer: WebGLBuffer = null;
-	private currentTexture: Texture = null;
-	private uniformViewConstants: WebGLUniformLocation = null;
+	private program: WebGLProgram | null = null;
+	private vertexShader: WebGLShader | null = null;
+	private fragmentShader: WebGLShader | null = null;
+	private vertexBuffer: WebGLBuffer | null = null;
+	private indexBuffer: WebGLBuffer | null = null;
+	private framebuffer: WebGLFramebuffer | null = null;
+	private uniformViewConstants: WebGLUniformLocation | null = null;
 
 	private rectangleCount = 0;
 	public verticesPtr = 0;
-	private vertices: Float32Array = null;
+	private vertices: Float32Array = null as any;
 
-	public context: WebGLRenderingContext = null;
+	private currentTexture: Texture = null as any;
+
+	public context: WebGLRenderingContext = null as any;
 	public contextVersion = 0;
-	private framebuffer: WebGLFramebuffer = null;
-	public framebufferTexture: Texture = null;
+	public framebufferTexture: Texture = null as any;
 
 	public constructor() {
-		window["drawNative"] = this.drawNative.bind(this);
+		(window as any)["drawNative"] = this.drawNative.bind(this);
 	}
 
 	public clearErrors(): void {
@@ -181,9 +182,9 @@ void main() {
 			gl.getError();
 	}
 
-	public throwIfError(objectToValidate: any = 1) : void {
+	public throwIfError(): void {
 		const error = this.context.getError();
-		if (!objectToValidate || error !== this.context.NO_ERROR)
+		if (error !== this.context.NO_ERROR)
 			throw new Error("WebGL error: " + error);
 	}
 
@@ -277,19 +278,28 @@ void main() {
 		this.viewWidth = width;
 		this.viewHeight = height;
 
-		const program = this.program = gl.createProgram();
-		this.throwIfError(program);
+		const program = gl.createProgram();
+		if (!program)
+			throw new Error("Null program");
+		this.throwIfError();
+		this.program = program;
 
-		const vertexShader = this.vertexShader = gl.createShader(gl.VERTEX_SHADER);
-		this.throwIfError(vertexShader);
+		const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		if (!vertexShader)
+			throw new Error("Null vertex shader");
+		this.throwIfError();
+		this.vertexShader = vertexShader;
 		gl.shaderSource(vertexShader, this.contextVersion === 2 ? WebGL.VertexShaderSource2 : WebGL.VertexShaderSource);
 		gl.compileShader(vertexShader);
 		if (!(gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS) as boolean))
 			throw new Error("WebGL vertex shader compilation error: " + gl.getShaderInfoLog(vertexShader));
 		this.throwIfError();
 
-		const fragmentShader = this.fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-		this.throwIfError(fragmentShader);
+		const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		if (!fragmentShader)
+			throw new Error("Null fragment shader");
+		this.throwIfError();
+		this.fragmentShader = fragmentShader;
 		gl.shaderSource(fragmentShader, this.contextVersion === 2 ? WebGL.FragmentShaderSource2 : WebGL.FragmentShaderSource);
 		gl.compileShader(fragmentShader);
 		if (!(gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS) as boolean))
@@ -304,7 +314,10 @@ void main() {
 
 		this.throwIfError();
 
-		this.uniformViewConstants = gl.getUniformLocation(program, "uViewConstants");
+		const uniformViewConstants = gl.getUniformLocation(program, "uViewConstants");
+		if (!uniformViewConstants)
+			throw new Error("Null uniform view constants");
+		this.uniformViewConstants = uniformViewConstants;
 
 		gl.activeTexture(gl.TEXTURE0);
 		gl.uniform1i(gl.getUniformLocation(program, "uTexture"), 0);
@@ -330,8 +343,15 @@ void main() {
 
 		this.throwIfError();
 
-		this.vertexBuffer = gl.createBuffer();
-		this.indexBuffer = gl.createBuffer();
+		const vertexBuffer = gl.createBuffer();
+		if (!vertexBuffer)
+			throw new Error("Null vertex buffer");
+		this.vertexBuffer = vertexBuffer;
+
+		const indexBuffer = gl.createBuffer();
+		if (!indexBuffer)
+			throw new Error("Null index buffer");
+		this.indexBuffer = indexBuffer;
 
 		this.allocateRectangleBuffers();
 
@@ -353,7 +373,10 @@ void main() {
 
 		this.throwIfError();
 
-		this.framebuffer = gl.createFramebuffer();
+		const framebuffer = gl.createFramebuffer();
+		if (!framebuffer)
+			throw new Error("Null framebuffer");
+		this.framebuffer = framebuffer;
 
 		this.throwIfError();
 

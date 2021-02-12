@@ -36,22 +36,25 @@ interface WakeLock {
 	request(type: string): Promise<WakeLockSentinel>;
 }
 
+interface GameMode {
+	restartButton: HTMLButtonElement;
+	timeDisplay: HTMLDivElement;
+	timeDisplayImage: HTMLSpanElement;
+	timeDisplayText: Text;
+	editNameButton: HTMLButtonElement;
+}
+
 class GameView extends View {
 	// Must be in sync with lib/shared.h
 	private static readonly FinishedThisFrame = 1;
 	private static readonly FinishedVictory = 2;
 	private static readonly FinishedLoss = 4;
 
-	private static wakeLockSentinel: WakeLockSentinel = null;
+	private static wakeLockSentinel: WakeLockSentinel | null = null;
 
-	private readonly preview: boolean;
+	private readonly gameMode: GameMode | null;
 
 	private readonly backButton: HTMLButtonElement;
-	private readonly restartButton: HTMLButtonElement;
-	private readonly timeDisplay: HTMLDivElement;
-	private readonly timeDisplayImage: HTMLSpanElement;
-	private readonly timeDisplayText: Text;
-	private readonly editNameButton: HTMLButtonElement;
 	private readonly resourceStorage: ResourceStorage;
 
 	private readonly boundRender: any;
@@ -60,13 +63,13 @@ class GameView extends View {
 	private paused: boolean;
 	private finished: boolean;
 	private alreadyCreated: boolean;
-	private loadOptions: LevelLoadOptions;
+	private loadOptions: LevelLoadOptions | null;
 	private level: Level;
 	private viewY: Float32Array;
 	private frameRequest: number;
 	private finalUIAttached: boolean;
 
-	private pointerHandler: PointerHandler;
+	private pointerHandler: PointerHandler | null;
 	private pointerCursorAttached: Int32Array;
 	private totalElapsedMilliseconds: Int32Array;
 	private victory: Int32Array;
@@ -91,27 +94,29 @@ class GameView extends View {
 		else
 			backButton.className = "fade";
 
-		this.preview = preview;
-
 		if (!preview) {
 			const restartButton = this.createButton(null, UISpriteSheet.Restart, this.restart.bind(this));
 			restartButton.className = "fade";
 			restartButton.style.position = "absolute";
 			restartButton.style.top = "0";
-			this.restartButton = restartButton;
 
 			const timeDisplay = document.createElement("div");
 			timeDisplay.className = "fade";
 			timeDisplay.style.position = "absolute";
-			this.timeDisplayImage = UISpriteSheet.create(UISpriteSheet.Clock, timeDisplay);
-			timeDisplay.appendChild(this.timeDisplayText = document.createTextNode(Strings.Time));
-			this.editNameButton = this.createButton(timeDisplay, UISpriteSheet.Edit, this.editName.bind(this));
-			this.timeDisplay = timeDisplay;
+			const timeDisplayImage = UISpriteSheet.create(UISpriteSheet.Clock, timeDisplay);
+			const timeDisplayText = document.createTextNode(Strings.Time);
+			timeDisplay.appendChild(timeDisplayText);
+			const editNameButton = this.createButton(timeDisplay, UISpriteSheet.Edit, this.editName.bind(this));
+
+			this.gameMode = {
+				restartButton,
+				timeDisplay,
+				timeDisplayImage,
+				timeDisplayText,
+				editNameButton
+			};
 		} else {
-			this.restartButton = null;
-			this.timeDisplayImage = null;
-			this.editNameButton = null;
-			this.timeDisplay = null;
+			this.gameMode = null;
 		}
 
 		const pauseButton = this.createButton(null, UISpriteSheet.Pause, this.pause.bind(this));
@@ -129,22 +134,22 @@ class GameView extends View {
 		this.finished = false;
 		this.alreadyCreated = false;
 		this.loadOptions = loadOptions;
-		this.level = null;
-		this.viewY = null;
+		this.level = null as any;
+		this.viewY = null as any;
 		this.frameRequest = 0;
 		this.finalUIAttached = false;
 	
 		this.pointerHandler = null;
-		this.pointerCursorAttached = null;
-		this.totalElapsedMilliseconds = null;
-		this.victory = null;
-		this.pointerCursorCenterX = null;
-		this.pointerCursorCenterY = null;
-		this.pointerCursorX = null;
-		this.pointerCursorY = null;
-		this.globalAlpha = null;
+		this.pointerCursorAttached = null as any;
+		this.totalElapsedMilliseconds = null as any;
+		this.victory = null as any;
+		this.pointerCursorCenterX = null as any;
+		this.pointerCursorCenterY = null as any;
+		this.pointerCursorX = null as any;
+		this.pointerCursorY = null as any;
+		this.globalAlpha = null as any;
 	
-		this.levelTexture = null;
+		this.levelTexture = null as any;
 	}
 
 	protected get usesGL(): boolean {
@@ -180,17 +185,16 @@ class GameView extends View {
 	}
 
 	protected resize(): void {
-		if (this.restartButton)
-			this.restartButton.style.left = css(buttonHeight + buttonMargin);
+		if (this.gameMode) {
+			this.gameMode.restartButton.style.left = css(buttonHeight + buttonMargin);
 
-		if (this.timeDisplay) {
-			this.timeDisplay.style.top = buttonMarginCss;
-			this.timeDisplay.style.left = css((buttonHeight * 3) + buttonMargin);
-			this.timeDisplay.style.lineHeight = iconSizeCss;
-			this.editNameButton.style.marginTop = "-" + buttonMarginCss;
+			this.gameMode.timeDisplay.style.top = buttonMarginCss;
+			this.gameMode.timeDisplay.style.left = css((buttonHeight * 3) + buttonMargin);
+			this.gameMode.timeDisplay.style.lineHeight = iconSizeCss;
+			this.gameMode.editNameButton.style.marginTop = "-" + buttonMarginCss;
 
-			UISpriteSheet.resize(this.timeDisplayImage);
-			this.timeDisplayImage.style.marginRight = buttonMarginCss;
+			UISpriteSheet.resize(this.gameMode.timeDisplayImage);
+			this.gameMode.timeDisplayImage.style.marginRight = buttonMarginCss;
 		}
 
 		this.level.viewResized();
@@ -199,8 +203,12 @@ class GameView extends View {
 	}
 
 	protected async attach(): Promise<void> {
-		this.level = await LevelCache.loadLevelFromOptions(this.loadOptions);
-		this.loadOptions = null;
+		let level: Level | null = null;
+		if (this.loadOptions) {
+			level = await LevelCache.loadLevelFromOptions(this.loadOptions);
+			this.loadOptions = null;
+		}
+		this.level = (level || new Level());
 
 		this.pointerHandler = new PointerHandler(View.glCanvas, this.mouseDown.bind(this), this.mouseMove.bind(this), this.mouseUp.bind(this));
 
@@ -213,7 +221,7 @@ class GameView extends View {
 			androidWrapper.setKeepScreenOn(true);
 		} else {
 			try {
-				const wakeLock = navigator["wakeLock"] as WakeLock;
+				const wakeLock = (navigator as any)["wakeLock"] as WakeLock;
 
 				if (wakeLock && wakeLock.request) {
 					// https://w3c.github.io/screen-wake-lock/#extensions-to-the-navigator-interface
@@ -253,15 +261,6 @@ class GameView extends View {
 		this.alreadyCreated = false;
 
 		this.level.destroyLevelPtr();
-		this.viewY = null;
-		this.pointerCursorAttached = null;
-		this.totalElapsedMilliseconds = null;
-		this.victory = null;
-		this.pointerCursorCenterX = null;
-		this.pointerCursorCenterY = null;
-		this.pointerCursorX = null;
-		this.pointerCursorY = null;
-		this.globalAlpha = null;
 
 		if (partial)
 			this.resourceStorage.release();
@@ -275,16 +274,16 @@ class GameView extends View {
 
 		if (this.finalUIAttached) {
 			this.finalUIAttached = false;
-			if (!this.preview) {
+			if (this.gameMode) {
 				View.main.removeChild(this.backButton);
-				View.main.removeChild(this.restartButton);
-				View.main.removeChild(this.timeDisplay);
+				View.main.removeChild(this.gameMode.restartButton);
+				View.main.removeChild(this.gameMode.timeDisplay);
 			}
 		}
 
 		this.paused = false;
 		this.finished = false;
-		this.level.restart(this.preview);
+		this.level.restart(!this.gameMode);
 
 		const buffer = cLib.HEAP8.buffer as ArrayBuffer;
 		let firstPropertyPtr = cLib._getFirstPropertyPtr(this.level.levelPtr);
@@ -317,7 +316,7 @@ class GameView extends View {
 		return true;
 	}
 
-	private back(e: Event): boolean {
+	private back(): boolean {
 		if (!this.alive)
 			return false;
 
@@ -334,7 +333,7 @@ class GameView extends View {
 		return true;
 	}
 
-	private pause(e: Event): boolean {
+	private pause(): boolean {
 		if (!this.alive)
 			return false;
 
@@ -354,7 +353,7 @@ class GameView extends View {
 						text: Strings.Exit,
 						onclick: () => {
 							Modal.hide();
-							this.back(null);
+							this.back();
 						}
 					},
 					{
@@ -375,7 +374,9 @@ class GameView extends View {
 							break;
 						case "controlMode":
 							ControlMode.toggleMode();
-							UISpriteSheet.change(document.getElementById("controlMode").firstChild as HTMLSpanElement, ControlMode.modeImage);
+							const controlMode = document.getElementById("controlMode");
+							if (controlMode)
+								UISpriteSheet.change(controlMode.firstChild as HTMLSpanElement, ControlMode.modeImage);
 							break;
 						case "restart":
 							restart = true;
@@ -385,7 +386,7 @@ class GameView extends View {
 				},
 				onhidden: () => {
 					if (unpause)
-						this.pause(null);
+						this.pause();
 					else if (restart)
 						this.restart();
 				}
@@ -430,7 +431,7 @@ class GameView extends View {
 		this.pointerCursorAttached[0] = 0;
 	}
 
-	private checkRecord(): string {
+	private checkRecord(): string | null {
 		if (!this.alive || !this.level || !this.totalElapsedMilliseconds || !this.victory || !this.victory[0])
 			return null;
 
@@ -442,7 +443,8 @@ class GameView extends View {
 	}
 
 	private setTimeDisplayTextRecord(name: string): void {
-		this.timeDisplayText.nodeValue = LevelCache.formatLevelRecordTime(this.totalElapsedMilliseconds[0]) + " - " + (name || Strings.NoName);
+		if (this.gameMode)
+			this.gameMode.timeDisplayText.nodeValue = LevelCache.formatLevelRecordTime(this.totalElapsedMilliseconds[0]) + " - " + (name || Strings.NoName);
 	}
 
 	private editName(e: Event): boolean {
@@ -603,39 +605,38 @@ class GameView extends View {
 		if (cLib._render(gl.verticesPtr, level.levelPtr, LevelSpriteSheet.LevelSpriteSheetPtr, scaleFactor)) {
 			this.finished = true;
 			this.pointerCursorAttached[0] = 0;
-			if (this.preview) {
-				this.pause(null);
+			const gameMode = this.gameMode;
+			if (!gameMode) {
+				this.pause();
 			} else {
 				if (this.totalElapsedMilliseconds) {
 					const name = this.checkRecord();
 					if (name === null) {
-						UISpriteSheet.change(this.timeDisplayImage, UISpriteSheet.Clock);
-						this.timeDisplayText.nodeValue = LevelCache.formatLevelRecordTime(this.totalElapsedMilliseconds[0]);
-						this.editNameButton.style.display = "none";
+						UISpriteSheet.change(gameMode.timeDisplayImage, UISpriteSheet.Clock);
+						gameMode.timeDisplayText.nodeValue = LevelCache.formatLevelRecordTime(this.totalElapsedMilliseconds[0]);
+						gameMode.editNameButton.style.display = "none";
 					} else {
 						if (name)
 							LevelCache.setLevelRecord(this.level.name, this.totalElapsedMilliseconds[0], name);
-						UISpriteSheet.change(this.timeDisplayImage, UISpriteSheet.Trophy);
+						UISpriteSheet.change(gameMode.timeDisplayImage, UISpriteSheet.Trophy);
 						this.setTimeDisplayTextRecord(name);
-						this.editNameButton.style.display = "";
+						gameMode.editNameButton.style.display = "";
 					}
 				}
 
 				if (!this.finalUIAttached) {
 					this.finalUIAttached = true;
-					if (!this.preview) {
-						this.backButton.className = "fade";
-						this.restartButton.className = "fade";
-						this.timeDisplay.className = "fade";
-						View.main.appendChild(this.backButton);
-						View.main.appendChild(this.restartButton);
-						View.main.appendChild(this.timeDisplay);
-						setTimeout(() => {
-							this.backButton.className = "fade visible";
-							this.restartButton.className = "fade visible";
-							this.timeDisplay.className = "fade visible";
-						}, 10);
-					}
+					this.backButton.className = "fade";
+					gameMode.restartButton.className = "fade";
+					gameMode.timeDisplay.className = "fade";
+					View.main.appendChild(this.backButton);
+					View.main.appendChild(gameMode.restartButton);
+					View.main.appendChild(gameMode.timeDisplay);
+					setTimeout(() => {
+						this.backButton.className = "fade visible";
+						gameMode.restartButton.className = "fade visible";
+						gameMode.timeDisplay.className = "fade visible";
+					}, 10);
 				}
 			}
 		}

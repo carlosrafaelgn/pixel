@@ -27,14 +27,14 @@
 "use strict";
 
 class Texture extends Resource {
-	private gl: WebGL;
+	private gl: WebGL | null;
 
 	private _width: number;
 	private _height: number;
-	private _image: HTMLImageElement;
-	private _texture: WebGLTexture;
+	private _image: HTMLImageElement | null;
+	private _texture: WebGLTexture | null;
 
-	public constructor(gl: WebGL, image: HTMLImageElement, width = 0, height = 0) {
+	public constructor(gl: WebGL, image: HTMLImageElement | null, width = 0, height = 0) {
 		super();
 
 		this.gl = gl;
@@ -54,11 +54,11 @@ class Texture extends Resource {
 		return this._height;
 	}
 
-	public get image(): HTMLImageElement {
+	public get image(): HTMLImageElement | null {
 		return this._image;
 	}
 
-	public get texture(): WebGLTexture {
+	public get texture(): WebGLTexture | null {
 		return this._texture;
 	}
 
@@ -72,7 +72,8 @@ class Texture extends Resource {
 	}
 
 	protected releaseInternal(): void {
-		this.gl.context.deleteTexture(this._texture);
+		if (this.gl)
+			this.gl.context.deleteTexture(this._texture);
 		this._texture = null;
 	}
 
@@ -81,8 +82,11 @@ class Texture extends Resource {
 		this.gl = null;
 	}
 
-	private bindImage(image: HTMLImageElement, textureWidth: number, textureHeight: number): void {
+	private bindImage(image: HTMLImageElement | null, textureWidth: number, textureHeight: number): void {
 		this.release();
+
+		if (!this.gl)
+			return;
 
 		const width = (image ? image.width : textureWidth);
 		const height = (image ? image.height : textureHeight);

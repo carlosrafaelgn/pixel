@@ -65,17 +65,17 @@ class EditorView extends View {
 	private lastObjectType: number;
 	private brushCanvas: HTMLCanvasElement;
 	private brushContext: CanvasRenderingContext2D;
-	private loadOptions: LevelLoadOptions;
+	private loadOptions: LevelLoadOptions | null;
 	private level: Level;
 	private levelBallCount: number;
 
-	private pointerHandler: PointerHandler;
+	private pointerHandler: PointerHandler | null;
 	private pointerLastX: number;
 	private pointerLastY: number;
 	private pointerCursorAttached: boolean;
 
-	private objectImages: HTMLSpanElement[];
-	private objectImageDrag: HTMLSpanElement;
+	private objectImages: ObjectImageHTMLSpanElement[];
+	private objectImageDrag: ObjectImageHTMLSpanElement | null;
 	private objectImageDragOffsetXCss: number;
 	private objectImageDragOffsetYCss: number;
 	private firstPencilButtonIndex: number;
@@ -85,7 +85,7 @@ class EditorView extends View {
 	private keyUpTime: number;
 	private keyUpCounter: number;
 
-	public constructor(loadOptions?: LevelLoadOptions, selectionView?: boolean) {
+	public constructor(loadOptions?: LevelLoadOptions) {
 		super();
 
 		this.baseElement = document.createElement("div");
@@ -145,22 +145,22 @@ class EditorView extends View {
 
 		this.fileInput.onchange = this.openFile.bind(this);
 
-		this.selectionView = !!selectionView;
+		this.selectionView = !!loadOptions;
 
 		this.boundDocumentKeyUp = ((!androidWrapper && !isPWA) ? this.documentKeyUp.bind(this) : null);
 
 		this.tool = EditorView.ToolPencil;
 		this.dirty = false;
-		this.context = null;
+		this.context = null as any;
 		this.contextGlobalCompositeOperation = "source-over";
 		this.lastPencilColor = 0;
 		this.lastPencilRainbowIndex = 0;
 		this.lastBrushWidth = 0;
 		this.lastObjectType = LevelObject.TypeBall;
-		this.brushCanvas = null;
-		this.brushContext = null;
+		this.brushCanvas = null as any;
+		this.brushContext = null as any;
 		this.loadOptions = (loadOptions || null);
-		this.level = null;
+		this.level = null as any;
 		this.levelBallCount = 0;
 
 		this.pointerHandler = null;
@@ -234,7 +234,8 @@ class EditorView extends View {
 		View.glCanvas.style.display = "none";
 
 		if (!this.level) {
-			this.level = await LevelCache.loadLevelFromOptions(this.loadOptions);
+			const level = await LevelCache.loadLevelFromOptions(this.loadOptions);
+			this.level = (level || new Level());
 			if (this.loadOptions) {
 				if (this.loadOptions.levelNameOverride)
 					this.level.name = this.loadOptions.levelNameOverride;
@@ -256,11 +257,17 @@ class EditorView extends View {
 		this.brushCanvas = document.createElement("canvas");
 		this.brushCanvas.width = image.width;
 		this.brushCanvas.height = image.height;
-		this.brushContext = this.brushCanvas.getContext("2d", { alpha: true });
+		const brushContext = this.brushCanvas.getContext("2d", { alpha: true });
+		if (!brushContext)
+			throw new Error("Null brushContext");
+		this.brushContext = brushContext;
 		this.brushContext.drawImage(image, 0, 0);
 		this.updateBrushColor(colors[this.lastPencilColor]);
 
-		this.context = this.canvas.getContext("2d", { alpha: true });
+		const context = this.canvas.getContext("2d", { alpha: true });
+		if (!context)
+			throw new Error("Null context");
+		this.context = context;
 		this.context.globalCompositeOperation = "source-over";
 		this.context.clearRect(0, 0, baseWidth, maxHeight);
 		setContextQuality(this.context, false);
@@ -284,9 +291,9 @@ class EditorView extends View {
 
 		this.scrollContainer.detach();
 
-		this.context = null;
-		this.brushCanvas = null;
-		this.brushContext = null;
+		this.context = null as any;
+		this.brushCanvas = null as any;
+		this.brushContext = null as any;
 
 		if (this.boundDocumentKeyUp)
 			document.removeEventListener("keyup", this.boundDocumentKeyUp, true);
@@ -371,7 +378,7 @@ class EditorView extends View {
 		}
 	}
 
-	private mouseUp(e: MouseEvent): void {
+	private mouseUp(): void {
 		this.objectImageDrag = null;
 
 		if (this.pointerCursorAttached) {
@@ -392,15 +399,14 @@ class EditorView extends View {
 		// Make the balls appear above all other objects and make objects with greater y appear
 		// above all other objects of its kind (considering we are drawing from the last to the first)
 		objectImages.sort((a, b) => {
-			const oa = a["object"] as LevelObject,
-				ob = b["object"] as LevelObject;
+			const oa = a.object, ob = b.object;
 			return ((oa.type - ob.type) || (ob.y - oa.y));
 		});
 
 		for (let i = objectImages.length - 1, z = 1; i >= 0; i--, z++) {
 			const objectImage = objectImages[i];
 			objectImage.style.zIndex = z.toString();
-			objects[i] = objectImage["object"] as LevelObject;
+			objects[i] = objectImage.object;
 		}
 	}
 
@@ -467,7 +473,7 @@ class EditorView extends View {
 
 	private handleObjectToolMove(xCss: number, yCss: number): void {
 		if (this.tool >= EditorView.ToolBall && this.tool <= EditorView.ToolCucumber && this.objectImageDrag) {
-			const object = this.objectImageDrag["object"] as LevelObject;
+			const object = this.objectImageDrag.object;
 			if (object) {
 				object.move(
 					model(xCss + this.objectImageDragOffsetXCss) + iconRadius,
@@ -539,7 +545,7 @@ class EditorView extends View {
 		this.scrollContainer.scrollTo(0);
 	}
 
-	private findObjectWithinRadius(type: number, x: number, y: number): HTMLSpanElement {
+	private findObjectWithinRadius(type: number, x: number, y: number): ObjectImageHTMLSpanElement | null {
 		const objects = this.level.objects,
 			objectCount = objects.length,
 			radiusSq = iconSize * iconSize;
@@ -560,7 +566,7 @@ class EditorView extends View {
 		return null;
 	}
 
-	private addObject(object: LevelObject, skipAddToLevel: boolean): HTMLSpanElement {
+	private addObject(object: LevelObject, skipAddToLevel: boolean): ObjectImageHTMLSpanElement | null {
 		if (!skipAddToLevel) {
 			if (this.level.objects.length >= Level.MaxObjectCount) {
 				Modal.show({ html: Strings.TooManyObjects + UISpriteSheet.html(UISpriteSheet.Error) });
@@ -579,7 +585,7 @@ class EditorView extends View {
 		objectImage.style.left = css(object.x - iconRadius);
 		objectImage.style.top = css(object.y - iconRadius);
 		objectImage.style.pointerEvents = "none";
-		objectImage["object"] = object;
+		objectImage.object = object;
 		this.scrollContainer.containerElement.appendChild(objectImage);
 		this.objectImages.push(objectImage);
 
@@ -592,8 +598,8 @@ class EditorView extends View {
 		return objectImage;
 	}
 
-	private removeObject(objectImage: HTMLSpanElement): void {
-		if (!objectImage || !objectImage["object"])
+	private removeObject(objectImage: ObjectImageHTMLSpanElement): void {
+		if (!objectImage || !objectImage.object)
 			return;
 
 		const objectImages = this.objectImages;
@@ -628,21 +634,22 @@ class EditorView extends View {
 		this.scrollContainer.scrollTo(0);
 	}
 
-	private back(e: Event): boolean {
-		return (this.fadeTo(this.selectionView ? "SelectionView" : "TitleView") ? true : false);
+	private back(): boolean {
+		const selectionView = this.selectionView;
+		return (this.fadeTo(() => (selectionView ? new SelectionView() : new TitleView())) ? true : false);
 	}
 
 	private changeToolPencil(e: Event): boolean {
 		this.tool = EditorView.ToolPencil;
 		const button = (((e.target as HTMLElement).tagName === "IMG") ? (e.target as HTMLElement).parentNode as HTMLElement : (e.target as HTMLElement));
-		this.lastPencilColor = parseInt(button.getAttribute("data-i"));
+		this.lastPencilColor = parseInt(button.getAttribute("data-i") as any);
 		this.context.globalCompositeOperation = this.contextGlobalCompositeOperation = "source-over";
 		this.updateBrushColor(colors[this.lastPencilColor]);
 		this.highlightTool();
 		return true;
 	}
 
-	private changeToolEraser(e: Event): boolean {
+	private changeToolEraser(): boolean {
 		this.tool = EditorView.ToolEraser;
 		this.context.globalCompositeOperation = this.contextGlobalCompositeOperation = "destination-out";
 		this.updateBrushColor(0xffffffff);
@@ -660,7 +667,7 @@ class EditorView extends View {
 
 		const button = (((e.target as HTMLElement).tagName === "IMG") ? (e.target as HTMLElement).parentNode as HTMLElement : (e.target as HTMLElement));
 
-		this.lastBrushWidth = parseInt(button.getAttribute("data-i"));
+		this.lastBrushWidth = parseInt(button.getAttribute("data-i") as any);
 
 		switch (this.tool) {
 			case EditorView.ToolPencil:
@@ -681,14 +688,14 @@ class EditorView extends View {
 
 	private changeTool(e: Event): boolean {
 		const button = (((e.target as HTMLElement).tagName === "IMG") ? (e.target as HTMLElement).parentNode as HTMLElement : (e.target as HTMLElement));
-		this.tool = parseInt(button.getAttribute("data-tool"));
+		this.tool = parseInt(button.getAttribute("data-tool") as any);
 		if (this.tool >= EditorView.ToolBall && this.tool <= EditorView.ToolCucumber)
 			this.lastObjectType = LevelObject.TypeBall + this.tool - EditorView.ToolBall;
 		this.highlightTool();
 		return true;
 	}
 
-	private openFile(e: Event): void {
+	private openFile(): void {
 		if (Modal.visible || !this.fileInput.files || !this.fileInput.files[0])
 			return;
 
@@ -750,13 +757,13 @@ class EditorView extends View {
 		reader.readAsDataURL(this.fileInput.files[0]);
 	}
 
-	private open(e: Event): boolean {
+	private open(): boolean {
 		this.fileInput.click();
 
 		return true;
 	}
 
-	private download(e: Event): boolean {
+	private download(): boolean {
 		LevelCache.downloadLevelImage(this.level.name, this.canvas).then((result) => {
 			switch (result) {
 				case LevelCache.DownloadLevelSuccess:
@@ -779,7 +786,7 @@ class EditorView extends View {
 		return true;
 	}
 
-	private clear(e: Event): boolean {
+	private clear(): boolean {
 		Modal.show({
 			html: Strings.ClearEntireLevel,
 			buttons: [
@@ -807,7 +814,7 @@ class EditorView extends View {
 		return true;
 	}
 
-	private accept(e: Event): boolean {
+	private accept(): boolean {
 		let ok = false, invalidName = false, error = false;
 
 		this.save();
@@ -865,14 +872,14 @@ class EditorView extends View {
 		return true;
 	}
 
-	private play(e: Event): boolean {
+	private play(): boolean {
 		this.save();
 
 		View.loading = true;
 
 		this.level.prepare().then(() => {
 			View.loading = false;
-			this.fadeTo(new GameView({ level: this.level }, true), true);
+			this.fadeTo(() => new GameView({ level: this.level }, true), true);
 		}, (reason) => {
 			View.loading = false;
 			if (reason && reason.message) {
@@ -953,6 +960,18 @@ class EditorView extends View {
 			T <input id="inputThumbnailImage" type="file" accept="image/png" />`,
 			okcancel: true,
 			onok: () => {
+				function getFile(id: string): File | null {
+					const input = document.getElementById(id) as HTMLInputElement;
+					return ((input && input.files) ? input.files[0] : null);
+				}
+
+				const fi = getFile("inputImage"),
+					fp = getFile("inputProcessedImage"),
+					ft = getFile("inputThumbnailImage");
+
+				if (!fi || !fp || !ft)
+					return;
+
 				const i = new FileReader();
 				i.onload = () => {
 					const p = new FileReader();
@@ -963,16 +982,18 @@ class EditorView extends View {
 							this.level.modifiedAt = 0;
 							this.level.image = i.result as string;
 							this.level.processedImage = p.result as string;
-							this.level.thumbnailImage = null;
+							const thumbnailImage = this.level.thumbnailImage;
+							this.level.thumbnailImage = null as any;
 							console.log("'" + JSON.stringify(this.level) + "',");
 							console.log("'" + t.result as string + "',");
+							this.level.thumbnailImage = thumbnailImage;
 							Modal.hide();
 						};
-						t.readAsDataURL((document.getElementById("inputThumbnailImage") as HTMLInputElement).files[0]);
+						t.readAsDataURL(ft);
 					};
-					p.readAsDataURL((document.getElementById("inputProcessedImage") as HTMLInputElement).files[0]);
+					p.readAsDataURL(fp);
 				};
-				i.readAsDataURL((document.getElementById("inputImage") as HTMLInputElement).files[0]);
+				i.readAsDataURL(fi);
 			}
 		});
 	}

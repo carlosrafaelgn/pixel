@@ -48,8 +48,8 @@ class LevelObject {
 
 	public readonly type: number;
 	public readonly radius: number;
-	public x: number;
-	public y: number;
+	public x = 0;
+	public y = 0;
 
 	public constructor(type: any, x: any, y: any) {
 		switch (type) {

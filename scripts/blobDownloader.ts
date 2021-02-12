@@ -27,11 +27,11 @@
 "use strict";
 
 class BlobDownloader {
-	private static readonly saveAs: (blob: Blob, filename: string) => void = (window["saveAs"] || window["webkitSaveAs"] || window["mozSaveAs"] || window["msSaveAs"] || window.navigator["saveBlob"] || window.navigator["webkitSaveBlob"] || window.navigator["mozSaveBlob"] || window.navigator["msSaveBlob"]);
+	private static readonly saveAs: (blob: Blob, filename: string) => void = ((window as any)["saveAs"] || (window as any)["webkitSaveAs"] || (window as any)["mozSaveAs"] || (window as any)["msSaveAs"] || (window.navigator as any)["saveBlob"] || (window.navigator as any)["webkitSaveBlob"] || (window.navigator as any)["mozSaveBlob"] || window.navigator["msSaveBlob"]);
 
 	public static readonly supported = (!!androidWrapper || (("Blob" in window) && ("URL" in window) && ("createObjectURL" in window.URL) && ("revokeObjectURL" in window.URL)));
 
-	private static blobURL: string = null;
+	private static blobURL: string | null = null;
 
 	public static freeURL(): void {
 		if (BlobDownloader.blobURL) {
@@ -40,7 +40,7 @@ class BlobDownloader {
 		}
 	}
 
-	public static download(blob: Blob | string, filename: string, type: string = null): boolean {
+	public static download(blob: Blob | string, filename: string, type?: string): boolean {
 		if (!BlobDownloader.supported || !blob || !filename)
 			return false;
 
@@ -54,7 +54,7 @@ class BlobDownloader {
 
 		if (BlobDownloader.saveAs) {
 			try {
-				BlobDownloader.saveAs.call(window.navigator, blob, filename);
+				BlobDownloader.saveAs.call(window.navigator, blob as Blob, filename);
 				return true;
 			} catch (ex) {
 				// Try another method...

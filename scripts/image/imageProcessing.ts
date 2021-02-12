@@ -52,7 +52,7 @@ function removeSemiAlpha(canvas: HTMLCanvasElement, context: CanvasRenderingCont
 
 async function loadImage(src: string, controlLoading = true): Promise<HTMLImageElement> {
 	if (!src)
-		return null;
+		throw new Error("Invalid image source");
 
 	if (controlLoading)
 		View.loading = true;
@@ -75,10 +75,10 @@ async function loadImage(src: string, controlLoading = true): Promise<HTMLImageE
 
 function setContextQuality(context: CanvasRenderingContext2D, highQuality: boolean): void {
 	try {
-		if (("imageSmoothingEnabled" in this.context))
-			this.context.imageSmoothingEnabled = highQuality;
-		if (("imageSmoothingQuality" in this.context))
-			this.context.imageSmoothingQuality = (highQuality ? "high" : "low");
+		if (("imageSmoothingEnabled" in context))
+			context.imageSmoothingEnabled = highQuality;
+		if (("imageSmoothingQuality" in context))
+			context.imageSmoothingQuality = (highQuality ? "high" : "low");
 	} catch (ex) {
 		// Just ignore...
 	}
@@ -102,18 +102,11 @@ function processImage(canvas: HTMLCanvasElement, context: CanvasRenderingContext
 		const imageInfoData = new Uint8Array(buffer, cLib._getImageInfoData(imageInfo), data.length);
 		const points = new Int32Array(buffer, cLib._getImageInfoPoints(imageInfo), maxPointCount << 1);
 
-		window["createPolygon"] = (pointCount: number) => {
-			const polygon = new Polygon();
-			polygon.points = new Array(pointCount);
+		(window as any)["createPolygon"] = (pointCount: number) => {
+			const polygon = new Polygon(pointCount);
 
-			for (let i = ((pointCount - 1) << 1); i >= 0; i -= 2) {
-				const p = new Point();
-
-				p.x = points[i];
-				p.y = points[i + 1];
-
-				polygon.points[i >> 1] = p;
-			}
+			for (let i = ((pointCount - 1) << 1); i >= 0; i -= 2)
+				polygon.points[i >> 1] = new Point(points[i], points[i + 1]);
 
 			polygons.push(polygon);
 		};
@@ -124,7 +117,7 @@ function processImage(canvas: HTMLCanvasElement, context: CanvasRenderingContext
 
 		data.set(imageInfoData, 0);
 
-		window["createPolygon"] = null;
+		delete (window as any)["createPolygon"];
 	} finally {
 		cLib._freeImageInfo(imageInfo);
 	}

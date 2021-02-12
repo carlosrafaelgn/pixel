@@ -27,17 +27,20 @@
 "use strict";
 
 class Polygon {
-	public points: Point[];
+	public readonly points: Point[];
+
+	public constructor(pointCount: number) {
+		this.points = new Array(pointCount);
+	}
 
 	public static revive(polygon: any): Polygon {
-		const newPolygon = new Polygon();
-		newPolygon.points = [];
-		if (polygon.points && polygon.points.length) {
-			for (let i = polygon.points.length - 1; i >= 0; i--)
-				newPolygon.points[i] = Point.revive(polygon.points[i]);
-		}
-		if (newPolygon.points.length < 2)
+		if (!polygon.points || polygon.points.length < 2)
 			throw new Error("Polygon has fewer than two points");
+
+		const newPolygon = new Polygon(polygon.points.length);
+		for (let i = polygon.points.length - 1; i >= 0; i--)
+			newPolygon.points[i] = Point.revive(polygon.points[i]);
+			
 		return newPolygon;
 	}
 }

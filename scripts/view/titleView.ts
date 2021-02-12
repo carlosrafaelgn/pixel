@@ -29,7 +29,7 @@
 class TitleView extends View {
 	private readonly logo: HTMLDivElement;
 	private readonly buttonContainer: HTMLDivElement;
-	private readonly fullscreenButton: HTMLButtonElement;
+	private readonly fullscreenButton: HTMLButtonElement | null;
 	private readonly aboutButton: HTMLButtonElement;
 
 	public constructor() {
@@ -49,6 +49,8 @@ class TitleView extends View {
 			this.fullscreenButton = this.createButton(null, androidWrapper ? UISpriteSheet.Exit : UISpriteSheet.Fullscreen, (androidWrapper ? this.exit : this.fullscreen).bind(this));
 			this.fullscreenButton.style.position = "absolute";
 			this.initialElements.push(this.fullscreenButton);
+		} else {
+			this.fullscreenButton = null;
 		}
 		this.aboutButton = this.createButton(null, UISpriteSheet.Question, this.about.bind(this));
 		this.aboutButton.style.position = "absolute";
@@ -91,27 +93,27 @@ class TitleView extends View {
 	protected destroyInternal(partial: boolean): void {
 	}
 
-	private play(e: Event): boolean {
-		this.fadeTo("SelectionView");
+	private play(): boolean {
+		this.fadeTo(() => new SelectionView());
 		return true;
 	}
 
-	private edit(e: Event): boolean {
-		this.fadeTo("EditorView");
+	private edit(): boolean {
+		this.fadeTo(() => new EditorView());
 		return true;
 	}
 
-	private fullscreen(e: Event): boolean {
+	private fullscreen(): boolean {
 		FullscreenControl.toggleFullscreen();
 		return true;
 	}
 
-	private exit(e: Event): boolean {
+	private exit(): boolean {
 		androidWrapper.exit();
 		return true;
 	}
 
-	private about(e: Event): boolean {
+	private about(): boolean {
 		const buttons: ModalButton[] = [
 			{
 				defaultCancel: true,
@@ -142,9 +144,9 @@ class TitleView extends View {
 			});
 
 		Modal.show({
-			title: Strings.About + ` <span style="float: right;">v${version}${window["pixelES"]}</span>`,
+			title: Strings.About + ` <span style="float: right;">v${version}${(window as any)["pixelES"]}</span>`,
 			large: true,
-			html: Strings.About1 + (View.gl.contextVersion === 2 ? Strings.About2 : "") + Strings.About3 + (window["pixelUsingWebAssembly"] ? "" : Strings.About4) + Strings.About5 + UISpriteSheet.html(UISpriteSheet.Success) + "</p>" + ((isIOSOrSafari || androidWrapper || (navigator["wakeLock"] && navigator["wakeLock"].request)) ? "" : Strings.About6) + Strings.About7,
+			html: Strings.About1 + (View.gl.contextVersion === 2 ? Strings.About2 : "") + Strings.About3 + ((window as any)["pixelUsingWebAssembly"] ? "" : Strings.About4) + Strings.About5 + UISpriteSheet.html(UISpriteSheet.Success) + "</p>" + ((isIOSOrSafari || androidWrapper || ((navigator as any)["wakeLock"] && (navigator as any)["wakeLock"].request)) ? "" : Strings.About6) + Strings.About7,
 			buttons: buttons
 		});
 

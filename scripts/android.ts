@@ -32,8 +32,8 @@ interface AndroidWrapper {
 	getX(): number;
 	getY(): number;
 	setKeepScreenOn(keepScreenOn: boolean): void;
-	downloadLevel(name: string, json: string, imageBase64: string): number;
+	downloadLevel(name: string, json: string | null, imageBase64: string | null): number;
 	exit(): void;
 }
 
-const androidWrapper = ("androidWrapper" in window ? window["androidWrapper"] : null) as AndroidWrapper;
+const androidWrapper = (("androidWrapper" in window) ? (window as any)["androidWrapper"] : null) as AndroidWrapper;

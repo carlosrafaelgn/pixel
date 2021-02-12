@@ -27,7 +27,7 @@
 "use strict";
 
 interface ModalButtonCallback {
-	(id: string, button: HTMLButtonElement): void;
+	(id: string | undefined, button: HTMLButtonElement): void;
 }
 
 interface ModalButton {
@@ -58,25 +58,25 @@ interface ModalOptions {
 }
 
 class Modal {
-	private static modal: Modal = null;
+	private static modal: Modal | null = null;
 
 	public static get visible(): boolean {
 		return !!Modal.modal;
 	}
 
-	public static get currentModalElement() : HTMLFormElement {
+	public static get currentModalElement() : HTMLFormElement | null {
 		return (Modal.modal ? Modal.modal.modalElement : null);
 	}
 
-	public static get currentModalHeaderElement() : HTMLDivElement {
+	public static get currentModalHeaderElement() : HTMLDivElement | null {
 		return (Modal.modal ? Modal.modal.modalHeaderElement : null);
 	}
 
-	public static get currentModalBodyElement() : HTMLDivElement {
+	public static get currentModalBodyElement() : HTMLDivElement | null {
 		return (Modal.modal ? Modal.modal.modalBodyElement : null);
 	}
 
-	public static get currentModalFooterElement() : HTMLDivElement {
+	public static get currentModalFooterElement() : HTMLDivElement | null {
 		return (Modal.modal ? Modal.modal.modalFooterElement : null);
 	}
 
@@ -140,8 +140,8 @@ class Modal {
 	private readonly modalHeaderElement: HTMLDivElement;
 	private readonly modalBodyElement: HTMLDivElement;
 	private readonly modalFooterElement: HTMLDivElement;
-	private readonly defaultCancelButton: HTMLButtonElement;
-	private readonly defaultSubmitButton: HTMLButtonElement;
+	private readonly defaultCancelButton: HTMLButtonElement | null;
+	private readonly defaultSubmitButton: HTMLButtonElement | null;
 
 	private readonly boundDocumentKeyDown: any;
 
@@ -199,37 +199,39 @@ class Modal {
 		this.defaultCancelButton = null;
 		this.defaultSubmitButton = null;
 
-		for (let i = 0; i < options.buttons.length; i++) {
-			const currentButton = options.buttons[i];
+		if (options.buttons) {
+			for (let i = 0; i < options.buttons.length; i++) {
+				const currentButton = options.buttons[i];
 
-			const button = document.createElement("button");
-			if (currentButton.defaultCancel)
-				this.defaultCancelButton = button;
-			if (currentButton.defaultSubmit)
-				this.defaultSubmitButton = button;
-			button.style.height = buttonHeightCss;
-			button.style.borderWidth = borderWidthCss;
-			if (currentButton.className)
-				button.className = currentButton.className;
-			if (i)
-				button.style.float = "right";
-			button.setAttribute("type", "button");
-			UISpriteSheet.create(currentButton.iconId, button);
-			button.appendChild(document.createTextNode(currentButton.text));
-			prepareButtonBlink(button, true, () => {
-				if (this.fading)
-					return false;
+				const button = document.createElement("button");
+				if (currentButton.defaultCancel)
+					this.defaultCancelButton = button;
+				if (currentButton.defaultSubmit)
+					this.defaultSubmitButton = button;
+				button.style.height = buttonHeightCss;
+				button.style.borderWidth = borderWidthCss;
+				if (currentButton.className)
+					button.className = currentButton.className;
+				if (i)
+					button.style.float = "right";
+				button.setAttribute("type", "button");
+				UISpriteSheet.create(currentButton.iconId, button);
+				button.appendChild(document.createTextNode(currentButton.text));
+				prepareButtonBlink(button, true, () => {
+					if (this.fading)
+						return false;
 
-				if (currentButton.onclick)
-					currentButton.onclick(currentButton.id, button);
+					if (currentButton.onclick)
+						currentButton.onclick(currentButton.id, button);
 
-				if (this.options.onbuttonclick)
-					this.options.onbuttonclick(currentButton.id, button);
+					if (this.options.onbuttonclick)
+						this.options.onbuttonclick(currentButton.id, button);
 
-				return true;
-			});
+					return true;
+				});
 
-			this.modalFooterElement.appendChild(button);
+				this.modalFooterElement.appendChild(button);
+			}
 		}
 
 		this.modalElement.appendChild(this.modalHeaderElement);
@@ -286,8 +288,10 @@ class Modal {
 
 			View.main.removeChild(this.containerElement);
 
-			for (let i = this.options.buttons.length - 1; i >= 0; i--)
-				zeroObject(this.options.buttons[i]);
+			if (this.options.buttons) {
+				for (let i = this.options.buttons.length - 1; i >= 0; i--)
+					zeroObject(this.options.buttons[i]);
+			}
 			zeroObject(this.options);
 			zeroObject(this);
 
@@ -331,12 +335,12 @@ class Modal {
 		if (elements && elements.length) {
 			for (let i = elements.length - 1; i >= 0; i--) {
 				const element = elements[i] as HTMLElement;
-				const styles = element.getAttribute("data-style").split(";");
+				const styles = (element.getAttribute("data-style") || "").split(";");
 				for (let j = 0; j < styles.length; j++) {
 					const style = styles[j];
 					const c = style.indexOf(":");
 					if (c >= 0)
-						element.style[style.substr(0, c)] = css(parseInt(style.substr(c + 1)));
+						(element.style as any)[style.substr(0, c)] = css(parseInt(style.substr(c + 1)));
 				}
 			}
 		}

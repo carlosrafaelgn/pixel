@@ -79,7 +79,7 @@ class ControlMode {
 		if (!ControlMode._accelerationSupported) {
 			ControlMode._mode = ControlMode.Pointer;
 		} else {
-			const mode = parseInt(localStorage.getItem(ControlMode.ControlModeName));
+			const mode = parseInt(localStorage.getItem(ControlMode.ControlModeName) as any);
 			ControlMode._mode = ((isNaN(mode) || mode < ControlMode.Pointer || mode > ControlMode.AccelerometerVI) ? ControlMode.Pointer : mode);
 		}
 		ControlMode.prepare();
@@ -131,7 +131,7 @@ class ControlMode {
 	}
 
 	private static deviceMotion(e: DeviceMotionEvent): void {
-		const acc = e.accelerationIncludingGravity;
+		const acc = e.accelerationIncludingGravity as any;
 
 		let x: number, y: number;
 		if (ControlMode.invertXY) {

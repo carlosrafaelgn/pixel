@@ -28,18 +28,18 @@
 
 class ResourceStorage {
 	private _count = 0;
-	private resources: { [name: string]: Resource } = {};
+	private resources: { [name: string]: Resource } | null = {};
 
 	public get count(): number {
 		return this._count;
 	}
 
 	public contains(name: string): boolean {
-		return (name in this.resources);
+		return (this.resources ? (name in this.resources) : false);
 	}
 
 	public add(name: string, resource: Resource): void {
-		if (!name || !resource)
+		if (!name || !resource || !this.resources)
 			throw new Error("Invalid resource");
 
 		if ((name in this.resources))
@@ -49,18 +49,22 @@ class ResourceStorage {
 		this._count++;
 	}
 
-	public getAndRemove(name: string): Resource {
+	public getAndRemove(name: string): Resource | null {
+		if (!this.resources)
+			return null;
+
 		const resource = this.resources[name];
 		if (resource) {
 			delete this.resources[name];
 			this._count--;
 			return resource;
 		}
+
 		return null;
 	}
 
-	public get(name: string): Resource {
-		return this.resources[name];
+	public get(name: string): Resource | null {
+		return (this.resources ? this.resources[name] : null);
 	}
 
 	public get loaded(): boolean {

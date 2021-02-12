@@ -31,8 +31,8 @@ class ScrollContainer {
 	private container: HTMLDivElement;
 	private scrollContainer: HTMLDivElement;
 	private scrollThumb: HTMLSpanElement;
-	private pointerHandler: PointerHandler;
-	private containerPointerHandler: PointerHandler;
+	private pointerHandler: PointerHandler | null;
+	private containerPointerHandler: PointerHandler | null;
 
 	private boundDocumentWheel: any;
 
@@ -47,14 +47,16 @@ class ScrollContainer {
 	private scrollThumbOnly: boolean;
 	private ignoreScroll: boolean;
 
-	public constructor(parent: HTMLElement, scrollThumbOnly: boolean = false, extraContainerClass: string = null, container: HTMLDivElement = null) {
+	public constructor(parent: HTMLElement | null, scrollThumbOnly: boolean = false, extraContainerClass: string | null = null, container: HTMLDivElement | null = null) {
 		if (container) {
 			this.parent = container.parentNode as HTMLElement;
 			this.container = container;
-		} else {
+		} else if (parent) {
 			this.parent = parent;
 			this.container = document.createElement("div") as HTMLDivElement;
 			parent.appendChild(this.container);
+		} else {
+			throw new Error("Both parent and container are null");
 		}
 
 		this.container.className = (scrollThumbOnly ? "container" : "container scrollable-container");
@@ -204,7 +206,7 @@ class ScrollContainer {
 		return false;
 	}
 
-	private containerScroll(e: Event): void {
+	private containerScroll(): void {
 		if (this.ignoreScroll) {
 			this.ignoreScroll = false;
 			return;

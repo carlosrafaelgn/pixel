@@ -91,7 +91,7 @@ class Strings {
 	public static LandscapeWarning = "The game works better in landscape mode :)";
 
 	public static init(): void {
-		const language = (androidWrapper ? androidWrapper.getBrowserLanguage() : (navigator["userLanguage"] as string || navigator.language));
+		const language = (androidWrapper ? androidWrapper.getBrowserLanguage() : ((navigator as any)["userLanguage"] as string || navigator.language));
 		if (language && language.toLowerCase().indexOf("pt") === 0) {
 			document.documentElement.setAttribute("lang", "pt-br");
 

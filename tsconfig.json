@@ -6,7 +6,8 @@
 		"sourceMap": false,
 		"outFile": "assets/js/scripts.js",
 		"emitBOM": true,
-		"removeComments": true
+		"removeComments": true,
+		"strict": true
 	},
 	"files": [
 		"scripts/lib.ts",

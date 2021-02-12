@@ -46,10 +46,10 @@ class LevelCache {
 	public static readonly DownloadLevelNoPermission = -1;
 	public static readonly DownloadLevelFileAlreadyExists = -2;
 
-	public static BuiltInLevelIds: number[] = null;
-	private static BuiltInLevels: string[] = null;
-	private static BuiltInLevelThumbnails: string[] = null;
-	private static BuiltInLevelsLoadFinished: () => void = null;
+	public static BuiltInLevelIds: number[];
+	private static BuiltInLevels: string[];
+	private static BuiltInLevelThumbnails: string[];
+	private static BuiltInLevelsLoadFinished: () => void;
 
 	private static readonly LevelInfoExtension = ".levelinfo";
 	private static readonly CacheName = "pixel-level-cache";
@@ -57,8 +57,8 @@ class LevelCache {
 	private static readonly LastRecordNameName = "pixel-editor-last-name";
 	private static readonly LevelRecordsName = "pixel-editor-level-records";
 
-	private static LevelRecords: { [levelIdOrName: string]: LevelRecord } = null;
-	public static LastRecordName: string = null;
+	private static LevelRecords: { [levelIdOrName: string]: LevelRecord };
+	public static LastRecordName: string;
 
 	public static isSupported(): boolean {
 		try {
@@ -85,8 +85,8 @@ class LevelCache {
 		return LevelCache.BuiltInLevelThumbnails[id];
 	}
 
-	public static loadBuiltInLevel(id: number): Level {
-		if (id < 0 || id >= LevelCache.BuiltInLevels.length)
+	public static loadBuiltInLevel(id?: number): Level | null {
+		if (id === undefined || id < 0 || id >= LevelCache.BuiltInLevels.length)
 			throw new Error("Invalid id");
 
 		try {
@@ -129,7 +129,7 @@ class LevelCache {
 		}
 	}
 
-	public static async loadLevelInfo(name: string, controlLoading = true): Promise<LevelInfo> {
+	public static async loadLevelInfo(name: string, controlLoading = true): Promise<LevelInfo | null> {
 		if (!LevelCache.isNameValid(name))
 			throw new Error("Invalid name");
 
@@ -168,7 +168,7 @@ class LevelCache {
 		try {
 			const cache = await caches.open(LevelCache.CacheName);
 			await cache.put(encodeURIComponent(level.name + LevelCache.LevelInfoExtension), new Response(new Blob([JSON.stringify(level.toLevelInfo())], { type:"application/json" })));
-			level.thumbnailImage = null;
+			level.thumbnailImage = "";
 			await cache.put(encodeURIComponent(level.name), new Response(new Blob([JSON.stringify(level)], { type:"application/json" })));
 		} finally {
 			level.thumbnailImage = thumbnailImage;
@@ -177,7 +177,7 @@ class LevelCache {
 		}
 	}
 
-	public static async loadLevel(name: string, controlLoading = true): Promise<Level> {
+	public static async loadLevel(name: string, controlLoading = true): Promise<Level | null> {
 		if (!LevelCache.isNameValid(name))
 			throw new Error("Invalid name");
 
@@ -325,7 +325,7 @@ class LevelCache {
 						canvas.toBlob((blob) => {
 							resolve((blob && BlobDownloader.download(blob, name, "image/png")) ? LevelCache.DownloadLevelSuccess : LevelCache.DownloadLevelError);
 						}, "image/png");
-					} else if (canvas["msToBlob"] && (blob = canvas["msToBlob"]())) {
+					} else if ((canvas as any)["msToBlob"] && (blob = (canvas as any)["msToBlob"]())) {
 						resolve(BlobDownloader.download(blob, name, "image/png") ? LevelCache.DownloadLevelSuccess : LevelCache.DownloadLevelError);
 					} else {
 						resolve(LevelCache.DownloadLevelError);
@@ -363,7 +363,7 @@ class LevelCache {
 		}
 	}
 
-	public static async sendLevelToEditor(name: string, level: Level = null, controlLoading = true): Promise<boolean> {
+	public static async sendLevelToEditor(name: string, level: Level | null = null, controlLoading = true): Promise<boolean> {
 		if ((!name && !level) || (name && level) || (name && !LevelCache.isNameValid(name)))
 			throw new Error("Invalid level");
 
@@ -371,7 +371,7 @@ class LevelCache {
 			View.loading = true;
 
 		try {
-			let json: string = null;
+			let json: string;
 			if (name) {
 				const cache = await caches.open(LevelCache.CacheName);
 				const response = await cache.match(encodeURIComponent(name));
@@ -391,7 +391,7 @@ class LevelCache {
 		}
 	}
 
-	public static loadEditorLevel(): Level {
+	public static loadEditorLevel(): Level | null {
 		return Level.revive(localStorage.getItem(LevelCache.EditorLevelName));
 	}
 
@@ -402,7 +402,7 @@ class LevelCache {
 			localStorage.removeItem(LevelCache.EditorLevelName);
 	}
 
-	public static async loadLevelFromOptions(loadOptions: LevelLoadOptions): Promise<Level> {
+	public static async loadLevelFromOptions(loadOptions: LevelLoadOptions | null): Promise<Level | null> {
 		return (!loadOptions ? LevelCache.loadEditorLevel() : (loadOptions.level || (loadOptions.levelName ? await LevelCache.loadLevel(loadOptions.levelName, false) : LevelCache.loadBuiltInLevel(loadOptions.levelId))));
 	}
 
@@ -430,7 +430,7 @@ class LevelCache {
 				}
 			}
 
-			LevelCache.LastRecordName = localStorage.getItem(LevelCache.LastRecordNameName);
+			LevelCache.LastRecordName = (localStorage.getItem(LevelCache.LastRecordNameName) || "");
 		}
 
 		return (LevelCache.LevelRecords[levelIdOrName] || null);

@@ -27,15 +27,20 @@
 "use strict";
 
 class Point {
-	public x: number;
-	public y: number;
+	public readonly x: number;
+	public readonly y: number;
+
+	public constructor(x: number, y: number) {
+		this.x = x;
+		this.y = y;
+	}
 
 	public static revive(point: any): Point {
-		const newPoint = new Point();
-		newPoint.x = parseInt(point.x);
-		newPoint.y = parseInt(point.y);
+		const newPoint = new Point(parseInt(point.x), parseInt(point.y));
+
 		if (isNaN(newPoint.x) || isNaN(newPoint.y))
 			throw new Error("Invalid point coordinates");
+
 		return newPoint;
 	}
 }

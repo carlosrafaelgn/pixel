@@ -39,17 +39,17 @@ class FullscreenControl {
 			element = document.body;
 
 		let ok = true,
-			p: Promise<void> = null;
+			p: Promise<void> | null = null;
 
 		try {
 			if (element["requestFullscreen"])
 				p = (element["requestFullscreen"] as FullscreenCall)();
-			else if (element["webkitRequestFullscreen"])
-				p = (element["webkitRequestFullscreen"] as FullscreenCall)();
-			else if (element["mozRequestFullScreen"])
-				p = (element["mozRequestFullScreen"] as FullscreenCall)();
-			else if (element["msRequestFullscreen"])
-				p = (element["msRequestFullscreen"] as FullscreenCall)();
+			else if ((element as any)["webkitRequestFullscreen"])
+				p = ((element as any)["webkitRequestFullscreen"] as FullscreenCall)();
+			else if ((element as any)["mozRequestFullScreen"])
+				p = ((element as any)["mozRequestFullScreen"] as FullscreenCall)();
+			else if ((element as any)["msRequestFullscreen"])
+				p = ((element as any)["msRequestFullscreen"] as FullscreenCall)();
 			else
 				ok = false;
 		} catch (ex) {
@@ -57,23 +57,23 @@ class FullscreenControl {
 		}
 
 		if (!ok && element !== document.body)
-			FullscreenControl.requestFullscreen(null);
+			FullscreenControl.requestFullscreen();
 		else
 			ignorePromise(p);
 	}
 
 	public static exitFullscreen(): void {
-		let p: Promise<void> = null;
+		let p: Promise<void> | null = null;
 
 		try {
 			if (document["exitFullscreen"])
 				p = (document["exitFullscreen"] as FullscreenCall)();
-			else if (document["webkitExitFullscreen"])
-				p = (document["webkitExitFullscreen"] as FullscreenCall)();
-			else if (document["mozExitFullScreen"])
-				p = (document["mozExitFullScreen"] as FullscreenCall)();
-			else if (document["msExitFullscreen"])
-				p = (document["msExitFullscreen"] as FullscreenCall)();
+			else if ((document as any)["webkitExitFullscreen"])
+				p = ((document as any)["webkitExitFullscreen"] as FullscreenCall)();
+			else if ((document as any)["mozExitFullScreen"])
+				p = ((document as any)["mozExitFullScreen"] as FullscreenCall)();
+			else if ((document as any)["msExitFullscreen"])
+				p = ((document as any)["msExitFullscreen"] as FullscreenCall)();
 		} catch (ex) {
 			// Just ignore...
 		}
@@ -81,8 +81,8 @@ class FullscreenControl {
 		ignorePromise(p);
 	}
 
-	public static get fullscreenElement(): HTMLElement {
-		let e: HTMLElement = null;
+	public static get fullscreenElement(): HTMLElement | null {
+		let e: HTMLElement | null = null;
 
 		try {
 			// No else's here, indeed!
@@ -101,7 +101,7 @@ class FullscreenControl {
 		return e;
 	}
 
-	public get onfullscreenchange(): EventListener {
+	public get onfullscreenchange(): EventListener | null {
 		try {
 			if (("onfullscreenchange" in document))
 				return document["onfullscreenchange"] as EventListener;

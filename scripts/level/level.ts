@@ -93,16 +93,16 @@ class Level implements LevelFullInfo {
 		};
 	}
 
-	public static revive(level: any): Level {
+	public static revive(level: any): Level | null {
 		const newLevel = new Level();
 		if (level) {
 			if ((typeof level) === "string")
 				level = JSON.parse(level);
 			if (level) {
 				for (let p in newLevel) {
-					if ((typeof newLevel[p]) === "function")
+					if ((typeof (newLevel as any)[p]) === "function")
 						continue;
-					newLevel[p] = level[p];
+					(newLevel as any)[p] = level[p];
 				}
 			}
 		}
@@ -164,6 +164,8 @@ class Level implements LevelFullInfo {
 			canvas.width = thumbnailWidth;
 			canvas.height = thumbnailHeight;
 			const context = canvas.getContext("2d", { alpha: true });
+			if (!context)
+				throw new Error("Null context");
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.drawImage(image, 0, 0, image.width >> 2, image.height >> 2);
 			removeSemiAlpha(canvas, context);
@@ -212,7 +214,10 @@ class Level implements LevelFullInfo {
 				resizedCanvas = document.createElement("canvas") as HTMLCanvasElement;
 				resizedCanvas.width = baseWidth;
 				resizedCanvas.height = resizedHeight;
-				resizedContext = resizedCanvas.getContext("2d", { alpha: true });
+				const tempContext = resizedCanvas.getContext("2d", { alpha: true });
+				if (!tempContext)
+					throw new Error("Null resized context");
+				resizedContext = tempContext;
 
 				resizedContext.clearRect(0, 0, resizedCanvas.width, resizedCanvas.height);
 				resizedContext.drawImage(image, 0, 0);

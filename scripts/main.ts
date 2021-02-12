@@ -26,14 +26,7 @@
 
 "use strict";
 
-const viewClasses = {
-	"EditorView": EditorView,
-	"GameView": GameView,
-	"SelectionView": SelectionView,
-	"TitleView": TitleView
-};
-
-let cLib: CLib = null, scaleFactor = -1, baseHeight = minHeight, baseLeftCss = 0, baseTopCss = 0,
+let cLib: CLib, scaleFactor = -1, baseHeight = minHeight, baseLeftCss = 0, baseTopCss = 0,
 	baseWidthCss = baseWidth, baseHeightCss = minHeight, maxHeightCss = minHeight,
 	thumbnailWidthCss = thumbnailWidth + "px", thumbnailHeightCss = thumbnailHeight + "px",
 	buttonHeightCss = buttonHeight + "px", borderWidthCss = borderWidth + "px",
@@ -41,8 +34,8 @@ let cLib: CLib = null, scaleFactor = -1, baseHeight = minHeight, baseLeftCss = 0
 	toolbarTotalHeightCss = toolbarTotalHeight + "px", iconSizeCss = iconSize + "px",
 	buttonMarginCss = buttonMargin + "px", buttonLargeMarginCss = buttonLargeMargin + "px", buttonPaddingCss = buttonPadding + "px",
 	fontSizeCss = "16px", // Press Start 2P uses multiples of 16
-	installationPrompt: Event = null,
-	landscapeWarning: HTMLDivElement = null;
+	installationPrompt: any | null = null,
+	landscapeWarning: HTMLDivElement | null = null;
 
 function ignorePromise(p: any): void {
 	try {
@@ -136,11 +129,12 @@ function prepareButtonBlink(button: HTMLElement, insideModal: boolean, callback:
 }
 
 function applyCSSTransform(element: HTMLElement, transform: string): void {
-	element.style["oTransform"] = transform;
-	element.style["msTransform"] = transform;
-	element.style["mozTransform"] = transform;
-	element.style["webkitTransform"] = transform;
-	element.style.transform = transform;
+	const style = element.style as any;
+	style["oTransform"] = transform;
+	style["msTransform"] = transform;
+	style["mozTransform"] = transform;
+	style["webkitTransform"] = transform;
+	style.transform = transform;
 }
 
 function zeroObject(o: any): void {
@@ -157,7 +151,7 @@ function zeroObject(o: any): void {
 			default:
 				const v = o[p];
 				if (Array.isArray(v))
-					(v as Array<Object>).fill(null);
+					v.fill(null);
 				o[p] = null;
 				break;
 		}
@@ -174,7 +168,7 @@ function adjustWindowSize(): void {
 	}
 
 	if (isIOSOrSafari) {
-		let bodyRect: DOMRect = null;
+		let bodyRect: DOMRect | null = null;
 
 		if (document.documentElement && ("getBoundingClientRect" in document.documentElement))
 			bodyRect = document.documentElement.getBoundingClientRect();
@@ -301,26 +295,26 @@ function fullscreenChangedHandler(): void {
 	// https://www.w3.org/TR/screen-orientation/#locking-to-a-specific-orientation-and-unlocking
 	// https://developer.mozilla.org/en-US/docs/Web/API/Screen/orientation
 	// https://developer.mozilla.org/en-US/docs/Web/API/Screen/lockOrientation
-	if (screen["mozLockOrientation"] && screen["mozUnlockOrientation"]) {
+	if ((screen as any)["mozLockOrientation"] && (screen as any)["mozUnlockOrientation"]) {
 		try {
 			if (FullscreenControl.fullscreenMode) {
-				if (screen["mozLockOrientation"]("landscape-primary"))
+				if ((screen as any)["mozLockOrientation"]("landscape-primary"))
 					return;
 			} else {
-				if (screen["mozUnlockOrientation"]())
+				if ((screen as any)["mozUnlockOrientation"]())
 					return;
 			}
 		} catch (ex) {
 			// Just ignore...
 		}
 	}
-	if (screen["msLockOrientation"] && screen["msUnlockOrientation"]) {
+	if ((screen as any)["msLockOrientation"] && (screen as any)["msUnlockOrientation"]) {
 		try {
 			if (FullscreenControl.fullscreenMode) {
-				if (screen["msLockOrientation"]("landscape-primary"))
+				if ((screen as any)["msLockOrientation"]("landscape-primary"))
 					return;
 			} else {
-				if (screen["msUnlockOrientation"]())
+				if ((screen as any)["msUnlockOrientation"]())
 					return;
 			}
 		} catch (ex) {
@@ -345,7 +339,7 @@ async function setup(): Promise<void> {
 
 	const allPromises = Promise.all([
 		LevelSpriteSheet.preload(),
-		window["CLib"]() as Promise<CLib>
+		(window as any)["CLib"]() as Promise<CLib>
 	]);
 
 	View.loading = true;
@@ -384,6 +378,6 @@ async function setup(): Promise<void> {
 	document.body.appendChild(levels);
 }
 
-window["pixelStepMAIN"] = true;
-if (window["pixelCheckSetup"])
-	window["pixelCheckSetup"]();
+(window as any)["pixelStepMAIN"] = true;
+if ((window as any)["pixelCheckSetup"])
+	(window as any)["pixelCheckSetup"]();

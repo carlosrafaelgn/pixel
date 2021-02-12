@@ -39,14 +39,14 @@ abstract class View {
 
 	private static _loading = false;
 	private static _fading = false;
-	private static currentView: View = null;
+	private static currentView: View | null = null;
 	private static viewStack: View[] = [];
-	private static divLoading: HTMLDivElement = null;
+	private static divLoading: HTMLDivElement | null = null;
 	private static divLoadingTimeout = 0;
 	private static windowHistoryStatePushed = false;
 
-	protected static gl: WebGL = null;
-	protected static sheetTexture: Texture = null;
+	protected static gl: WebGL;
+	protected static sheetTexture: Texture;
 	protected static glPaused = false;
 	private static backgroundFrameRequest = 0;
 	private static recreateResourcesTimeout = 0;
@@ -152,8 +152,10 @@ abstract class View {
 				clearTimeout(View.divLoadingTimeout);
 			View.divLoadingTimeout = setTimeout(function () {
 				View.divLoadingTimeout = 0;
-				View.divLoading.style.display = "";
-				View.divLoading.className = "loading";
+				if (View.divLoading) {
+					View.divLoading.style.display = "";
+					View.divLoading.className = "loading";
+				}
 			}, 100);
 		} else {
 			if (View.divLoading) {
@@ -185,7 +187,7 @@ abstract class View {
 		View.refreshGL();
 	}
 
-	public static refreshGL(view?: View): void {
+	public static refreshGL(view?: View | null): void {
 		if (!view)
 			view = View.currentView;
 
@@ -202,10 +204,8 @@ abstract class View {
 		}
 	}
 
-	public static createInitialView(): Promise<void> {
+	public static createInitialView(): Promise<void> | null {
 		return ((!View.currentView && !View._loading && !View._fading && !View.viewStack.length) ?
-			//(new GameView(LevelCache.loadEditorLevel(), false)).fadeIn() :
-			//(new EditorView()).fadeIn() :
 			(new TitleView()).fadeIn() :
 			null);
 	}
@@ -381,7 +381,7 @@ abstract class View {
 		}
 	}
 
-	protected createButton(parent: HTMLElement, imageId: number, callback: ButtonCallback, ...attributes: string[]): HTMLButtonElement {
+	protected createButton(parent: HTMLElement | null, imageId: number, callback: ButtonCallback, ...attributes: string[]): HTMLButtonElement {
 		const button = document.createElement("button"),
 			image = UISpriteSheet.create(imageId, button);
 		button.setAttribute("type", "button");
@@ -415,7 +415,7 @@ abstract class View {
 		}, 50);
 	}
 
-	private async fadeIn(): Promise<void> {
+	private fadeIn(): Promise<void> | null {
 		if (View._fading || View.currentView === this)
 			return null;
 
@@ -449,7 +449,7 @@ abstract class View {
 		});
 	}
 
-	private async fadeOut(saveViewInStack: boolean): Promise<void> {
+	private fadeOut(saveViewInStack: boolean): Promise<void> | null {
 		if (View._fading || View.currentView !== this)
 			return null;
 
@@ -479,24 +479,33 @@ abstract class View {
 		});
 	}
 
-	protected async fadeTo(newView: string | View, saveViewInStack: boolean = false): Promise<void> {
+	protected fadeTo(newViewFactory: () => View, saveViewInStack: boolean = false): Promise<void> | null {
 		if (View._fading || View.currentView !== this)
 			return null;
 
-		await this.fadeOut(saveViewInStack);
+		const p = this.fadeOut(saveViewInStack);
+		if (!p)
+			return null;
 
-		return (((typeof newView) === "string") ?
-			(new (viewClasses[newView as string]) as View) :
-			(newView as View)
-		).fadeIn();
+		return p.then(() => {
+			const p = newViewFactory().fadeIn();
+			if (p)
+				return p;
+		});
 	}
 
-	protected async fadeToPrevious(): Promise<void> {
+	protected fadeToPrevious(): Promise<void> | null {
 		if (View._fading || View.currentView !== this || !View.viewStack.length)
 			return null;
 
-		await this.fadeOut(false);
+		const p = this.fadeOut(false);
+		if (!p)
+			return null;
 
-		return View.viewStack.pop().fadeIn();
+		return p.then(() => {
+			const p = (View.viewStack.pop() as View).fadeIn();
+			if (p)
+				return p;
+		});
 	}
 }

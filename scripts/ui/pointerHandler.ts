@@ -38,14 +38,14 @@ class PointerHandler {
 	private readonly documentTarget: HTMLElement;
 	private readonly element: HTMLElement;
 	
-	private readonly downCallback: BooleanPointerHandler;
-	private readonly moveCallback: VoidPointerHandler;
-	private readonly upCallback: VoidPointerHandler;
+	private readonly downCallback: BooleanPointerHandler | null;
+	private readonly moveCallback: VoidPointerHandler | null;
+	private readonly upCallback: VoidPointerHandler | null;
 	
 	private readonly documentDownEvent: string;
 	private readonly documentMoveEvent: string;
 	private readonly documentUpEvent: string;
-	private readonly documentCancelEvent: string;
+	private readonly documentCancelEvent: string | null;
 	private readonly elementHasExtraTouchStartHandler: boolean;
 
 	private readonly boundDocumentDown: any;
@@ -55,7 +55,7 @@ class PointerHandler {
 	private captured: boolean;
 	private pointerId: number;
 
-	public constructor(element: HTMLElement, downCallback: BooleanPointerHandler = null, moveCallback: VoidPointerHandler = null, upCallback: VoidPointerHandler = null) {
+	public constructor(element: HTMLElement, downCallback: BooleanPointerHandler | null = null, moveCallback: VoidPointerHandler | null = null, upCallback: VoidPointerHandler | null = null) {
 		this.documentTarget = (document.documentElement || document.body);
 		this.element = element;
 
@@ -133,12 +133,12 @@ class PointerHandler {
 				this.documentTarget.removeEventListener(this.documentMoveEvent, this.boundDocumentMove, true);
 		}
 
-		this.mouseUp(null);
+		this.mouseUp({} as MouseEvent);
 
 		zeroObject(this);
 	}
 
-	private pointerDown(e: PointerEvent): boolean {
+	private pointerDown(e: PointerEvent): boolean | undefined {
 		if (this.pointerId >= 0 && e.pointerType !== "mouse")
 			return cancelEvent(e);
 
@@ -150,14 +150,14 @@ class PointerHandler {
 		return ret;
 	}
 
-	private pointerMove(e: PointerEvent): boolean {
+	private pointerMove(e: PointerEvent): boolean | undefined {
 		if (!this.captured || e.pointerId !== this.pointerId)
 			return;
 
 		return this.mouseMove(e);
 	}
 
-	private pointerUp(e: PointerEvent): boolean {
+	private pointerUp(e: PointerEvent): boolean | undefined {
 		if (!this.captured || e.pointerId !== this.pointerId)
 			return;
 
@@ -166,7 +166,7 @@ class PointerHandler {
 		return this.mouseUp(e);
 	}
 
-	private touchStart(e: TouchEvent): boolean {
+	private touchStart(e: TouchEvent): boolean | undefined {
 		if (e.touches.length > 1)
 			return;
 
@@ -185,7 +185,7 @@ class PointerHandler {
 		return ret;
 	}
 
-	private touchMove(e: TouchEvent): boolean {
+	private touchMove(e: TouchEvent): boolean | undefined {
 		if (!this.captured || e.touches.length > 1)
 			return;
 
@@ -195,7 +195,7 @@ class PointerHandler {
 		return this.mouseMove(e as any);
 	}
 
-	private touchEnd(e: TouchEvent): boolean {
+	private touchEnd(e: TouchEvent): boolean | undefined {
 		if (!this.captured || this.pointerId < 0)
 			return;
 
@@ -204,7 +204,7 @@ class PointerHandler {
 		return this.mouseUp(e as any);
 	}
 
-	private mouseDown(e: MouseEvent): boolean {
+	private mouseDown(e: MouseEvent): boolean | undefined {
 		this.mouseUp(e);
 
 		if (e.button || View.fading || (e.target && e.target !== this.element))
@@ -218,7 +218,7 @@ class PointerHandler {
 		return cancelEvent(e);
 	}
 
-	private mouseMove(e: MouseEvent): boolean {
+	private mouseMove(e: MouseEvent): boolean | undefined {
 		if (!this.captured)
 			return;
 
@@ -228,7 +228,7 @@ class PointerHandler {
 		return cancelEvent(e);
 	}
 
-	private mouseUp(e: MouseEvent): boolean {
+	private mouseUp(e: MouseEvent): boolean | undefined {
 		if (!this.captured)
 			return;
 

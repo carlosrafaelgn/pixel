@@ -26,10 +26,14 @@
 
 "use strict";
 
+interface ObjectImageHTMLSpanElement extends HTMLSpanElement {
+	object: LevelObject;
+}
+
 class UISpriteSheet {
 	private static readonly TextureWidth = 96;
 	private static readonly TextureHeight = 112;
-	private static BackgroundSizeCss: string = null;
+	private static BackgroundSizeCss: string;
 
 	public static readonly SheetId = "data-sheet-id";
 
@@ -72,7 +76,7 @@ class UISpriteSheet {
 	public static readonly DeviceVI = 0x06050101;
 
 	public static resize(element: HTMLSpanElement): void {
-		const id = parseInt(element.getAttribute(UISpriteSheet.SheetId)),
+		const id = parseInt(element.getAttribute(UISpriteSheet.SheetId) as any),
 			width = id & 0xFF,
 			height = (id >>> 8) & 0xFF,
 			left = (id >>> 16) & 0xFF,
@@ -102,8 +106,8 @@ class UISpriteSheet {
 		UISpriteSheet.resize(element);
 	}
 
-	public static create(id: number, parent?: HTMLElement): HTMLSpanElement {
-		const element = document.createElement("span") as HTMLSpanElement;
+	public static create(id: number, parent?: HTMLElement): ObjectImageHTMLSpanElement {
+		const element = document.createElement("span") as ObjectImageHTMLSpanElement;
 
 		element.style.backgroundImage = "url(assets/images/uiSheet.png)";
 		UISpriteSheet.change(element, id);
@@ -120,7 +124,7 @@ class UISpriteSheet {
 
 	public static finishHTMLCreation(element: HTMLSpanElement): void {
 		element.style.backgroundImage = "url(assets/images/uiSheet.png)";
-		UISpriteSheet.change(element, parseInt(element.getAttribute(UISpriteSheet.SheetId)));
+		UISpriteSheet.change(element, parseInt(element.getAttribute(UISpriteSheet.SheetId) as any));
 	}
 
 	public static windowResized(): void {

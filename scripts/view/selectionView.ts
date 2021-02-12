@@ -35,13 +35,19 @@ class SelectionView extends View {
 	private readonly boundPlay: any;
 	private readonly boundShowMenu: any;
 
-	private thumbnails: HTMLDivElement[];
-	private thumbnailImages: HTMLImageElement[];
-	private thumbnailRecords: HTMLDivElement[];
-	private anchors: HTMLAnchorElement[];
-	private hr: HTMLHRElement;
+	private readonly thumbnails: HTMLDivElement[];
+	private readonly thumbnailImages: HTMLImageElement[];
+	private readonly thumbnailRecords: HTMLDivElement[];
+	private readonly anchors: HTMLAnchorElement[];
 
-	private lastPlayedThumbnail: HTMLDivElement;
+	private hr: HTMLHRElement | null;
+	private lastPlayedThumbnail: HTMLDivElement | null;
+
+	private static createLoadOptions(thumbnail: HTMLDivElement): LevelLoadOptions {
+		const id = thumbnail.getAttribute("data-id");
+		const name = thumbnail.getAttribute("data-name");
+		return (name ? (id ? { levelId: parseInt(id), levelNameOverride: name } : { levelName: name }) : {});
+	}
 
 	public constructor() {
 		super();
@@ -71,10 +77,10 @@ class SelectionView extends View {
 		this.boundPlay = this.play.bind(this);
 		this.boundShowMenu = this.showMenu.bind(this);
 
-		this.thumbnails = null;
-		this.thumbnailImages = null;
-		this.thumbnailRecords = null;
-		this.anchors = null;
+		this.thumbnails = [];
+		this.thumbnailImages = [];
+		this.thumbnailRecords = [];
+		this.anchors = [];
 		this.hr = null;
 		this.lastPlayedThumbnail = null;
 	}
@@ -128,7 +134,7 @@ class SelectionView extends View {
 		super.resize();
 	}
 
-	private updateThumbnailRecord(levelIdOrName: string, thumbnailRecord: HTMLDivElement): void {
+	private updateThumbnailRecord(levelIdOrName: string | null, thumbnailRecord: HTMLDivElement): void {
 		if (!levelIdOrName || !thumbnailRecord)
 			return;
 
@@ -144,7 +150,7 @@ class SelectionView extends View {
 		thumbnailRecord.appendChild(document.createTextNode(record ? record.fmt : "-"));
 	}
 
-	private createThumbnail(name: string, builtInLevel: boolean, image: string = null, id: number = -1): void {
+	private createThumbnail(name: string, builtInLevel: boolean, image: string | null = null, id: number = -1): void {
 		const thumbnail = document.createElement("div") as HTMLDivElement,
 			thumbnailPreview = document.createElement("div") as HTMLDivElement,
 			thumbnailTitle = document.createElement("div") as HTMLDivElement,
@@ -206,12 +212,7 @@ class SelectionView extends View {
 	}
 
 	protected async attach(): Promise<void> {
-		if (!this.thumbnails) {
-			this.thumbnails = [];
-			this.thumbnailImages = [];
-			this.thumbnailRecords = [];
-			this.anchors = [];
-
+		if (!this.thumbnails.length) {
 			if (!LevelCache.BuiltInLevelIds)
 				await LevelCache.loadBuiltInLevels();
 
@@ -242,11 +243,11 @@ class SelectionView extends View {
 	protected destroyInternal(partial: boolean): void {
 	}
 
-	private back(e: Event): boolean {
-		return (this.fadeTo("TitleView") ? true : false);
+	private back(): boolean {
+		return (this.fadeTo(() => new TitleView()) ? true : false);
 	}
 
-	private openFile(e: Event): void {
+	private openFile(): void {
 		if (Modal.visible || !this.fileInput.files || !this.fileInput.files[0])
 			return;
 
@@ -268,7 +269,7 @@ class SelectionView extends View {
 				return;
 			}
 
-			let level: Level = null;
+			let level: Level | null = null;
 
 			try {
 				level = Level.revive(reader.result);
@@ -291,6 +292,9 @@ class SelectionView extends View {
 
 			level.prepare().then(() => {
 				LevelCache.getLevelNames().then((names) => {
+					if (!level)
+						return;
+
 					let originalName = level.name;
 					if (/.*\(\d+\)$/.test(originalName)) {
 						originalName = originalName.substr(0, originalName.lastIndexOf("(")).trim();
@@ -340,24 +344,18 @@ class SelectionView extends View {
 		reader.readAsText(this.fileInput.files[0]);
 	}
 
-	private open(e: Event): boolean {
+	private open(): boolean {
 		this.fileInput.click();
 
 		return true;
 	}
 
-	private fullscreen(e: Event): boolean {
+	private fullscreen(): boolean {
 		FullscreenControl.toggleFullscreen();
 		return true;
 	}
 
-	private loadOptions(thumbnail: HTMLDivElement): LevelLoadOptions {
-		const id = thumbnail.getAttribute("data-id");
-		const name = thumbnail.getAttribute("data-name");
-		return (id ? { levelId: parseInt(id), levelNameOverride: name } : { levelName: name });
-	}
-
-	private getTargetThumbnail(target: HTMLElement): HTMLDivElement {
+	private getTargetThumbnail(target: HTMLElement): HTMLDivElement | null {
 		while (target && target !== document.body) {
 			if (target.className === "thumbnail")
 				return target as HTMLDivElement;
@@ -376,7 +374,7 @@ class SelectionView extends View {
 		const thumbnail = this.getTargetThumbnail(target);
 		if (thumbnail) {
 			this.lastPlayedThumbnail = thumbnail;
-			this.fadeTo(new GameView(this.loadOptions(thumbnail), false), true);
+			this.fadeTo(() => new GameView(SelectionView.createLoadOptions(thumbnail), false), true);
 			return true;
 		}
 
@@ -438,7 +436,7 @@ class SelectionView extends View {
 	}
 
 	private editLevel(thumbnail: HTMLDivElement): void {
-		this.fadeTo(new EditorView(this.loadOptions(thumbnail), true));
+		this.fadeTo(() => new EditorView(SelectionView.createLoadOptions(thumbnail)));
 	}
 
 	private deleteLevel(anchor: HTMLAnchorElement, thumbnail: HTMLDivElement): void {
@@ -476,7 +474,7 @@ class SelectionView extends View {
 									this.thumbnailImages.splice(i, 1);
 									this.thumbnailRecords.splice(i, 1);
 									anchors.splice(i, 1);
-									if (anchors.length === LevelCache.BuiltInLevelIds.length) {
+									if (anchors.length === LevelCache.BuiltInLevelIds.length && this.hr) {
 										this.scrollContainer.containerElement.removeChild(this.hr);
 										this.hr = null;
 									}
