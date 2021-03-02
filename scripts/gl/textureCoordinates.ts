@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class TextureCoordinates {
 	// Must be in sync with the vertex shader in scripts/gl/webGL.ts
 	// The behavior must be in sync with all draw() functions in lib/gl.c

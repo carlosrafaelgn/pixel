@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 let cLib: CLib, scaleFactor = -1, baseHeight = minHeight, baseLeftCss = 0, baseTopCss = 0,
 	baseWidthCss = baseWidth, baseHeightCss = minHeight, maxHeightCss = minHeight,
 	thumbnailWidthCss = thumbnailWidth + "px", thumbnailHeightCss = thumbnailHeight + "px",

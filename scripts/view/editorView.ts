@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class EditorView extends View {
 	private static readonly brushesImageDataBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFUAAAAnAQAAAABWZDk9AAAAAnRSTlMAAQGU/a4AAACkSURBVChTrdExCsIwGIbhNxRMB7FrB8FrOAjtUXoERwfBHK29SY6QMUPoL8lfW0Rx8pue+f2YkhUjEoxEXKwSD3F0Ea4m0s3QRBgInBLYCD0DTQDzsgeKe+wI3HDj5qnYAWekGKB9t2dkl10jwWyOleewOFnPPhtEJHBcHbmsTtxXi0mb5V+es+rfluz2i5cOZdrn09pTrZ3V2l+tv6j1r8X5xycuusr5PaBWcwAAAABJRU5ErkJggg==";
 

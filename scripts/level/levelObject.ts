@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class LevelObject {
 	// Must be in sync with lib/shared.h
 	public static readonly TypeBall = 0;

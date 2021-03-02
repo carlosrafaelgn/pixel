@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices
 // https://www.khronos.org/files/webgl/webgl-reference-card-1_0.pdf
 // https://www.khronos.org/files/webgl20-reference-guide.pdf

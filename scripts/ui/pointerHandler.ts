@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 interface BooleanPointerHandler {
 	(event: MouseEvent): boolean;
 }

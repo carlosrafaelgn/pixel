@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 interface LevelLoadOptions {
 	level?: Level;
 	levelId?: number;

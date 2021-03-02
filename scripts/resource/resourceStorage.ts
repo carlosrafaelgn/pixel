@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class ResourceStorage {
 	private _count = 0;
 	private resources: { [name: string]: Resource } | null = {};

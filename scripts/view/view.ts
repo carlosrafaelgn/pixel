@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 interface ButtonCallback {
 	(e: Event): boolean;
 }

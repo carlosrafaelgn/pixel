@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class LevelSpriteSheet {
 	// Must be in sync with the vertex shader in scripts/gl/webGL.ts
 	public static readonly TextureWidth = 128;

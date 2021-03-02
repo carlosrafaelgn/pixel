@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 const version = "20210212",
 	isPWA = (window.location.href.indexOf("pwa") >= 0),
 	isIOSOrSafari = (function () {

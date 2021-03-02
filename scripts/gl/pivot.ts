@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class Pivot {
 	public static readonly HorizontalLeft = 1;
 	public static readonly HorizontalCenter = 2;

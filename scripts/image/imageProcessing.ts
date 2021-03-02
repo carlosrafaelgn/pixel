@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 function removeSemiAlpha(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D): void {
 	const w = parseInt(canvas.width.toString()),
 		h = parseInt(canvas.height.toString()),

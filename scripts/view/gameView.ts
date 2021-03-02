@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 interface WakeLockSentinel {
 	readonly released: boolean;
 	readonly type: string;

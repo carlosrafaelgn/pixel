@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class SelectionView extends View {
 	private readonly baseElement: HTMLDivElement;
 	private readonly fileInput: HTMLInputElement;

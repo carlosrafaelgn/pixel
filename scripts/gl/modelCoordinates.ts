@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 // Must be in sync with lib/gl.c
 class ModelCoordinates {
 	public readonly ptr: number;

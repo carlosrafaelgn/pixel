@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class BlobDownloader {
 	private static readonly saveAs: (blob: Blob, filename: string) => void = ((window as any)["saveAs"] || (window as any)["webkitSaveAs"] || (window as any)["mozSaveAs"] || (window as any)["msSaveAs"] || (window.navigator as any)["saveBlob"] || (window.navigator as any)["webkitSaveBlob"] || (window.navigator as any)["mozSaveBlob"] || window.navigator["msSaveBlob"]);
 

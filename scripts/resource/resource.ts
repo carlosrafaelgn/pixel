@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 abstract class Resource {
 	public abstract get loaded(): boolean;
 

@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class ScrollContainer {
 	private parent: HTMLElement;
 	private container: HTMLDivElement;

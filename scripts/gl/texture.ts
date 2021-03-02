@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class Texture extends Resource {
 	private gl: WebGL | null;
 

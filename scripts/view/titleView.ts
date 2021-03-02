@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class TitleView extends View {
 	private readonly logo: HTMLDivElement;
 	private readonly buttonContainer: HTMLDivElement;

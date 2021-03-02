@@ -24,8 +24,6 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-"use strict";
-
 class ControlMode {
 	private static readonly ControlModeName = "pixel-control-mode";
 
