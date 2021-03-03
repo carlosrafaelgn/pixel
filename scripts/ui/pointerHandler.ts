@@ -77,7 +77,10 @@ class PointerHandler {
 			// pointerdown/move/up but not touchstart/end/cancel...
 			if ("ontouchstart" in element) {
 				this.elementHasExtraTouchStartHandler = true;
-				element.addEventListener("touchstart", cancelEvent);
+				element.addEventListener("touchstart", (e) => {
+					if (e.target === this.element)
+						return cancelEvent(e);
+				});
 			}
 		} else if ("ontouchstart" in element) {
 			this.documentDownEvent = "touchstart";
