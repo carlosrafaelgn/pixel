@@ -497,13 +497,11 @@
 			}
 
 			function loadMainScript(version) {
-				var s;
-
 				window["pixelES"] = version;
 
 				// All TS files are being concatenated into a single file according to the
 				// order specified in the files array, inside tsconfig.json
-				s = loadScript("assets/js/scripts." + (version ? (version + ".") : version) + "min.js", finalCallback, function (msg, url, line, col, error) {
+				loadScript("assets/js/scripts." + (version ? (version + ".") : version) + "min.js", finalCallback, function (msg, url, line, col, error) {
 					showError("Impossible to load the main script :(", arguments);
 				});
 			}

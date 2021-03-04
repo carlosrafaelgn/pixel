@@ -24,6 +24,10 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
+interface OutsidePointerHandler {
+	(event: Event): boolean;
+}
+
 interface BooleanPointerHandler {
 	(event: MouseEvent): boolean;
 }
@@ -53,6 +57,8 @@ class PointerHandler {
 	private captured: boolean;
 	private pointerId: number;
 
+	public outsidePointerHandler: OutsidePointerHandler | null;
+
 	public constructor(element: HTMLElement, downCallback: BooleanPointerHandler | null = null, moveCallback: VoidPointerHandler | null = null, upCallback: VoidPointerHandler | null = null) {
 		this.documentTarget = (document.documentElement || document.body);
 		this.element = element;
@@ -78,7 +84,7 @@ class PointerHandler {
 			if ("ontouchstart" in element) {
 				this.elementHasExtraTouchStartHandler = true;
 				element.addEventListener("touchstart", (e) => {
-					if (e.target === this.element)
+					if (e.target === this.element || (this.outsidePointerHandler && this.outsidePointerHandler(e)))
 						return cancelEvent(e);
 				});
 			}
@@ -113,6 +119,8 @@ class PointerHandler {
 
 		this.captured = false;
 		this.pointerId = -1;
+
+		this.outsidePointerHandler = null;
 	}
 
 	public destroy(): void {
@@ -208,7 +216,7 @@ class PointerHandler {
 	private mouseDown(e: MouseEvent): boolean | undefined {
 		this.mouseUp(e);
 
-		if (e.button || View.fading || (e.target && e.target !== this.element))
+		if (e.button || View.fading || (e.target && e.target !== this.element && (!this.outsidePointerHandler || !this.outsidePointerHandler(e))))
 			return;
 
 		if (this.downCallback && !this.downCallback(e))
