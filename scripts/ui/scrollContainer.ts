@@ -124,7 +124,7 @@ class ScrollContainer {
 	}
 
 	public attach(): void {
-		this.pointerHandler = new PointerHandler(this.scrollThumb, this.mouseDown.bind(this), this.mouseMove.bind(this));
+		this.pointerHandler = new PointerHandler(this.scrollThumb, this.mouseDown.bind(this), this.mouseMove.bind(this), null, false);
 
 		// https://developers.google.com/web/updates/2017/01/scrolling-intervention
 		document.addEventListener("wheel", this.boundDocumentWheel, { capture: true, passive: false });

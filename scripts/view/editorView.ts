@@ -246,7 +246,7 @@ class EditorView extends View {
 				this.addObject(objects[i], true);
 		}
 
-		this.pointerHandler = new PointerHandler(this.canvas, this.mouseDown.bind(this), this.mouseMove.bind(this), this.mouseUp.bind(this));
+		this.pointerHandler = new PointerHandler(this.canvas, this.mouseDown.bind(this), this.mouseMove.bind(this), this.mouseUp.bind(this), false);
 
 		this.scrollContainer.attach();
 

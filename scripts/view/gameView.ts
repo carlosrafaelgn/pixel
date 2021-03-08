@@ -208,7 +208,7 @@ class GameView extends View {
 		}
 		this.level = (level || new Level());
 
-		this.pointerHandler = new PointerHandler(View.glCanvas, this.mouseDown.bind(this), this.mouseMove.bind(this), this.mouseUp.bind(this));
+		this.pointerHandler = new PointerHandler(View.glCanvas, this.mouseDown.bind(this), this.mouseMove.bind(this), this.mouseUp.bind(this), false);
 
 		if (!this.levelTexture) {
 			this.levelTexture = new Texture(View.gl, await loadImage(this.level.processedImage));
