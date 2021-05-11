@@ -31,7 +31,7 @@ REM
 REM Extra:
 REM https://emscripten.org/docs/porting/Debugging.html
 REM https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#interacting-with-code-ccall-cwrap
-REM -s EXTRA_EXPORTED_RUNTIME_METHODS=['cwrap']
+REM -s EXPORTED_RUNTIME_METHODS=['cwrap']
 REM
 REM Debugging:
 REM https://emscripten.org/docs/porting/Debugging.html#debugging-debug-information-g
@@ -59,7 +59,7 @@ CALL emcc ^
 	-s PRECISE_F32=0 ^
 	-s DYNAMIC_EXECUTION=0 ^
 	-s EXPORTED_FUNCTIONS="['_allocateImageInfo', '_getImageInfoData', '_getImageInfoPoints', '_freeImageInfo', '_processImage', '_allocateBuffer', '_freeBuffer', '_draw', '_drawScale', '_drawRotate', '_drawScaleRotate', '_init', '_getViewYPtr', '_getFirstPropertyPtr', '_viewResized', '_step', '_destroy', '_initLevelSpriteSheet', '_renderBackground', '_renderCompactBackground', '_render']" ^
-	-s EXTRA_EXPORTED_RUNTIME_METHODS="[stackSave, stackAlloc, stackRestore]" ^
+	-s EXPORTED_RUNTIME_METHODS="[stackSave, stackAlloc, stackRestore]" ^
 	-s ALLOW_MEMORY_GROWTH=0 ^
 	-s INITIAL_MEMORY=8388608 ^
 	-s MAXIMUM_MEMORY=8388608 ^
@@ -87,7 +87,7 @@ CALL emcc ^
 	-s WASM=1 ^
 	-s DYNAMIC_EXECUTION=0 ^
 	-s EXPORTED_FUNCTIONS="['_allocateImageInfo', '_getImageInfoData', '_getImageInfoPoints', '_freeImageInfo', '_processImage', '_allocateBuffer', '_freeBuffer', '_draw', '_drawScale', '_drawRotate', '_drawScaleRotate', '_init', '_getViewYPtr', '_getFirstPropertyPtr', '_viewResized', '_step', '_destroy', '_initLevelSpriteSheet', '_renderBackground', '_renderCompactBackground', '_render']" ^
-	-s EXTRA_EXPORTED_RUNTIME_METHODS="['stackSave', 'stackAlloc', 'stackRestore']" ^
+	-s EXPORTED_RUNTIME_METHODS="['stackSave', 'stackAlloc', 'stackRestore']" ^
 	-s ALLOW_MEMORY_GROWTH=0 ^
 	-s INITIAL_MEMORY=8388608 ^
 	-s MAXIMUM_MEMORY=8388608 ^
