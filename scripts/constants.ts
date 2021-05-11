@@ -24,7 +24,7 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-const version = "20210308",
+const version = "20210511",
 	isPWA = (window.location.href.indexOf("pwa") >= 0),
 	isIOSOrSafari = (function () {
 		// https://stackoverflow.com/q/9038625/3569421
