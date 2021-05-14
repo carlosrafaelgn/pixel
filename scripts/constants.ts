@@ -24,8 +24,8 @@
 // https://github.com/carlosrafaelgn/pixel
 //
 
-const version = "20210511",
-	isPWA = (window.location.href.indexOf("pwa") >= 0),
+const version = "20210513",
+	isPWA = (!!((navigator as any).standalone) || (("matchMedia" in window) ? window.matchMedia("(display-mode: standalone)").matches : false)),
 	isIOSOrSafari = (function () {
 		// https://stackoverflow.com/q/9038625/3569421
 		if ((navigator.userAgent.indexOf("Chrome") <= 0 && navigator.userAgent.indexOf("Safari") >= 0) ||

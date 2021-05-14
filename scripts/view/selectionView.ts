@@ -69,7 +69,7 @@ class SelectionView extends View {
 		if (LevelCache.isSupported())
 			this.createButton(this.toolbarTop, UISpriteSheet.Open, this.open.bind(this));
 
-		if (!androidWrapper && !isPWA)
+		if (!androidWrapper)
 			this.buttonsWithMargin.push(this.createButton(this.toolbarTop, UISpriteSheet.Fullscreen, this.fullscreen.bind(this)));
 
 		this.boundPlay = this.play.bind(this);

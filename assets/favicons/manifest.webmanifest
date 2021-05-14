@@ -1,7 +1,7 @@
 {
 	"name": "Pixel Maze",
 	"short_name": "Pixel Maze",
-	"start_url": "/pixel/?pwa",
+	"start_url": "/pixel/",
 	"dir": "ltr",
 	"lang": "en-US",
 	"orientation": "landscape-primary",

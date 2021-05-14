@@ -32,7 +32,7 @@
 // whenever it detects a change in the source code of the
 // service worker).
 const CACHE_PREFIX = "pixel-static-cache";
-const CACHE_VERSION = "-20210511";
+const CACHE_VERSION = "-20210513";
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 
 self.addEventListener("install", (event) => {
@@ -70,9 +70,8 @@ self.addEventListener("install", (event) => {
 		// if the browser requests them!
 		const files = [
 			"/pixel/",
-			"/pixel/?pwa",
 			"/pixel/assets/favicons/favicon-512x512.png",
-			"/pixel/assets/favicons/manifest.json",
+			"/pixel/assets/favicons/manifest.webmanifest",
 			//"/pixel/assets/fonts/PressStart2P-Regular.ttf",
 			"/pixel/assets/fonts/PressStart2P-Regular.woff2",
 			"/pixel/assets/images/fade.png",

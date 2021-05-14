@@ -27,7 +27,7 @@
 class TitleView extends View {
 	private readonly logo: HTMLDivElement;
 	private readonly buttonContainer: HTMLDivElement;
-	private readonly fullscreenButton: HTMLButtonElement | null;
+	private readonly fullscreenButton: HTMLButtonElement;
 	private readonly aboutButton: HTMLButtonElement;
 
 	public constructor() {
@@ -43,13 +43,11 @@ class TitleView extends View {
 
 		this.createButton(this.buttonContainer, UISpriteSheet.Play, this.play.bind(this));
 		this.buttonsWithLargeMargin.push(this.createButton(this.buttonContainer, UISpriteSheet.Edit, this.edit.bind(this)));
-		if (!isPWA) {
-			this.fullscreenButton = this.createButton(null, androidWrapper ? UISpriteSheet.Exit : UISpriteSheet.Fullscreen, (androidWrapper ? this.exit : this.fullscreen).bind(this));
-			this.fullscreenButton.style.position = "absolute";
-			this.initialElements.push(this.fullscreenButton);
-		} else {
-			this.fullscreenButton = null;
-		}
+
+		this.fullscreenButton = this.createButton(null, androidWrapper ? UISpriteSheet.Exit : UISpriteSheet.Fullscreen, (androidWrapper ? this.exit : this.fullscreen).bind(this));
+		this.fullscreenButton.style.position = "absolute";
+		this.initialElements.push(this.fullscreenButton);
+
 		this.aboutButton = this.createButton(null, UISpriteSheet.Question, this.about.bind(this));
 		this.aboutButton.style.position = "absolute";
 		this.initialElements.push(this.aboutButton);
@@ -70,10 +68,9 @@ class TitleView extends View {
 		this.buttonContainer.style.left = css((baseWidth - buttonContainerWidth) >> 1);
 		this.buttonContainer.style.width = css(buttonContainerWidth);
 
-		if (this.fullscreenButton) {
-			this.fullscreenButton.style.left = buttonMarginCss;
-			this.fullscreenButton.style.bottom = buttonMarginCss;
-		}
+		this.fullscreenButton.style.left = buttonMarginCss;
+		this.fullscreenButton.style.bottom = buttonMarginCss;
+
 		this.aboutButton.style.right = buttonMarginCss;
 		this.aboutButton.style.bottom = buttonMarginCss;
 

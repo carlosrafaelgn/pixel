@@ -342,7 +342,7 @@ class GameView extends View {
 
 			if (!Modal.show({
 				title: Strings.Pause,
-				html: ((androidWrapper || isPWA) ? "" : `<button type="button" id="fullscreen" data-style="margin-bottom: ${buttonMargin}">${UISpriteSheet.html(UISpriteSheet.Fullscreen)}${Strings.Fullscreen}</button><br/>`) + 
+				html: (androidWrapper ? "" : `<button type="button" id="fullscreen" data-style="margin-bottom: ${buttonMargin}">${UISpriteSheet.html(UISpriteSheet.Fullscreen)}${Strings.Fullscreen}</button><br/>`) + 
 					(!controlModeImg ? "" : `<button type="button" id="controlMode" data-style="margin-bottom: ${buttonMargin}">${controlModeImg}${Strings.ControlMode}</button><br/>`) +
 					`<button type="button" id="restart">${UISpriteSheet.html(UISpriteSheet.Restart)}${Strings.Restart}</button>`,
 				buttons: [
